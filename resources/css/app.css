@@ -1,0 +1,365 @@
+/* Import Google Fonts - Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+@layer base {
+    * {
+        @apply box-border;
+    }
+    html {
+        @apply font-sans text-charcoal scroll-smooth;
+    }
+    body {
+        @apply bg-surface-50 text-charcoal;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-semibold text-charcoal;
+    }
+}
+
+/* ============================================
+   COMPONENT STYLES
+   ============================================ */
+@layer components {
+
+    /* --- Sidebar --- */
+    .sidebar {
+        @apply fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-surface-200 flex flex-col transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0;
+    }
+    .sidebar.mobile-open {
+        @apply translate-x-0;
+    }
+    .sidebar-logo {
+        @apply flex items-center gap-3 px-5 py-4 border-b border-surface-200;
+    }
+    .sidebar-logo-text {
+        @apply text-charcoal font-bold text-sm leading-tight;
+    }
+    .sidebar-section-title {
+        @apply text-xs font-semibold uppercase tracking-widest text-charcoal-muted px-5 pt-5 pb-2;
+    }
+    .sidebar-link {
+        @apply flex items-center gap-3 px-5 py-2.5 text-sm text-charcoal font-medium rounded-lg mx-2 transition-all duration-150 hover:bg-primary-50 hover:text-primary-600;
+    }
+    .sidebar-link.active {
+        @apply bg-primary-50 text-primary-700 font-semibold;
+    }
+    .sidebar-link svg {
+        @apply w-[18px] h-[18px] flex-shrink-0;
+    }
+    .sidebar-sublink {
+        @apply flex items-center gap-2 pl-[46px] pr-5 py-2.5 mx-2 text-sm font-medium text-charcoal rounded-lg hover:text-primary-600 hover:bg-primary-50/50 transition-all duration-200 relative;
+    }
+    .sidebar-sublink::before {
+        content: '';
+        @apply absolute left-[26px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-surface-200 transition-all duration-200;
+    }
+    .sidebar-sublink:hover::before {
+        @apply bg-primary-400 scale-125;
+    }
+    .sidebar-sublink.active {
+        @apply text-primary-600 bg-primary-50/50;
+    }
+    .sidebar-sublink.active::before {
+        @apply bg-primary-600 scale-[1.75];
+    }
+
+    /* --- Top Navbar --- */
+    .topbar {
+        @apply fixed top-0 right-0 left-0 lg:left-64 z-40 h-16 bg-white border-b border-surface-200 flex items-center justify-between px-6 shadow-card transition-all duration-300;
+    }
+
+    /* --- Main Content --- */
+    .main-content {
+        @apply ml-0 lg:ml-64 mt-16 min-h-screen p-6 transition-all duration-300;
+    }
+
+    /* --- Cards --- */
+    .card {
+        @apply bg-white rounded-xl shadow-card border border-surface-100 overflow-hidden transition-shadow duration-200;
+    }
+    .card:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .card-header {
+        @apply px-6 py-4 border-b border-surface-100 flex items-center justify-between bg-white;
+    }
+    .card-title {
+        @apply text-base font-semibold text-charcoal;
+    }
+    .card-body {
+        @apply p-6;
+    }
+
+    /* --- Stats Cards --- */
+    .stat-card {
+        @apply bg-white rounded-xl shadow-card border border-surface-100 p-5 transition-all duration-200;
+    }
+    .stat-card:hover {
+        @apply -translate-y-0.5;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+    }
+    .stat-card-icon {
+        @apply w-11 h-11 rounded-lg flex items-center justify-center;
+    }
+    .stat-card-value {
+        @apply text-2xl font-bold text-charcoal mt-3;
+    }
+    .stat-card-label {
+        @apply text-sm text-charcoal-muted mt-0.5;
+    }
+
+    /* --- Buttons --- */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed;
+    }
+    .btn-primary {
+        @apply btn bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-400 shadow-sm;
+    }
+    .btn-secondary {
+        @apply btn bg-surface-100 text-charcoal hover:bg-surface-200 focus:ring-surface-200 border border-surface-200;
+    }
+    .btn-danger {
+        @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-400 shadow-sm;
+    }
+    .btn-success {
+        @apply btn bg-green-600 text-white hover:bg-green-700 focus:ring-green-400 shadow-sm;
+    }
+    .btn-outline {
+        @apply btn border border-primary-300 text-primary-600 hover:bg-primary-50 focus:ring-primary-300;
+    }
+    .btn-sm {
+        @apply px-3 py-1.5 text-xs rounded-md;
+    }
+    .btn-lg {
+        @apply px-6 py-3 text-base;
+    }
+    .btn-icon {
+        @apply btn p-2 rounded-lg;
+    }
+
+    /* --- Form Controls --- */
+    .form-group {
+        @apply mb-4;
+    }
+    .form-label {
+        @apply block text-sm font-medium text-charcoal mb-1.5;
+    }
+    .form-input {
+        @apply w-full px-3.5 py-2.5 text-sm text-charcoal bg-white border border-gray-200 rounded-lg
+               placeholder-charcoal-muted
+               transition-all duration-150
+               focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20;
+    }
+    .form-select {
+        @apply form-input pr-10 cursor-pointer;
+    }
+    .form-textarea {
+        @apply form-input resize-none;
+    }
+    .form-error {
+        @apply text-xs text-red-600 mt-1.5 flex items-center gap-1;
+    }
+    .form-hint {
+        @apply text-xs text-charcoal-muted mt-1.5;
+    }
+
+    /* --- Badges / Status Pills --- */
+    .badge {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+    }
+    .badge-draft      { @apply badge bg-gray-100 text-gray-500; }
+    .badge-pending    { @apply badge bg-amber-100 text-amber-700; }
+    .badge-approved   { @apply badge bg-emerald-100 text-emerald-700; }
+    .badge-rejected   { @apply badge bg-red-100 text-red-700; }
+    .badge-overdue    { @apply badge bg-red-100 text-red-700; }
+    .badge-in-progress { @apply badge bg-blue-100 text-blue-700; }
+    .badge-open       { @apply badge bg-orange-100 text-orange-700; }
+    .badge-completed  { @apply badge bg-emerald-100 text-emerald-700; }
+    .badge-primary    { @apply badge bg-primary-100 text-primary-700; }
+    .badge-warning    { @apply badge bg-amber-100 text-amber-700; }
+
+    /* --- Tables --- */
+    .table-wrapper {
+        @apply overflow-x-auto;
+    }
+    .data-table {
+        @apply w-full text-sm text-left text-charcoal border-collapse;
+    }
+    .data-table thead tr {
+        @apply bg-surface-50 border-b border-surface-200;
+    }
+    .data-table thead th {
+        @apply px-5 py-3.5 font-semibold text-xs uppercase tracking-wider text-charcoal-muted whitespace-nowrap;
+    }
+    .data-table tbody tr {
+        @apply border-b border-surface-100 hover:bg-primary-50/30 transition-colors duration-100;
+    }
+    .data-table tbody td {
+        @apply px-5 py-3.5 align-middle;
+    }
+
+    /* --- Breadcrumb --- */
+    .breadcrumb {
+        @apply flex items-center gap-1.5 text-sm text-charcoal-muted mb-4;
+    }
+    .breadcrumb-item {
+        @apply hover:text-primary-500 transition-colors;
+    }
+    .breadcrumb-separator {
+        @apply text-charcoal-muted/50;
+    }
+    .breadcrumb-current {
+        @apply text-charcoal font-medium;
+    }
+
+    /* --- Alerts / Flash Messages --- */
+    .alert {
+        @apply flex items-start gap-3 p-4 rounded-xl text-sm border;
+    }
+    .alert-success { @apply bg-emerald-50 text-emerald-800 border-emerald-200; }
+    .alert-error   { @apply bg-red-50 text-red-800 border-red-200; }
+    .alert-warning { @apply bg-amber-50 text-amber-800 border-amber-200; }
+    .alert-info    { @apply bg-blue-50 text-blue-800 border-blue-200; }
+
+    /* --- Modal Overlay --- */
+    .modal-overlay {
+        @apply fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4;
+    }
+    .modal-box {
+        @apply bg-white rounded-2xl shadow-2xl w-full max-h-[90vh] overflow-y-auto;
+    }
+    .modal-header {
+        @apply flex items-center justify-between px-6 py-4 border-b border-surface-100;
+    }
+    .modal-body {
+        @apply px-6 py-5;
+    }
+    .modal-footer {
+        @apply flex items-center justify-end gap-3 px-6 py-4 border-t border-surface-100 bg-surface-50 rounded-b-2xl;
+    }
+
+    /* --- Pagination --- */
+    .pagination-wrapper {
+        @apply flex items-center justify-between px-5 py-3.5 border-t border-surface-100 bg-surface-50/50;
+    }
+
+    /* --- Empty State --- */
+    .empty-state {
+        @apply flex flex-col items-center justify-center py-16 text-center;
+    }
+    .empty-state-icon {
+        @apply w-16 h-16 rounded-2xl bg-surface-100 flex items-center justify-center mb-4;
+    }
+    .empty-state-title {
+        @apply text-base font-semibold text-charcoal mb-1.5;
+    }
+    .empty-state-description {
+        @apply text-sm text-charcoal-muted mb-5 max-w-xs leading-relaxed;
+    }
+
+    /* --- Page Header --- */
+    .page-header {
+        @apply flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6;
+    }
+    .page-title {
+        @apply text-xl font-bold text-charcoal;
+    }
+    .page-subtitle {
+        @apply text-sm text-charcoal-muted mt-0.5;
+    }
+
+    /* --- Section title (colored top border accent cards) --- */
+    .section-card {
+        @apply card;
+    }
+    .section-card-blue  { border-top: 3px solid #3b82f6; }
+    .section-card-green { border-top: 3px solid #10b981; }
+    .section-card-amber { border-top: 3px solid #f59e0b; }
+    .section-card-red   { border-top: 3px solid #ef4444; }
+
+    /* --- Approval Timeline --- */
+    .approval-timeline {
+        @apply space-y-4 py-2;
+    }
+    .approval-step {
+        @apply flex gap-4;
+    }
+    .approval-step-icon {
+        @apply flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center;
+    }
+    .approval-step-icon.done    { @apply bg-emerald-500 border-emerald-500 text-white; }
+    .approval-step-icon.current { @apply bg-amber-500 border-amber-500 text-white; }
+    .approval-step-icon.pending { @apply bg-white border-gray-300 text-gray-400; }
+    .approval-step-icon.rejected { @apply bg-red-500 border-red-500 text-white; }
+    .approval-step-content {
+        @apply flex-1 pb-4;
+    }
+    .approval-step-title {
+        @apply text-sm font-semibold text-charcoal;
+    }
+    .approval-step-sub {
+        @apply text-xs text-charcoal-muted mt-0.5;
+    }
+
+    /* --- Notification Bell Badge --- */
+    .notif-badge {
+        @apply absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center;
+    }
+
+    /* --- Document info row --- */
+    .doc-info-row {
+        @apply flex items-start gap-2 text-sm py-2 border-b border-surface-100 last:border-0;
+    }
+    .doc-info-label {
+        @apply font-medium text-charcoal-muted w-40 flex-shrink-0;
+    }
+    .doc-info-value {
+        @apply text-charcoal;
+    }
+}
+
+/* ============================================
+   SUMMERNOTE OVERRIDES
+   ============================================ */
+.note-editor.note-frame {
+    border-color: #d1d5db !important;
+    border-radius: 0.375rem !important;
+    overflow: hidden;
+}
+.note-editor.note-frame .note-statusbar {
+    background-color: #f9fafb !important;
+    border-top: 1px solid #e5e7eb !important;
+}
+.note-toolbar {
+    background-color: #f9fafb !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+.note-editable {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #333333;
+    line-height: 1.7;
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f4f6f9; }
+::-webkit-scrollbar-thumb { background: #c0c9d4; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9aa8b4; }
+
+/* ============================================
+   PRINT STYLES (for PDF generation reference)
+   ============================================ */
+@media print {
+    .sidebar, .topbar { display: none !important; }
+    .main-content { margin: 0 !important; padding: 0 !important; }
+}
