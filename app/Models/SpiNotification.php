@@ -42,4 +42,23 @@ class SpiNotification extends Model
     {
         return $this->created_at->diffForHumans();
     }
+
+    protected static function booted()
+    {
+        static::created(function ($notification) {
+            $user = $notification->user;
+            if ($user && $user->email) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($user->email)
+                        ->send(new \App\Mail\DocumentNotificationMail(
+                            $notification->title,
+                            $notification->message,
+                            $notification->link
+                        ));
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to send notification email to {$user->email}: " . $e->getMessage());
+                }
+            }
+        });
+    }
 }

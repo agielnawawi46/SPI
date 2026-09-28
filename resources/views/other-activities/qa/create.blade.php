@@ -77,45 +77,13 @@
                             </div>
                             <div class="form-group md:col-span-2">
                                 <label class="form-label">Deskripsi Pembuka</label>
-                                <textarea name="deskripsi_pembuka" class="form-textarea w-full" rows="4" placeholder="Dalam rangka melakukan Quality Assurance...">{{ old('deskripsi_pembuka') }}</textarea>
+                                <textarea name="deskripsi_pembuka" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="4" readonly>Dalam rangka melaksanakan quality assurance di lingkungan Perusahaan sesuai kriteria yang berlaku, maka dengan ini ditugaskan kepada :</textarea>
                                 @error('deskripsi_pembuka')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                         </div>
                     </div>
 
-                    {{-- BAGIAN 2: Rincian Penugasan --}}
-                    <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden">
-                        <div class="bg-surface-100 px-4 py-3 border-b border-surface-200">
-                            <h4 class="font-bold text-charcoal flex items-center gap-2">
-                                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                                Rincian Penugasan QA
-                            </h4>
-                        </div>
-                        <div class="p-4 grid grid-cols-1 gap-4">
-                            <div class="form-group">
-                                <label class="form-label">Periode QA <span class="text-red-500">*</span></label>
-                                <input type="text" name="periode_audit" class="form-input w-full" value="{{ old('periode_audit') }}" placeholder="Semester I Tahun 2026">
-                                @error('periode_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Lingkup QA <span class="text-red-500">*</span></label>
-                                <textarea name="lingkup_audit" class="form-textarea w-full" rows="3" placeholder="Lingkup QA terhadap...">{{ old('lingkup_audit') }}</textarea>
-                                @error('lingkup_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Tujuan QA <span class="text-red-500">*</span></label>
-                                <textarea name="tujuan_audit" class="form-textarea w-full" rows="3" placeholder="Menilai kualitas pelaksanaan audit...">{{ old('tujuan_audit') }}</textarea>
-                                @error('tujuan_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Waktu Pelaksanaan QA <span class="text-red-500">*</span></label>
-                                <input type="text" name="jadwal_audit" class="form-input w-full" value="{{ old('jadwal_audit') }}" placeholder="Contoh: 03 Agustus s.d. 11 September 2026">
-                                @error('jadwal_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- BAGIAN 3: Tim QA --}}
+                    {{-- BAGIAN 2: Tim QA --}}
                     <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden" x-data="{
                         rows: {{ old('tim_audit') ? json_encode(old('tim_audit')) : '[{nama: \'\', nip: \'\', jabatan_pegawai: \'\', jabatan_tim: \'Ketua Tim\'}]' }}
                     }">
@@ -170,6 +138,38 @@
                         </div>
                     </div>
 
+                    {{-- BAGIAN 3: Rincian Penugasan --}}
+                    <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                        <div class="bg-surface-100 px-4 py-3 border-b border-surface-200">
+                            <h4 class="font-bold text-charcoal flex items-center gap-2">
+                                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                                Rincian Penugasan QA
+                            </h4>
+                        </div>
+                        <div class="p-4 grid grid-cols-1 gap-4">
+                            <div class="form-group">
+                                <label class="form-label">Periode QA <span class="text-red-500">*</span></label>
+                                <input type="text" name="periode_audit" class="form-input w-full" value="{{ old('periode_audit') }}" placeholder="Semester I Tahun 2026">
+                                @error('periode_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Lingkup QA <span class="text-red-500">*</span></label>
+                                <textarea name="lingkup_audit" class="form-textarea w-full" rows="3" placeholder="Lingkup QA terhadap...">{{ old('lingkup_audit') }}</textarea>
+                                @error('lingkup_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tujuan QA <span class="text-red-500">*</span></label>
+                                <textarea name="tujuan_audit" class="form-textarea w-full" rows="3" placeholder="Menilai kualitas pelaksanaan audit...">{{ old('tujuan_audit') }}</textarea>
+                                @error('tujuan_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Waktu Pelaksanaan QA <span class="text-red-500">*</span></label>
+                                <input type="text" name="jadwal_audit" class="form-input w-full" value="{{ old('jadwal_audit') }}" placeholder="Contoh: 03 Agustus s.d. 11 September 2026">
+                                @error('jadwal_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- BAGIAN 4: Penandatangan & Penutup --}}
                     <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden">
                         <div class="bg-surface-100 px-4 py-3 border-b border-surface-200">
@@ -181,7 +181,7 @@
                         <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="form-group md:col-span-2">
                                 <label class="form-label">Deskripsi Penutup</label>
-                                <textarea name="deskripsi_penutup" class="form-textarea w-full" rows="3" placeholder="Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.">{{ old('deskripsi_penutup') }}</textarea>
+                                <textarea name="deskripsi_penutup" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="3" readonly>Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.</textarea>
                                 @error('deskripsi_penutup')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                             <div class="form-group">

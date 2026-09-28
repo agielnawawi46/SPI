@@ -153,6 +153,7 @@ class AssuranceController extends Controller
             'penandatangan_stg'=> 'nullable|string|max:255',
             'header_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'header_text'      => 'nullable|string',
+            'tanggal_formulir' => 'nullable|date',
             'judul_dokumen'    => 'nullable|string|max:255',
             'footer_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'deskripsi_pembuka'=> 'nullable|string',
@@ -189,6 +190,7 @@ class AssuranceController extends Controller
             'penandatangan_stg'=> $request->penandatangan_stg,
             'judul_dokumen'    => $request->judul_dokumen,
             'header_text'      => $request->header_text,
+            'tanggal_formulir' => $request->tanggal_formulir,
             'deskripsi_pembuka'=> $request->deskripsi_pembuka,
             'deskripsi_penutup'=> $request->deskripsi_penutup,
             'tim_audit'        => $request->tim_audit,
@@ -325,6 +327,7 @@ class AssuranceController extends Controller
             'penandatangan_stg' => 'nullable|string|max:255',
             'header_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'header_text'      => 'nullable|string',
+            'tanggal_formulir' => 'nullable|date',
             'judul_dokumen'    => 'nullable|string|max:255',
             'footer_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'deskripsi_pembuka'=> 'nullable|string',
@@ -356,6 +359,7 @@ class AssuranceController extends Controller
         if ($request->has('penandatangan_stg')) $dataToUpdate['penandatangan_stg'] = $request->penandatangan_stg;
         if ($request->has('judul_dokumen')) $dataToUpdate['judul_dokumen'] = $request->judul_dokumen;
         if ($request->has('header_text')) $dataToUpdate['header_text'] = $request->header_text;
+        if ($request->has('tanggal_formulir')) $dataToUpdate['tanggal_formulir'] = $request->tanggal_formulir;
         if ($request->has('deskripsi_pembuka')) $dataToUpdate['deskripsi_pembuka'] = $request->deskripsi_pembuka;
         if ($request->has('deskripsi_penutup')) $dataToUpdate['deskripsi_penutup'] = $request->deskripsi_penutup;
         if ($request->has('tim_audit')) $dataToUpdate['tim_audit'] = $request->tim_audit;

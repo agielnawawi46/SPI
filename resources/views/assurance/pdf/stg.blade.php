@@ -119,8 +119,13 @@
             </td>
             <td class="header-text">
                 @if($document->header_text)
-                <div>{{ $document->header_text }}</div>
+                <div>No. Formulir : {{ $document->header_text }}</div>
                 @endif
+                @if($document->tanggal_formulir)
+                <div>Tanggal Formulir : {{ \Carbon\Carbon::parse($document->tanggal_formulir)->translatedFormat('d F Y') }}</div>
+                @endif
+                <div>Tanggal : {{ $document->tgl_stg ? $document->tgl_stg->translatedFormat('d F Y') : $document->created_at->translatedFormat('d F Y') }}</div>
+                <div>Halaman : 1</div>
             </td>
         </tr>
     </table>

@@ -1,1 +1,0 @@
-<?php require 'vendor/autoload.php'; $app = require_once 'bootstrap/app.php'; $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class); $kernel->bootstrap(); $docs = App\Models\Document::whereHas('documentType', function($q) { $q->where('slug', 'monitoring-tl'); })->get(['id', 'status', 'title']); echo json_encode($docs);

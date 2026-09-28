@@ -309,10 +309,15 @@
             <div class="w-1/4">
                 <img src="{{ asset('pln.jpg') }}" alt="Header STG" class="max-h-24 object-contain">
             </div>
-            <div class="w-3/4 text-right">
+            <div class="w-3/4 text-right text-[#002060] text-[8pt] leading-snug">
                 @if($document->header_text)
-                <p class="text-[#002060] text-[8pt] leading-snug">{{ $document->header_text }}</p>
+                <p>No. Formulir : {{ $document->header_text }}</p>
                 @endif
+                @if($document->tanggal_formulir)
+                <p>Tanggal Formulir : {{ \Carbon\Carbon::parse($document->tanggal_formulir)->translatedFormat('d F Y') }}</p>
+                @endif
+                <p>Tanggal : {{ $document->tgl_stg ? $document->tgl_stg->translatedFormat('d F Y') : $document->created_at->translatedFormat('d F Y') }}</p>
+                <p>Halaman : 1</p>
             </div>
         </div>
         

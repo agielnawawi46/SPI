@@ -34,6 +34,43 @@
     if (isset($auditType) && is_string($auditType)) {
         $currentAuditType = $auditType;
     }
+
+    // HITUNG NOTIFIKASI PENDING APPROVAL
+    $user = auth()->user();
+    $hasPendingPkpt = false;
+    $hasPendingAssurance = false;
+    $hasPendingAdvisory = false;
+    $hasPendingOther = false;
+    $hasPendingAuditee = false;
+
+    if ($user) {
+        $roleStatus = null;
+        if ($user->hasRole('kspi')) $roleStatus = 'pending_kspi';
+        elseif ($user->hasRole('direktur')) $roleStatus = 'pending_direktur';
+        elseif ($user->hasRole('auditor')) $roleStatus = 'pending_auditor';
+        elseif ($user->hasRole('manager')) $roleStatus = 'pending_manager';
+
+        if ($roleStatus) {
+            if (in_array($roleStatus, ['pending_kspi', 'pending_direktur']) && class_exists(\App\Models\Pkpt::class)) {
+                $hasPendingPkpt = \App\Models\Pkpt::where('status', $roleStatus)->exists();
+            }
+
+            if (in_array($roleStatus, ['pending_kspi', 'pending_direktur']) && class_exists(\App\Models\Document::class)) {
+                $hasPendingAssurance = \App\Models\Document::whereIn('audit_type', ['terjadwal', 'tidak_terjadwal'])->where('status', $roleStatus)->exists();
+                $hasPendingAdvisory = \App\Models\Document::where('audit_type', 'advisory')->where('status', $roleStatus)->exists();
+                $hasPendingOther = \App\Models\Document::where('audit_type', 'qa')->where('status', $roleStatus)->exists();
+            }
+
+            if (class_exists(\App\Models\FollowUp::class)) {
+                $pendingFollowUp = \App\Models\FollowUp::where('approval_status', $roleStatus);
+                if ($user->hasRole('manager')) {
+                    $hasPendingAuditee = $pendingFollowUp->where('assigned_to', $user->id)->exists();
+                } else {
+                    $hasPendingOther = $hasPendingOther || (clone $pendingFollowUp)->exists();
+                }
+            }
+        }
+    }
 @endphp
 <body class="h-full bg-surface-50" x-data="{ sidebarOpen: false, activeMenu: '{{ $currentActive }}' }">
 
@@ -75,6 +112,9 @@
             <div @click="open = !open; activeMenu = 'pkpt'" class="sidebar-link cursor-pointer" :class="{ 'active': activeMenu === 'pkpt' }">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                 Penyusunan PKPT
+                @if($hasPendingPkpt)
+                <span class="w-2 h-2 bg-red-500 rounded-full ml-auto"></span>
+                @endif
             </div>
             <div x-show="open" x-collapse class="mt-1.5 space-y-1.5">
                 <a href="{{ route('pkpt.index') }}" class="sidebar-sublink {{ request()->routeIs('pkpt.index') ? 'active' : '' }}">PKPT</a>
@@ -90,6 +130,9 @@
             <div @click="open = !open; activeMenu = 'assurance'" class="sidebar-link cursor-pointer" :class="{ 'active': activeMenu === 'assurance' }">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 Layanan Assurance
+                @if($hasPendingAssurance)
+                <span class="w-2 h-2 bg-red-500 rounded-full ml-auto"></span>
+                @endif
             </div>
             <div x-show="open" x-collapse class="mt-1.5 space-y-1.5">
                 {{-- Audit Terjadwal --}}
@@ -131,6 +174,9 @@
             <div @click="open = !open; activeMenu = 'advisory'" class="sidebar-link cursor-pointer" :class="{ 'active': activeMenu === 'advisory' }">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                 Layanan Advisory
+                @if($hasPendingAdvisory)
+                <span class="w-2 h-2 bg-red-500 rounded-full ml-auto"></span>
+                @endif
             </div>
             <div x-show="open" x-collapse class="mt-1.5 space-y-1.5">
                 <a href="{{ route('advisory.index', ['type' => 'bak']) }}" class="sidebar-sublink {{ $currentDocType == 'bak' ? 'active' : '' }}">Berita Acara Konsultasi</a>
@@ -147,6 +193,9 @@
         <a href="{{ route('auditee.index') }}" @click="activeMenu = 'auditee'" class="sidebar-link" :class="{ 'active': activeMenu === 'auditee' }">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8l2 2 4-4"/></svg>
             Tindak Lanjut
+            @if($hasPendingAuditee)
+            <span class="w-2 h-2 bg-red-500 rounded-full ml-auto"></span>
+            @endif
         </a>
         @endrole
         @endcan
@@ -157,6 +206,9 @@
             <div @click="open = !open; activeMenu = 'other-activities'" class="sidebar-link cursor-pointer" :class="{ 'active': activeMenu === 'other-activities' }">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8l2 2 4-4"/></svg>
                 Kegiatan Lainnya
+                @if($hasPendingOther)
+                <span class="w-2 h-2 bg-red-500 rounded-full ml-auto"></span>
+                @endif
             </div>
             <div x-show="open" x-collapse class="mt-1.5 space-y-1.5">
                 @can('other_activity.view')

@@ -63,7 +63,7 @@
                 {{-- DESKRIPSI PEMBUKA --}}
                 <div class="form-group md:col-span-2">
                     <label class="form-label">Deskripsi Pembuka</label>
-                    <textarea name="deskripsi_pembuka" class="form-textarea w-full" rows="6" placeholder="Dalam rangka melakukan Quality Assurance...">{{ old('deskripsi_pembuka', $document->deskripsi_pembuka) }}</textarea>
+                    <textarea name="deskripsi_pembuka" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="6" readonly>Dalam rangka melaksanakan quality assurance di lingkungan Perusahaan sesuai kriteria yang berlaku, maka dengan ini ditugaskan kepada :</textarea>
                     @error('deskripsi_pembuka')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
 
@@ -148,7 +148,7 @@
                 {{-- DESKRIPSI PENUTUP --}}
                 <div class="form-group md:col-span-2 border-t border-surface-200 pt-4 mt-2">
                     <label class="form-label">Deskripsi Penutup</label>
-                    <textarea name="deskripsi_penutup" class="form-textarea w-full" rows="5" placeholder="Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.">{{ old('deskripsi_penutup', $document->deskripsi_penutup) }}</textarea>
+                    <textarea name="deskripsi_penutup" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="5" readonly>Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.</textarea>
                     @error('deskripsi_penutup')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
 

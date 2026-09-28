@@ -72,19 +72,8 @@ class SendFollowUpReminders extends Command
                 continue;
             }
 
-            // Send email to each recipient
+            // Send in-app notification (which now automatically sends email)
             foreach ($recipients as $recipient) {
-                try {
-                    Mail::to($recipient['email'])
-                        ->send(new \App\Mail\FollowUpReminderMail($followUp, $reminderType, $daysRemaining));
-
-                    $this->info("  📧 Email {$reminderType} sent to {$recipient['email']} (FollowUp #{$followUp->id}, {$daysRemaining} hari)");
-                } catch (\Exception $e) {
-                    Log::error("Failed to send FollowUp reminder email to {$recipient['email']}: " . $e->getMessage());
-                    $this->error("  ❌ Email gagal ke {$recipient['email']}: " . $e->getMessage());
-                }
-
-                // Send in-app notification
                 if ($recipient['user_id']) {
                     $urgencyLabel = match($reminderType) {
                         'overdue' => '🔴 TERLAMBAT',

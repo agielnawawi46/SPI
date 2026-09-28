@@ -40,6 +40,11 @@
                             <p class="text-xs text-charcoal-muted mt-1">Teks akan berada di sebelah kanan gambar.</p>
                             @error('header_text')<p class="form-error">{{ $message }}</p>@enderror
                         </div>
+                        <div class="form-group">
+                            <label class="form-label">Tanggal Formulir</label>
+                            <input type="date" name="tanggal_formulir" class="form-input w-full" value="{{ old('tanggal_formulir', $document->tanggal_formulir ? \Carbon\Carbon::parse($document->tanggal_formulir)->format('Y-m-d') : null) }}">
+                            @error('tanggal_formulir')<p class="form-error">{{ $message }}</p>@enderror
+                        </div>
                     </div>
                 </div>
 
@@ -58,7 +63,7 @@
                 <!-- DESKRIPSI PEMBUKA -->
                 <div class="form-group md:col-span-2">
                     <label class="form-label">Deskripsi Pembuka</label>
-                    <textarea name="deskripsi_pembuka" class="form-textarea w-full" rows="6" placeholder="Dalam rangka melakukan audit rutin di lingkungan Perusahaan...">{{ old('deskripsi_pembuka', $document->deskripsi_pembuka) }}</textarea>
+                    <textarea name="deskripsi_pembuka" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="6" readonly>{{ old('deskripsi_pembuka', $document->deskripsi_pembuka ?: 'Dalam rangka melakukan audit rutin di lingkungan Perusahaan sesuai Program Kerja Pengawasan Tahunan (PKPT) Terintegrasi ' . date('Y') . ' yang dilaksanakan oleh Tim SPI PT PEB, maka dengan ini kami menugaskan kepada :') }}</textarea>
                     @error('deskripsi_pembuka')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
 
@@ -118,16 +123,11 @@
 
                         <div class="form-group md:col-span-2 border-t border-surface-200 pt-6 mt-4">
                             <h4 class="font-medium text-charcoal mb-4">Rincian Penugasan</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 gap-4">
                                 <div class="form-group">
                                     <label class="form-label">Audit Universe (Auditee) <span class="text-red-500">*</span></label>
                                     <input type="text" name="auditee" class="form-input w-full" value="{{ old('auditee', $document->auditee) }}" placeholder="Contoh: Divisi Operasi...">
                                     @error('auditee')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Periode Audit <span class="text-red-500">*</span></label>
-                                    <input type="text" name="periode_audit" class="form-input w-full" value="{{ old('periode_audit', $document->periode_audit) }}" placeholder="Semester I Tahun 2026">
-                                    @error('periode_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Scope (Lingkup Audit) <span class="text-red-500">*</span></label>
@@ -139,7 +139,12 @@
                                     <textarea name="tujuan_audit" class="form-textarea w-full" rows="3" placeholder="Menilai efektivitas...">{{ old('tujuan_audit', $document->tujuan_audit) }}</textarea>
                                     @error('tujuan_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
                                 </div>
-                                <div class="form-group md:col-span-2">
+                                <div class="form-group">
+                                    <label class="form-label">Periode Audit <span class="text-red-500">*</span></label>
+                                    <input type="text" name="periode_audit" class="form-input w-full" value="{{ old('periode_audit', $document->periode_audit) }}" placeholder="Semester I Tahun 2026">
+                                    @error('periode_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
+                                </div>
+                                <div class="form-group">
                                     <label class="form-label">Waktu Pelaksanaan Audit <span class="text-red-500">*</span></label>
                                     <input type="text" name="jadwal_audit" class="form-input w-full" value="{{ old('jadwal_audit', $document->jadwal_audit) }}" placeholder="Contoh: 03 Agustus s.d. 11 September 2026">
                                     @error('jadwal_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
@@ -150,7 +155,7 @@
                         <!-- DESKRIPSI PENUTUP -->
                 <div class="form-group md:col-span-2 border-t border-surface-200 pt-4 mt-2">
                     <label class="form-label">Deskripsi Penutup</label>
-                    <textarea name="deskripsi_penutup" class="form-textarea w-full" rows="5" placeholder="Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.">{{ old('deskripsi_penutup', $document->deskripsi_penutup) }}</textarea>
+                    <textarea name="deskripsi_penutup" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="5" readonly>{{ old('deskripsi_penutup', $document->deskripsi_penutup ?: 'Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.') }}</textarea>
                     @error('deskripsi_penutup')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
 

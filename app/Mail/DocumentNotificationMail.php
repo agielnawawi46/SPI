@@ -10,22 +10,22 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class FollowUpReminderMail extends Mailable
+class DocumentNotificationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $followUp;
-    public $type; // 'initial', 'reminder', 'urgent', 'overdue'
-    public $daysRemaining;
+    public $title;
+    public $messageContent;
+    public $link;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(\App\Models\FollowUp $followUp, $type = 'reminder', $daysRemaining = null)
+    public function __construct($title, $messageContent, $link)
     {
-        $this->followUp = $followUp;
-        $this->type = $type;
-        $this->daysRemaining = $daysRemaining;
+        $this->title = $title;
+        $this->messageContent = $messageContent;
+        $this->link = $link;
     }
 
     /**
@@ -33,15 +33,8 @@ class FollowUpReminderMail extends Mailable
      */
     public function envelope(): Envelope
     {
-        $prefix = match($this->type) {
-            'initial' => '📋 Notifikasi Tindak Lanjut',
-            'overdue' => '🔴 TERLAMBAT - Tindak Lanjut',
-            'urgent'  => '🟠 MENDESAK - Tindak Lanjut',
-            default   => '🔔 Reminder Tindak Lanjut',
-        };
-
         return new Envelope(
-            subject: $prefix . ': ' . $this->followUp->document->title,
+            subject: 'Notifikasi SPI: ' . $this->title,
         );
     }
 
@@ -51,7 +44,7 @@ class FollowUpReminderMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.followup-reminder',
+            view: 'emails.document-notification',
         );
     }
 

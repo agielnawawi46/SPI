@@ -335,15 +335,6 @@ class ApprovalController extends Controller
                                                     'notifiable_type' => \App\Models\FollowUp::class,
                                                     'notifiable_id'   => $followUp->id,
                                                 ]);
-                                                
-                                                if ($recipient->email) {
-                                                    try {
-                                                        \Illuminate\Support\Facades\Mail::to($recipient->email)
-                                                            ->send(new \App\Mail\FollowUpReminderMail($followUp, 'initial'));
-                                                    } catch (\Exception $e) {
-                                                        \Illuminate\Support\Facades\Log::error("Failed to send initial FollowUp email to {$recipient->email}: " . $e->getMessage());
-                                                    }
-                                                }
                                             }
                                         }
                                     }

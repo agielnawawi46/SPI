@@ -3,106 +3,150 @@
 @section('page_title', 'Laporan Kinerja Bulanan')
 
 @section('content')
-<div class="space-y-6">
-    @if(session('success'))
-        <div class="alert alert-success">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span>{{ session('success') }}</span>
+<div class="card" x-data="{ showModal: false, selectedDoc: '' }">
+    <div class="card-header flex flex-col items-center text-center md:text-left md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h2 class="card-title">Daftar Laporan Kinerja</h2>
+            <p class="text-xs text-charcoal-muted mt-1">Rekap laporan kinerja SPI per bulan</p>
         </div>
-    @endif
-
-    <div class="card" style="border-top: 3px solid #ec4899;">
-        <div class="card-header flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center">
-                    <svg class="w-4 h-4 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                </div>
-                <div>
-                    <h2 class="card-title">Laporan Kinerja Bulanan</h2>
-                    <p class="text-xs text-charcoal-muted">Rekap laporan kinerja SPI per bulan</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="badge badge-primary hidden md:inline-flex">{{ $reports->total() }} laporan</span>
-                @can('report.create')
-                <a href="{{ route('performance-reports.create') }}" class="btn-primary">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Buat Laporan
-                </a>
-                @endcan
-            </div>
+        @can('report.create')
+        <div>
+            <a href="{{ route('performance-reports.create') }}" class="btn-primary">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Buat Laporan
+            </a>
         </div>
-        <div class="table-wrapper">
-            @if($reports->isEmpty())
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <svg class="w-7 h-7 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                    </div>
-                    <p class="empty-state-title">Belum ada laporan kinerja</p>
-                    <p class="empty-state-description">Mulai rekam performa tim SPI dengan membuat Laporan Kinerja bulanan pertama.</p>
-                    @can('report.create')
-                    <a href="{{ route('performance-reports.create') }}" class="btn-primary btn-sm mt-2">+ Buat Laporan</a>
-                    @endcan
-                </div>
-            @else
-                <div class="hidden md:block overflow-x-auto">
-                    <table class="data-table w-full">
-                        <thead><tr>
-                            <th>Judul Laporan</th><th>Periode</th><th>Dibuat Oleh</th><th>Status</th><th>Tanggal Buat</th><th class="text-right">Aksi</th>
-                        </tr></thead>
-                        <tbody>
-                        @foreach($reports as $report)
-                            <tr>
-                                <td class="font-medium text-charcoal">{{ $report->title }}</td>
-                                <td class="text-charcoal-muted font-medium">
-                                    {{ $report->report_month ? \Carbon\Carbon::create(null, $report->report_month)->format('F') . ' ' . $report->report_year : '-' }}
-                                </td>
-                                <td class="text-charcoal-muted">{{ $report->creator?->name ?? '-' }}</td>
-                                <td><span class="badge {{ $report->status_color }}">{{ $report->status_label }}</span></td>
-                                <td class="text-xs text-charcoal-muted">{{ $report->created_at->format('d M Y') }}</td>
-                                <td class="text-right"><a href="{{ route('performance-reports.show', $report) }}" class="btn-outline btn-sm">Lihat</a></td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="md:hidden space-y-4">
-                    @foreach($reports as $report)
-                    <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
-                        <div class="p-4">
-                            <div class="flex justify-between items-start gap-4 mb-3">
-                                <h3 class="font-semibold text-charcoal text-base leading-snug">{{ $report->title }}</h3>
-                                <span class="flex-shrink-0 badge {{ $report->status_color }}">{{ $report->status_label }}</span>
-                            </div>
-                            
-                            <div class="flex flex-col gap-2">
-                                <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
-                                    <span class="text-charcoal-muted">Periode</span>
-                                    <span class="font-medium text-charcoal">{{ $report->report_month ? \Carbon\Carbon::create(null, $report->report_month)->format('F') . ' ' . $report->report_year : '-' }}</span>
-                                </div>
-                                <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
-                                    <span class="text-charcoal-muted">Dibuat Oleh</span>
-                                    <span class="font-medium text-charcoal">{{ $report->creator?->name ?? '-' }}</span>
-                                </div>
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="text-charcoal-muted">Tanggal Buat</span>
-                                    <span class="font-medium text-charcoal">{{ $report->created_at->format('d M Y') }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-surface-50 px-4 py-3 flex items-center justify-end border-t border-surface-200">
-                            <a href="{{ route('performance-reports.show', $report) }}" class="btn-outline btn-sm bg-white">Lihat Detail</a>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-                <div class="pagination-wrapper">
-                    <p class="text-xs text-charcoal-muted">Menampilkan {{ $reports->firstItem() }}–{{ $reports->lastItem() }} dari {{ $reports->total() }}</p>
-                    {{ $reports->links() }}
-                </div>
-            @endif
-        </div>
+        @endcan
     </div>
+
+    {{-- Filter Bar --}}
+    <div class="p-4 border-b border-surface-200 bg-surface-50">
+        <form action="{{ route('performance-reports.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1 max-w-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-charcoal-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <input type="text" name="search" value="{{ request('search') }}" class="form-input pl-10" placeholder="Cari judul laporan..." x-data x-init="if(sessionStorage.getItem('search_focus') === 'true') { $el.focus(); $el.setSelectionRange($el.value.length, $el.value.length); sessionStorage.removeItem('search_focus'); }" @input.debounce.500ms="sessionStorage.setItem('search_focus', 'true'); $event.target.form.submit()">
+            </div>
+            <button type="submit" class="btn-secondary">Cari</button>
+            @if(request()->has('search') && request('search') != '')
+                <a href="{{ route('performance-reports.index') }}" class="btn-secondary text-red-600 hover:text-red-700 hover:bg-red-50 border-transparent">Reset</a>
+            @endif
+        </form>
+    </div>
+
+    {{-- Desktop Table View --}}
+    <div class="hidden md:block table-wrapper">
+        <table class="data-table w-full">
+            <thead>
+                <tr>
+                    <th class="w-16 text-center">No</th>
+                    <th>Judul Laporan</th>
+                    <th>Periode</th>
+                    <th>Dibuat Oleh</th>
+                    <th>Status</th>
+                    <th>Tanggal Buat</th>
+                    <th class="text-right">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($reports as $index => $report)
+                <tr>
+                    <td class="text-center text-charcoal-muted">{{ $reports->firstItem() + $index }}</td>
+                    <td class="font-medium text-charcoal max-w-xs truncate" title="{{ $report->title }}">{{ $report->title }}</td>
+                    <td class="text-charcoal-muted font-medium">
+                        {{ $report->report_month ? \Carbon\Carbon::create(null, $report->report_month)->format('F') . ' ' . $report->report_year : '-' }}
+                    </td>
+                    <td class="text-charcoal-muted">{{ $report->creator?->name ?? '-' }}</td>
+                    <td><span class="badge {{ $report->status_color }}">{{ $report->status_label }}</span></td>
+                    <td class="text-charcoal-muted text-xs whitespace-nowrap">{{ $report->created_at->format('d/m/Y') }}</td>
+                    <td class="text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{{ route('performance-reports.show', $report) }}" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-80 shadow-sm transition-all" title="Lihat Detail">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </a>
+                            
+                            @if($report->canBeEditedBy(Auth::user()))
+                            <a href="{{ route('performance-reports.edit', $report) }}" class="btn-icon bg-amber-500 text-white hover:bg-amber-400 hover:opacity-80 shadow-sm transition-all" title="Edit">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </a>
+                            @endif
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <svg class="w-8 h-8 text-charcoal-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            </div>
+                            <h3 class="empty-state-title">Belum ada laporan</h3>
+                            <p class="empty-state-description">Data kosong untuk Laporan Kinerja.</p>
+                            @can('report.create')
+                            <a href="{{ route('performance-reports.create') }}" class="btn-primary mt-2">Buat Laporan Baru</a>
+                            @endcan
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    {{-- Mobile Card View --}}
+    <div class="md:hidden space-y-4 p-4">
+        @forelse($reports as $report)
+        <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
+            <div class="p-4">
+                <div class="flex justify-between items-start gap-4 mb-3">
+                    <h3 class="font-semibold text-charcoal text-base leading-snug">{{ $report->title }}</h3>
+                    <span class="flex-shrink-0 badge {{ $report->status_color }}">{{ $report->status_label }}</span>
+                </div>
+                
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
+                        <span class="text-charcoal-muted">Periode</span>
+                        <span class="font-medium text-charcoal">{{ $report->report_month ? \Carbon\Carbon::create(null, $report->report_month)->format('F') . ' ' . $report->report_year : '-' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
+                        <span class="text-charcoal-muted">Dibuat Oleh</span>
+                        <span class="font-medium text-charcoal">{{ $report->creator?->name ?? '-' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-charcoal-muted">Tanggal Buat</span>
+                        <span class="font-medium text-charcoal">{{ $report->created_at->format('d/m/Y') }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-surface-50 px-4 py-3 flex items-center justify-end gap-3 border-t border-surface-200">
+                <a href="{{ route('performance-reports.show', $report) }}" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-80 shadow-sm transition-all" title="Lihat Detail">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </a>
+                
+                @if($report->canBeEditedBy(Auth::user()))
+                <a href="{{ route('performance-reports.edit', $report) }}" class="btn-icon bg-amber-500 text-white hover:bg-amber-400 hover:opacity-80 shadow-sm transition-all" title="Edit">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                </a>
+                @endif
+            </div>
+        </div>
+        @empty
+        <div class="empty-state border border-surface-200 rounded-xl m-4">
+            <div class="empty-state-icon">
+                <svg class="w-8 h-8 text-charcoal-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+            <h3 class="empty-state-title">Belum ada laporan</h3>
+            <p class="empty-state-description">Data kosong untuk Laporan Kinerja.</p>
+        </div>
+        @endforelse
+    </div>
+
+    @if($reports->hasPages())
+    <div class="pagination-wrapper p-4 border-t border-surface-200">
+        {{ $reports->links() }}
+    </div>
+    @endif
 </div>
 @endsection

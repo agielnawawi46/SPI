@@ -17,16 +17,18 @@
         <div class="flex items-center gap-3">
             <span class="badge {{ $document->status_color }}">{{ $document->status_label }}</span>
             @if($document->canBeEditedBy(Auth::user()))
-                <a href="{{ route('performance-reports.edit', $document) }}" class="btn-primary btn-sm">Isi/Edit Laporan</a>
+                <a href="{{ route('performance-reports.edit', $document) }}" class="btn-primary btn-sm">Tambah Lampiran</a>
             @endif
             <a href="{{ route('performance-reports.index') }}" class="btn-secondary btn-sm">Kembali</a>
         </div>
     </div>
     <div class="card-body">
-        <div class="prose max-w-none p-4 bg-surface-50 rounded-lg border border-surface-200 min-h-[300px]">
-            {!! $document->content !!}
+        @if(!empty($document->content))
+        <div class="mb-6 p-4 bg-surface-50 rounded-lg border border-surface-200">
+            <h3 class="text-sm font-semibold mb-2">Deskripsi</h3>
+            <p class="text-sm text-charcoal whitespace-pre-wrap">{{ $document->content }}</p>
         </div>
-
+        @endif
         @if($document->attachments->count() > 0)
         <div class="mt-6">
             <h3 class="text-sm font-semibold mb-3">Lampiran</h3>
