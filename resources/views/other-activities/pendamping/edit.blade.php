@@ -8,9 +8,9 @@
         <h2 class="card-title">Kertas Kerja: {{ $document->title }}</h2>
         <span class="badge {{ $document->status_color }}">{{ $document->status_label }}</span>
     </div>
+    <form action="{{ route('other-activities.pendamping.update', $document) }}" method="POST" enctype="multipart/form-data">
+        @csrf @method('PUT')
     <div class="card-body">
-        <form action="{{ route('other-activities.pendamping.update', $document) }}" method="POST" enctype="multipart/form-data">
-            @csrf @method('PUT')
             <div class="form-group mb-4">
                 <label class="form-label">Judul Dokumen <span class="text-red-500">*</span></label>
                 <input type="text" name="title" class="form-input" value="{{ old('title', $document->title) }}" placeholder="Judul dokumen pendamping" required>
@@ -28,13 +28,13 @@
                 <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar. Maks: 300MB.</p>
                 @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
             </div>
-            
-            <div class="flex justify-between mt-8">
-                <a href="{{ route('assurance.show', $document) }}" class="btn-secondary">Batal</a>
-                <button type="submit" class="btn-primary">Simpan Kertas Kerja</button>
-            </div>
-        </form>
-    </div>
+        </div>
+        
+        <div class="px-6 py-4 bg-surface-50 border-t border-surface-100 flex items-center justify-end gap-3 mt-8">
+            <a href="{{ route('other-activities.pendamping.show', $document) }}" class="btn-secondary">Batal</a>
+            <button type="submit" class="btn-primary">Simpan Kertas Kerja</button>
+        </div>
+    </form>
 </div>
 @endsection
 

@@ -101,15 +101,18 @@
 
                             @foreach($items as $gIndex => $group)
                             <tbody class="group-body" data-group-index="{{ $gIndex }}">
-                                <tr class="bg-gray-100 border-b group-header-row">
-                                    <td colspan="12" class="p-2 font-bold text-gray-700">
+                                <tr class="bg-surface-50 border-b border-surface-200 group-header-row">
+                                    <td colspan="12" class="px-4 py-2 font-bold text-primary-700">
                                         <div class="flex justify-between items-center">
-                                            <span class="group-number-label">Nomor {{ $gIndex + 1 }}</span>
-                                            <div class="space-x-2">
-                                                <button type="button" class="text-blue-600 hover:text-blue-800 text-xs font-semibold addSubRow">
-                                                    + Tambah Baris di Nomor Ini
+                                            <span class="group-number-label flex items-center gap-2">
+                                                <span class="bg-primary-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">#</span>
+                                                Nomor {{ $gIndex + 1 }}
+                                            </span>
+                                            <div class="space-x-3">
+                                                <button type="button" class="text-primary-600 hover:text-primary-800 text-[11px] uppercase tracking-wider font-bold addSubRow transition-colors">
+                                                    + Tambah Sub-Baris
                                                 </button>
-                                                <button type="button" class="text-red-600 hover:text-red-800 text-xs font-semibold removeGroup {{ count($items) > 1 ? '' : 'hidden' }}">
+                                                <button type="button" class="text-red-500 hover:text-red-700 text-[11px] uppercase tracking-wider font-bold removeGroup {{ count($items) > 1 ? '' : 'hidden' }} transition-colors">
                                                     - Hapus Nomor Ini
                                                 </button>
                                             </div>
@@ -119,15 +122,15 @@
                                 
                                 @if(isset($group['rows']) && is_array($group['rows']))
                                     @foreach($group['rows'] as $rIndex => $row)
-                                    <tr class="border-b item-row">
-                                        <td class="border p-1"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][lha]" class="w-full text-xs p-1 border rounded popup-textarea cursor-pointer hover:bg-gray-50" rows="2" readonly required placeholder="Klik untuk edit...">{{ $row['lha'] ?? '' }}</textarea></td>
-                                        <td class="border p-1"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][sebab]" class="w-full text-xs p-1 border rounded popup-textarea cursor-pointer hover:bg-gray-50" rows="2" readonly placeholder="Klik untuk edit...">{{ $row['sebab'] ?? '' }}</textarea></td>
-                                        <td class="border p-1"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][akibat]" class="w-full text-xs p-1 border rounded popup-textarea cursor-pointer hover:bg-gray-50" rows="2" readonly placeholder="Klik untuk edit...">{{ $row['akibat'] ?? '' }}</textarea></td>
-                                        <td class="border p-1"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][rekomendasi]" class="w-full text-xs p-1 border rounded popup-textarea cursor-pointer hover:bg-gray-50" rows="2" readonly placeholder="Klik untuk edit...">{{ $row['rekomendasi'] ?? '' }}</textarea></td>
-                                        <td class="border p-1">
+                                    <tr class="item-row hover:bg-surface-50 transition-colors border-b">
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][lha]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly required placeholder="Klik utk edit...">{{ $row['lha'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][sebab]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['sebab'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][akibat]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['akibat'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][rekomendasi]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['rekomendasi'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5">
                                             <div class="space-y-1">
-                                                <textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][pic_tl]" class="w-full text-xs p-1 border rounded popup-textarea cursor-pointer hover:bg-gray-50" rows="1" readonly placeholder="Nama PIC...">{{ $row['pic_tl'] ?? '' }}</textarea>
-                                                <select name="items[{{ $gIndex }}][rows][{{ $rIndex }}][pic_email]" class="w-full text-xs p-1 border rounded">
+                                                <textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][pic_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="1" readonly placeholder="Nama PIC...">{{ $row['pic_tl'] ?? '' }}</textarea>
+                                                <select name="items[{{ $gIndex }}][rows][{{ $rIndex }}][pic_email]" class="w-full text-xs p-2 border-surface-300 rounded shadow-sm">
                                                     <option value="">-- Pilih Email Akun --</option>
                                                     @if(isset($users))
                                                         @foreach($users as $u)
@@ -137,17 +140,17 @@
                                                 </select>
                                             </div>
                                         </td>
-                                        <td class="border p-1"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][evidence_tl]" class="w-full text-xs p-1 border rounded popup-textarea cursor-pointer hover:bg-gray-50" rows="2" readonly placeholder="Klik untuk edit...">{{ $row['evidence_tl'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][evidence_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['evidence_tl'] ?? '' }}</textarea></td>
                                         
-                                        <td class="border p-1"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_closed]" class="w-full text-xs p-1 border rounded text-center popup-textarea cursor-pointer hover:bg-gray-50" rows="2" readonly placeholder="Klik untuk edit...">{{ $row['status_closed'] ?? '' }}</textarea></td>
-                                        <td class="border p-1"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_on_progress]" class="w-full text-xs p-1 border rounded text-center popup-textarea cursor-pointer hover:bg-gray-50" rows="2" readonly placeholder="Klik untuk edit...">{{ $row['status_on_progress'] ?? '' }}</textarea></td>
-                                        <td class="border p-1"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_tdd]" class="w-full text-xs p-1 border rounded text-center popup-textarea cursor-pointer hover:bg-gray-50" rows="2" readonly placeholder="Klik untuk edit...">{{ $row['status_tdd'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_closed]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['status_closed'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_on_progress]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['status_on_progress'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_tdd]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['status_tdd'] ?? '' }}</textarea></td>
                                         
-                                        <td class="border p-1"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][evaluasi_tl]" class="w-full text-xs p-1 border rounded popup-textarea cursor-pointer hover:bg-gray-50" rows="2" readonly placeholder="Klik untuk edit...">{{ $row['evaluasi_tl'] ?? '' }}</textarea></td>
-                                        <td class="border p-1"><input type="date" name="items[{{ $gIndex }}][rows][{{ $rIndex }}][jatuh_tempo]" class="w-full text-xs p-1 border rounded" value="{{ $row['jatuh_tempo'] ?? '' }}"></td>
-                                        <td class="border p-1 text-center">
-                                            <button type="button" class="text-red-500 hover:text-red-700 removeRow" title="Hapus Baris">
-                                                <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][evaluasi_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['evaluasi_tl'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><input type="date" name="items[{{ $gIndex }}][rows][{{ $rIndex }}][jatuh_tempo]" class="w-full text-xs p-2 border-surface-300 rounded shadow-sm" value="{{ $row['jatuh_tempo'] ?? '' }}"></td>
+                                        <td class="p-1.5 text-center align-middle">
+                                            <button type="button" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-md transition-colors removeRow" title="Hapus Baris">
+                                                <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
                                         </td>
                                     </tr>

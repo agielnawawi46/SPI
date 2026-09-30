@@ -118,14 +118,15 @@
                 <img src="{{ public_path('pln.jpg') }}" alt="Logo">
             </td>
             <td class="header-text">
-                @if($document->header_text)
-                <div>No. Formulir : {{ $document->header_text }}</div>
-                @endif
-                @if($document->tanggal_formulir)
-                <div>Tanggal Formulir : {{ \Carbon\Carbon::parse($document->tanggal_formulir)->translatedFormat('d F Y') }}</div>
-                @endif
-                <div>Tanggal : {{ $document->tgl_stg ? $document->tgl_stg->translatedFormat('d F Y') : $document->created_at->translatedFormat('d F Y') }}</div>
-                <div>Halaman : 1</div>
+                <table style="display: inline-block; text-align: left; border: none;">
+                    @if($document->header_text)
+                    <tr><td style="padding: 0; border: none; width: 65px;">No. Formulir</td><td style="padding: 0 4px; border: none;">:</td><td style="padding: 0; border: none;">{{ $document->header_text }}</td></tr>
+                    @endif
+                    @if($document->tanggal_formulir)
+                    <tr><td style="padding: 0; border: none;">Tanggal</td><td style="padding: 0 4px; border: none;">:</td><td style="padding: 0; border: none;">{{ \Carbon\Carbon::parse($document->tanggal_formulir)->translatedFormat('d F Y') }}</td></tr>
+                    @endif
+                    <tr><td style="padding: 0; border: none;">Halaman</td><td style="padding: 0 4px; border: none;">:</td><td style="padding: 0; border: none;">1</td></tr>
+                </table>
             </td>
         </tr>
     </table>

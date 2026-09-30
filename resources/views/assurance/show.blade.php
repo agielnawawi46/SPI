@@ -310,14 +310,15 @@
                 <img src="{{ asset('pln.jpg') }}" alt="Header STG" class="max-h-24 object-contain">
             </div>
             <div class="w-3/4 text-right text-[#002060] text-[8pt] leading-snug">
-                @if($document->header_text)
-                <p>No. Formulir : {{ $document->header_text }}</p>
-                @endif
-                @if($document->tanggal_formulir)
-                <p>Tanggal Formulir : {{ \Carbon\Carbon::parse($document->tanggal_formulir)->translatedFormat('d F Y') }}</p>
-                @endif
-                <p>Tanggal : {{ $document->tgl_stg ? $document->tgl_stg->translatedFormat('d F Y') : $document->created_at->translatedFormat('d F Y') }}</p>
-                <p>Halaman : 1</p>
+                <table class="inline-block text-left border-none">
+                    @if($document->header_text)
+                    <tr><td class="p-0 border-none w-[65px]">No. Formulir</td><td class="p-0 px-1 border-none">:</td><td class="p-0 border-none">{{ $document->header_text }}</td></tr>
+                    @endif
+                    @if($document->tanggal_formulir)
+                    <tr><td class="p-0 border-none">Tanggal</td><td class="p-0 px-1 border-none">:</td><td class="p-0 border-none">{{ \Carbon\Carbon::parse($document->tanggal_formulir)->translatedFormat('d F Y') }}</td></tr>
+                    @endif
+                    <tr><td class="p-0 border-none">Halaman</td><td class="p-0 px-1 border-none">:</td><td class="p-0 border-none">1</td></tr>
+                </table>
             </div>
         </div>
         

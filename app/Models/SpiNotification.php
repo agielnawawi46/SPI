@@ -53,7 +53,8 @@ class SpiNotification extends Model
                         ->send(new \App\Mail\DocumentNotificationMail(
                             $notification->title,
                             $notification->message,
-                            $notification->link
+                            $notification->link,
+                            $user->name
                         ));
                 } catch (\Exception $e) {
                     \Illuminate\Support\Facades\Log::error("Failed to send notification email to {$user->email}: " . $e->getMessage());

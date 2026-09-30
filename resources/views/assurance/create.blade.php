@@ -94,7 +94,7 @@
                                 @error('header_text')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Tanggal Formulir</label>
+                                <label class="form-label">Tanggal</label>
                                 <input type="date" name="tanggal_formulir" class="form-input w-full" value="{{ old('tanggal_formulir', date('Y-m-d')) }}">
                                 @error('tanggal_formulir')<p class="form-error">{{ $message }}</p>@enderror
                             </div>

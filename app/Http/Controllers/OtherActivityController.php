@@ -46,6 +46,19 @@ class OtherActivityController extends Controller
                   ->orWhere('assigned_to', $user->id);
             });
         }
+        
+        if ($tlSearch = $request->get('tl_search')) {
+            $followUpQuery->where(function($q) use ($tlSearch) {
+                $q->where('finding', 'like', "%{$tlSearch}%")
+                  ->orWhereHas('assignee', function($sq) use ($tlSearch) {
+                      $sq->where('name', 'like', "%{$tlSearch}%");
+                  })
+                  ->orWhereHas('document', function($sq) use ($tlSearch) {
+                      $sq->where('title', 'like', "%{$tlSearch}%");
+                  });
+            });
+        }
+
         $followUps = $followUpQuery->latest()->paginate(10, ['*'], 'tl_page');
             
         return view('other-activities.tindak-lanjut.index', compact('documents', 'followUps'));

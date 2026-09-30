@@ -147,9 +147,30 @@
 {{-- Lower Table: Daftar Penugasan Tindak Lanjut --}}
 @if(isset($followUps))
 <div class="card mt-8">
-    <div class="card-header">
-        <h2 class="card-title">Daftar Penugasan Tindak Lanjut Anda</h2>
-        <p class="text-xs text-charcoal-muted mt-1">Daftar tugas upload bukti yang ditugaskan ke departemen Anda.</p>
+    <div class="card-header flex flex-col items-center text-center md:text-left md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h2 class="card-title">Daftar Penugasan Tindak Lanjut Anda</h2>
+            <p class="text-xs text-charcoal-muted mt-1">Daftar tugas upload bukti yang ditugaskan ke departemen Anda.</p>
+        </div>
+    </div>
+    
+    {{-- Filter Bar --}}
+    <div class="p-4 border-b border-surface-200 bg-surface-50">
+        <form action="{{ route('other-activities.tl.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3">
+            @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
+            <div class="relative flex-1 max-w-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-charcoal-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <input type="text" name="tl_search" value="{{ request('tl_search') }}" class="form-input pl-10" placeholder="Cari dokumen/temuan..." x-data x-init="if(sessionStorage.getItem('tl_search_focus') === 'true') { $el.focus(); $el.setSelectionRange($el.value.length, $el.value.length); sessionStorage.removeItem('tl_search_focus'); }" @input.debounce.500ms="sessionStorage.setItem('tl_search_focus', 'true'); $event.target.form.submit()">
+            </div>
+            <button type="submit" class="btn-secondary">Cari</button>
+            @if(request()->has('tl_search') && request('tl_search') != '')
+                <a href="{{ route('other-activities.tl.index', array_filter(['search' => request('search')])) }}" class="btn-secondary text-red-600 hover:text-red-700 hover:bg-red-50 border-transparent">Reset</a>
+            @endif
+        </form>
     </div>
     <div class="card-body p-0">
         <div class="table-wrapper">
@@ -172,8 +193,8 @@
                             <td class="max-w-xs truncate" title="{{ $followUp->document->title }}">{{ Str::limit($followUp->document->title, 40) }}</td>
                             <td class="max-w-xs truncate" title="{{ $followUp->finding }}">{{ Str::limit($followUp->finding, 50) }}</td>
                             <td>
-                                <div class="font-medium text-charcoal">{{ $followUp->pic_name ?? '-' }}</div>
-                                <div class="text-xs text-charcoal-muted">{{ $followUp->pic_email ?? '-' }}</div>
+                                <div class="font-medium text-charcoal">{{ $followUp->assignee->name ?? '-' }}</div>
+                                <div class="text-xs text-charcoal-muted">{{ $followUp->assignee->email ?? '-' }}</div>
                             </td>
                             <td class="{{ $followUp->status === 'overdue' ? 'text-red-600 font-medium' : 'text-charcoal-muted' }}">
                                 {{ \Carbon\Carbon::parse($followUp->due_date)->format('d M Y') }}

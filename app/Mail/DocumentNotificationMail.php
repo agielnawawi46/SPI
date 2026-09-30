@@ -17,15 +17,17 @@ class DocumentNotificationMail extends Mailable
     public $title;
     public $messageContent;
     public $link;
+    public $recipientName;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($title, $messageContent, $link)
+    public function __construct($title, $messageContent, $link, $recipientName = null)
     {
         $this->title = $title;
         $this->messageContent = $messageContent;
         $this->link = $link;
+        $this->recipientName = $recipientName ?? 'Bapak/Ibu';
     }
 
     /**
