@@ -16,6 +16,7 @@ class FollowUp extends Model
         'document_id', 'auditee_department_id', 'finding', 'recommendation',
         'sebab', 'akibat', 'evaluasi_tl',
         'due_date', 'status', 'assigned_to', 'approval_status', 'notes', 'created_by',
+        'pic_name', 'pic_email',
     ];
 
     protected function casts(): array

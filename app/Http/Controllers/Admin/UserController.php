@@ -209,7 +209,7 @@ class UserController extends Controller
         ];
 
         $columns = ['name', 'email', 'password', 'role', 'nip', 'position', 'department_code'];
-        $exampleRow = ['John Doe', 'john.doe@example.com', 'password123', 'auditee_staff', '12345678', 'Staf IT', 'HC'];
+        $exampleRow = ['John Doe', 'john.doe@example.com', 'password123', 'staff', '12345678', 'Staf IT', 'HC'];
 
         $callback = function() use ($columns, $exampleRow) {
             $file = fopen('php://output', 'w');

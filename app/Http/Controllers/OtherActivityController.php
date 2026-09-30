@@ -21,7 +21,8 @@ class OtherActivityController extends Controller
             });
 
         if ($user->hasRole(['manager', 'asman', 'staff'])) {
-            $deptId = $user->department_id ?? 1;
+            $deptId = $user->department_id;
+            abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen. Hubungi administrator.');
             $query->where('status', 'approved')
                   ->whereHas('followUps', function($q) use ($deptId) {
                       $q->where('auditee_department_id', $deptId);

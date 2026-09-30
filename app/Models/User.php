@@ -101,6 +101,6 @@ class User extends Authenticatable
      */
     public function isAuditee(): bool
     {
-        return $this->hasAnyRole(['auditee_manager', 'auditee_staff']);
+        return $this->hasAnyRole(['manager', 'asman', 'staff']);
     }
 }

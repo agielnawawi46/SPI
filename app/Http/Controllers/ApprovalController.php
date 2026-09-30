@@ -220,7 +220,7 @@ class ApprovalController extends Controller
                         'title'           => 'Dokumen Perlu Direvisi',
                         'message'         => 'Dokumen "' . $model->title . '" dikembalikan oleh ' . $user->name . ($request->comments ? ': ' . $request->comments : '.'),
                         'type'            => 'revision',
-                        'link'            => route('assurance.show', $model),
+                        'link'            => $this->resolveDocumentRoute($model),
                         'notifiable_type' => Document::class,
                         'notifiable_id'   => $model->id,
                     ]);
@@ -385,7 +385,7 @@ class ApprovalController extends Controller
                                 'title'           => 'Dokumen Menunggu Persetujuan',
                                 'message'         => 'Dokumen "' . $model->title . '" telah disetujui KSPI dan menunggu tanda tangan Direktur.',
                                 'type'            => 'approval',
-                                'link'            => route('assurance.show', $model),
+                                'link'            => $this->resolveDocumentRoute($model),
                                 'notifiable_type' => Document::class,
                                 'notifiable_id'   => $model->id,
                             ]);
@@ -398,7 +398,7 @@ class ApprovalController extends Controller
                                 'title'           => 'Dokumen Disetujui KSPI',
                                 'message'         => 'Dokumen "' . $model->title . '" telah disetujui KSPI dan diteruskan ke Direktur.',
                                 'type'            => 'info',
-                                'link'            => route('assurance.show', $model),
+                                'link'            => $this->resolveDocumentRoute($model),
                                 'notifiable_type' => Document::class,
                                 'notifiable_id'   => $model->id,
                             ]);
@@ -432,7 +432,7 @@ class ApprovalController extends Controller
                             'title'           => 'Dokumen Resmi Disetujui',
                             'message'         => 'Dokumen "' . $model->title . '" telah disetujui oleh Direktur dan kini berstatus resmi.',
                             'type'            => 'success',
-                            'link'            => route('assurance.show', $model),
+                            'link'            => $this->resolveDocumentRoute($model),
                             'notifiable_type' => Document::class,
                             'notifiable_id'   => $model->id,
                         ]);
@@ -495,7 +495,7 @@ class ApprovalController extends Controller
                     'title'           => 'Dokumen Resmi Disetujui',
                     'message'         => 'Dokumen "' . $document->title . '" telah disahkan secara langsung oleh ' . $user->name,
                     'type'            => 'success',
-                    'link'            => route('assurance.show', $document),
+                    'link'            => $this->resolveDocumentRoute($document),
                     'notifiable_type' => Document::class,
                     'notifiable_id'   => $document->id,
                 ]);
@@ -503,5 +503,23 @@ class ApprovalController extends Controller
         });
 
         return redirect()->back()->with('success', 'Dokumen berhasil disahkan secara langsung.');
+    }
+
+    /**
+     * Resolve the correct show route for a document based on its document type module.
+     * Prevents hardcoded 'assurance.show' links for advisory/TL documents.
+     */
+    private function resolveDocumentRoute(Document $document): string
+    {
+        $module = $document->documentType?->module;
+
+        return match ($module) {
+            'advisory'      => route('advisory.show', $document),
+            'tindak-lanjut' => route('other-activities.tl.show', $document),
+            'qa'            => route('other-activities.qa.show', $document),
+            'pkpt'          => route('pkpt.show', $document->pkpt_id ?? $document->id),
+            'report'        => route('performance-reports.show', $document),
+            default         => route('assurance.show', $document), // assurance and everything else
+        };
     }
 }

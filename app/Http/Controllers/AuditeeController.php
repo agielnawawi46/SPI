@@ -16,7 +16,8 @@ class AuditeeController extends Controller
         // Auditee sees follow-ups for their own department OR explicitly assigned to them
         $query = FollowUp::with(['document.documentType'])->withCount('evidences')
             ->when($user->hasRole(['manager', 'asman', 'staff']), function ($q) use ($user) {
-                $deptId = $user->department_id ?? 1;
+                $deptId = $user->department_id;
+                abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen. Hubungi administrator.');
                 $q->where(function($q2) use ($deptId, $user) {
                     $q2->where('auditee_department_id', $deptId)
                        ->orWhere('assigned_to', $user->id);
@@ -47,7 +48,8 @@ class AuditeeController extends Controller
 
         // Access control: Auditee only sees their department's follow-ups or explicitly assigned to them
         if ($user->hasRole(['manager', 'asman', 'staff'])) {
-            $deptId = $user->department_id ?? 1;
+            $deptId = $user->department_id;
+            abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen. Hubungi administrator.');
             abort_if($followUp->auditee_department_id != $deptId && $followUp->assigned_to != $user->id, 403);
         }
 
@@ -77,7 +79,8 @@ class AuditeeController extends Controller
         }
 
         if ($user->hasRole(['manager', 'asman', 'staff'])) {
-            $deptId = $user->department_id ?? 1;
+            $deptId = $user->department_id;
+            abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen. Hubungi administrator.');
             abort_if($followUp->auditee_department_id != $deptId && $followUp->assigned_to != $user->id, 403, 'Anda tidak memiliki akses ke tindak lanjut ini.');
         }
 
