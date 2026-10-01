@@ -125,8 +125,10 @@
                 <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
                     <div class="p-4">
                         <div class="flex justify-between items-start gap-4 mb-3">
-                            <h3 class="font-semibold text-charcoal text-base leading-snug">
+                            <h3 class="font-semibold text-charcoal text-base leading-snug break-words line-clamp-2">
+                                <a href="{{ route('assurance.show', $doc) }}" class="hover:text-primary-600 transition-colors">
                                 {{ $doc->title ?: 'Dokumen Tanpa Judul' }}
+                                </a>
                             </h3>
                             <span class="flex-shrink-0 badge {{ $doc->status_color }}">{{ $doc->status_label }}</span>
                         </div>

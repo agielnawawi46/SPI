@@ -106,6 +106,7 @@
             Dashboard
         </a>
 
+        @unless(auth()->user()->isKomisaris())
         @can('pkpt.view')
         {{-- Penyusunan PKPT --}}
         <div x-data="{ open: {{ request()->routeIs('pkpt*') ? 'true' : 'false' }} }">
@@ -253,6 +254,7 @@
             Laporan Kinerja
         </a>
         @endcan
+        @endunless
 
         @role('admin')
         {{-- Pengaturan Sistem --}}
@@ -375,10 +377,18 @@
 {{-- ============================================
      FOOTER
      ============================================ --}}
-<footer class="ml-0 lg:ml-64 py-4 px-6 border-t border-surface-200 bg-white transition-all duration-300">
-    <p class="text-xs text-charcoal-muted text-center">
-        Copyright &copy; {{ date('Y') }} IT Infrastructure — PT Pelayanan Energi Batam, All Rights Reserved.
-    </p>
+<footer class="ml-0 lg:ml-64 mt-auto border-t border-surface-200 bg-white transition-all duration-300">
+    <div class="px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        <p class="text-xs font-medium text-charcoal-muted text-center md:text-left">
+            &copy; {{ date('Y') }} PT Pelayanan Energi Batam. Seluruh hak cipta dilindungi.
+        </p>
+
+        <p class="text-xs text-charcoal-muted text-center md:text-right flex items-center justify-center gap-1.5">
+            Internal SPI System
+        </p>
+
+    </div>
 </footer>
 
 @stack('scripts')

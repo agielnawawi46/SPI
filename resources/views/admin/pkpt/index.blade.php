@@ -123,7 +123,11 @@
         <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
             <div class="p-4">
                 <div class="flex justify-between items-start gap-4 mb-3">
-                    <h3 class="font-semibold text-charcoal text-base leading-snug">{{ $pkpt->title }}</h3>
+                    <h3 class="font-semibold text-charcoal text-base leading-snug break-words line-clamp-2">
+                        <a href="{{ route('pkpt.show', $pkpt) }}" class="hover:text-primary-600 transition-colors">
+                            {{ $pkpt->title }}
+                        </a>
+                    </h3>
                     <span class="flex-shrink-0 badge {{ match($pkpt->status) { 'draft' => 'badge-draft', 'pending_kspi', 'pending_direktur' => 'badge-pending', 'approved' => 'badge-approved', 'rejected' => 'badge-rejected', default => 'badge-draft' } }}">
                         {{ $pkpt->status_label }}
                     </span>

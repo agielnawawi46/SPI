@@ -75,11 +75,22 @@
 
     </main>
 
-    {{-- Footer (Solid) --}}
-    <footer class="w-full px-6 md:px-12 py-6 border-t border-surface-200 bg-white mt-auto">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-charcoal-muted">
-            <p>&copy; {{ date('Y') }} PT Pelayanan Energi Batam. Seluruh hak cipta dilindungi.</p>
-            <p class="font-medium">IT Infrastructure Department</p>
+    {{-- Footer --}}
+    <footer class="w-full mt-auto bg-surface-50 border-t border-surface-200">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 py-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                
+                {{-- Left: Copyright --}}
+                <p class="text-[13px] font-medium text-charcoal-muted text-center md:text-left">
+                    &copy; {{ date('Y') }} PT Pelayanan Energi Batam. Seluruh hak cipta dilindungi.
+                </p>
+
+                {{-- Right: Info --}}
+                <p class="text-[13px] text-charcoal-muted text-center md:text-right flex items-center justify-center gap-1.5">
+                    Developed with <svg class="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg> for Internal Use
+                </p>
+
+            </div>
         </div>
     </footer>
 

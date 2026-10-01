@@ -103,4 +103,12 @@ class User extends Authenticatable
     {
         return $this->hasAnyRole(['manager', 'asman', 'staff']);
     }
+
+    /**
+     * Check if user is a Komisaris.
+     */
+    public function isKomisaris(): bool
+    {
+        return $this->hasRole('komisaris');
+    }
 }

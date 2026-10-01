@@ -55,6 +55,7 @@ Route::middleware(['auth', 'check.active', 'audit.trail'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/search', [DashboardController::class, 'search'])->name('dashboard.search');
 
     // Notifications (JSON API)
     Route::prefix('notifications')->name('notifications.')->group(function () {

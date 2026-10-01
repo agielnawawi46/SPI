@@ -101,35 +101,50 @@
         </div>
 
         {{-- Mobile Card View --}}
-        <div class="md:hidden flex flex-col gap-3 p-4">
+        <div class="md:hidden space-y-4 p-4">
             @foreach($documents as $doc)
-            <div class="bg-white border border-surface-200 rounded-xl p-4 shadow-sm">
-                <div class="flex justify-between items-start mb-3">
-                    <span class="badge {{ $doc->status_color }}">{{ $doc->status_label }}</span>
+            <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
+                <div class="p-4">
+                    <div class="flex justify-between items-start gap-4 mb-3">
+                        <h3 class="font-semibold text-charcoal text-base leading-snug break-words line-clamp-2">
+                            <a href="{{ route('other-activities.tl.show', $doc) }}" class="hover:text-primary-600 transition-colors">
+                                {{ $doc->title }}
+                            </a>
+                        </h3>
+                        <span class="flex-shrink-0 badge {{ $doc->status_color }}">
+                            {{ $doc->status_label }}
+                        </span>
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
+                            <span class="text-charcoal-muted">Pembuat</span>
+                            <span class="font-medium text-charcoal text-right">{{ $doc->creator->name ?? '-' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-charcoal-muted">Tanggal Dibuat</span>
+                            <span class="font-medium text-charcoal text-right">{{ $doc->created_at->format('d/m/Y') }}</span>
+                        </div>
+                    </div>
                 </div>
-                <a href="{{ route('other-activities.tl.show', $doc) }}" class="text-sm font-bold text-charcoal hover:text-indigo-600 line-clamp-2 mb-2">
-                    {{ $doc->title }}
-                </a>
                 
-                <div class="space-y-1.5 mb-4">
-                    <div class="flex justify-between text-xs">
-                        <span class="text-charcoal-muted">Pembuat:</span>
-                        <span class="font-medium text-charcoal text-right">{{ $doc->creator->name ?? '-' }}</span>
-                    </div>
-                    <div class="flex justify-between text-xs">
-                        <span class="text-charcoal-muted">Tgl Dibuat:</span>
-                        <span class="font-medium text-charcoal text-right">{{ $doc->created_at->format('d M Y') }}</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2 pt-3 border-t border-surface-100">
-                    <a href="{{ route('other-activities.tl.show', $doc) }}" class="btn-secondary text-xs flex-1 justify-center py-2">
-                        Lihat
+                <div class="bg-surface-50 px-4 py-3 flex items-center justify-end gap-3 border-t border-surface-200">
+                    <a href="{{ route('other-activities.tl.show', $doc) }}" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-80 shadow-sm transition-all" title="Lihat Detail">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                     </a>
                     @if($doc->canBeEditedBy(Auth::user()))
-                    <a href="{{ route('other-activities.tl.edit', $doc) }}" class="btn-secondary text-xs flex-1 justify-center py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                        Ubah
+                    <a href="{{ route('other-activities.tl.edit', $doc) }}" class="btn-icon bg-amber-500 text-white hover:bg-amber-400 hover:opacity-80 shadow-sm transition-all" title="Ubah">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     </a>
+                    @endif
+                    @if($doc->canBeDeletedBy(Auth::user()))
+                    <form action="{{ route('other-activities.tl.destroy', $doc) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-80 shadow-sm transition-all" title="Hapus">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </form>
                     @endif
                 </div>
             </div>
@@ -173,7 +188,7 @@
         </form>
     </div>
     <div class="card-body p-0">
-        <div class="table-wrapper">
+        <div class="hidden md:block table-wrapper">
             <table class="data-table w-full">
                 <thead>
                     <tr>
@@ -237,6 +252,76 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        {{-- Mobile Card View --}}
+        <div class="md:hidden space-y-4 p-4">
+            @forelse($followUps as $followUp)
+            <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
+                <div class="p-4">
+                    <div class="flex justify-between items-start gap-4 mb-3">
+                        <h3 class="font-semibold text-charcoal text-base leading-snug break-words line-clamp-2">
+                            <a href="{{ route('auditee.show', $followUp) }}" class="hover:text-primary-600 transition-colors">
+                                {{ $followUp->finding }}
+                            </a>
+                        </h3>
+                        <span class="flex-shrink-0 badge 
+                            @if($followUp->approval_status === 'pending' && $followUp->evidences_count > 0)
+                                badge-in-progress
+                            @elseif($followUp->status === 'closed' || $followUp->approval_status === 'approved')
+                                badge-approved
+                            @elseif($followUp->approval_status === 'rejected')
+                                badge-rejected
+                            @else
+                                badge-pending
+                            @endif">
+                            @if($followUp->approval_status === 'pending' && $followUp->evidences_count > 0)
+                                Draf
+                            @elseif($followUp->status === 'closed' || $followUp->approval_status === 'approved')
+                                Closed
+                            @else
+                                {{ str_replace('_', ' ', $followUp->approval_status) }}
+                            @endif
+                        </span>
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
+                            <span class="text-charcoal-muted">Dokumen Asal</span>
+                            <span class="font-medium text-charcoal text-right max-w-[150px] truncate" title="{{ $followUp->document->title }}">{{ $followUp->document->title }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
+                            <span class="text-charcoal-muted">PIC</span>
+                            <span class="font-medium text-charcoal text-right">{{ $followUp->assignee->name ?? '-' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-charcoal-muted">Jatuh Tempo</span>
+                            <span class="font-medium text-charcoal text-right {{ $followUp->status === 'overdue' ? 'text-red-600' : '' }}">{{ \Carbon\Carbon::parse($followUp->due_date)->format('d/m/Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-surface-50 px-4 py-3 flex items-center justify-end gap-3 border-t border-surface-200">
+                    <a href="{{ route('auditee.show', $followUp) }}" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-80 shadow-sm transition-all" title="Lihat">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </a>
+
+                    @if($followUp->status === 'closed' || Auth::user()->hasRole('admin'))
+                    <form action="{{ route('other-activities.tl.follow-up.destroy', $followUp) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus tugas tindak lanjut ini?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-80 shadow-sm transition-all" title="Hapus">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </form>
+                    @endif
+                </div>
+            </div>
+            @empty
+                <div class="text-center py-6 text-charcoal-muted">
+                    Tidak ada penugasan tindak lanjut.
+                </div>
+            @endforelse
         </div>
         
         @if($followUps->hasPages())

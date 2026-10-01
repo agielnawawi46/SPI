@@ -113,6 +113,11 @@ class RolePermissionSeeder extends Seeder
         $komisaris = Role::firstOrCreate(['name' => 'komisaris']);
         $komisaris->givePermissionTo([
             'dashboard.view',
+            'pkpt.view',
+            'assurance.view',
+            'advisory.view',
+            'other_activity.view',
+            'follow_up.view',
             'report.view',
             'document.download',
             'notification.view',

@@ -180,20 +180,22 @@
         <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
             <div class="p-4">
                 <div class="flex justify-between items-start gap-4 mb-3">
-                    <h3 class="font-semibold text-charcoal text-base leading-snug">
-                        @if($typeSlug === 'program-kerja')
-                            {{ $doc->title ?: 'PKA Tanpa Nomor' }}
-                        @elseif($typeSlug === 'slide-entry')
-                            {{ $doc->title ?: 'Auditee Tidak Diketahui' }}
-                        @elseif($typeSlug === 'kertas-kerja-audit')
-                            {{ $doc->title ?: 'KKA Tanpa Nomor' }}
-                        @elseif($typeSlug === 'lha')
-                            {{ $doc->title ?: 'LHA Tanpa Nomor' }}
-                        @elseif($typeSlug === 'surat-tugas')
-                            {{ $doc->title ?: 'STG Tanpa Nomor' }}
-                        @else
-                            {{ $doc->title }}
-                        @endif
+                    <h3 class="font-semibold text-charcoal text-base leading-snug break-words line-clamp-2">
+                        <a href="{{ route('assurance.show', ['type' => $typeSlug, 'id' => $doc->id]) }}" class="hover:text-primary-600 transition-colors">
+                            @if($typeSlug === 'program-kerja')
+                                {{ $doc->title ?: 'PKA Tanpa Nomor' }}
+                            @elseif($typeSlug === 'slide-entry')
+                                {{ $doc->title ?: 'Auditee Tidak Diketahui' }}
+                            @elseif($typeSlug === 'kertas-kerja-audit')
+                                {{ $doc->title ?: 'KKA Tanpa Nomor' }}
+                            @elseif($typeSlug === 'lha')
+                                {{ $doc->title ?: 'LHA Tanpa Nomor' }}
+                            @elseif($typeSlug === 'surat-tugas')
+                                {{ $doc->title ?: 'STG Tanpa Nomor' }}
+                            @else
+                                {{ $doc->title }}
+                            @endif
+                        </a>
                     </h3>
                     @if(!in_array($typeSlug, ['program-kerja', 'slide-entry', 'kertas-kerja-audit', 'lha']))
                         <span class="flex-shrink-0 badge {{ $doc->status_color }}">{{ $doc->status_label }}</span>
