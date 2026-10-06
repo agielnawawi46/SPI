@@ -37,10 +37,13 @@ class SendFollowUpReminders extends Command
         $isMonday = $today->isMonday();
 
         // Find follow-ups that are NOT closed/tdd, have a PIC email, and have a due date
-        $followUps = FollowUp::whereNotIn('status', ['closed', 'tdd'])
+        $followUps = FollowUp::whereNotIn('status', ['closed', 'tdd', 'completed'])
             ->where('approval_status', '!=', 'approved')
-            ->whereNotNull('pic_email')
-            ->where('pic_email', '!=', '')
+            ->where(function($query) {
+                $query->whereNotNull('pic_email')
+                      ->where('pic_email', '!=', '')
+                      ->orWhereNotNull('assigned_to');
+            })
             ->whereNotNull('due_date')
             ->with(['document', 'assignee'])
             ->get();
@@ -76,9 +79,9 @@ class SendFollowUpReminders extends Command
             foreach ($recipients as $recipient) {
                 if ($recipient['user_id']) {
                     $urgencyLabel = match($reminderType) {
-                        'overdue' => '🔴 TERLAMBAT',
-                        'urgent'  => '🟠 MENDESAK',
-                        default   => '🔔 Pengingat',
+                        'overdue' => 'Peringatan Terlambat',
+                        'urgent'  => 'Perhatian',
+                        default   => 'Pengingat',
                     };
 
                     SpiNotification::create([
@@ -90,6 +93,24 @@ class SendFollowUpReminders extends Command
                         'notifiable_type' => FollowUp::class,
                         'notifiable_id'   => $followUp->id,
                     ]);
+                } else if (!empty($recipient['email'])) {
+                    $urgencyLabel = match($reminderType) {
+                        'overdue' => 'Peringatan Terlambat',
+                        'urgent'  => 'Perhatian',
+                        default   => 'Pengingat',
+                    };
+                    
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($recipient['email'])
+                            ->send(new \App\Mail\DocumentNotificationMail(
+                                "{$urgencyLabel} - Tindak Lanjut",
+                                $this->buildNotificationMessage($followUp, $reminderType, $daysRemaining),
+                                route('auditee.show', $followUp),
+                                'Bapak/Ibu'
+                            ));
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error("Failed to send notification email to {$recipient['email']}: " . $e->getMessage());
+                    }
                 }
             }
 
@@ -140,13 +161,24 @@ class SendFollowUpReminders extends Command
     {
         $recipients = collect();
 
-        // 1. PIC Staff (from pic_email field)
-        $picUser = User::where('email', $followUp->pic_email)->first();
-        $recipients->push([
-            'email'   => $followUp->pic_email,
-            'user_id' => $picUser?->id,
-            'role'    => 'staff',
-        ]);
+        // 1. PIC Staff (from assigned_to OR pic_email field)
+        if ($followUp->assigned_to) {
+            $assignee = $followUp->assignee;
+            if ($assignee) {
+                $recipients->push([
+                    'email'   => $assignee->email,
+                    'user_id' => $assignee->id,
+                    'role'    => 'staff',
+                ]);
+            }
+        } elseif ($followUp->pic_email) {
+            $picUser = User::where('email', $followUp->pic_email)->first();
+            $recipients->push([
+                'email'   => $followUp->pic_email,
+                'user_id' => $picUser?->id,
+                'role'    => 'staff',
+            ]);
+        }
 
         // 2. Manager & Asman Auditee (same department)
         if ($followUp->auditee_department_id) {
@@ -177,9 +209,9 @@ class SendFollowUpReminders extends Command
         $finding = Str::limit($followUp->finding, 50);
 
         return match($type) {
-            'overdue' => "Tindak lanjut \"{$finding}\" sudah MELEWATI jatuh tempo " . abs($daysRemaining) . " hari yang lalu! Segera selesaikan.",
-            'urgent'  => "Tindak lanjut \"{$finding}\" akan jatuh tempo dalam {$daysRemaining} hari. Segera upload bukti.",
-            default   => "Pengingat: Tindak lanjut \"{$finding}\" jatuh tempo dalam {$daysRemaining} hari.",
+            'overdue' => "Mohon perhatian, tindak lanjut \"{$finding}\" telah melewati batas waktu penyelesaian selama " . abs($daysRemaining) . " hari. Kami memohon agar Anda segera menyelesaikan dan mengunggah bukti yang diperlukan.",
+            'urgent'  => "Mohon perhatian, batas waktu penyelesaian untuk tindak lanjut \"{$finding}\" tersisa {$daysRemaining} hari lagi. Mohon untuk segera mengunggah bukti tindak lanjut Anda.",
+            default   => "Sebagai pengingat, tindak lanjut \"{$finding}\" memiliki sisa waktu {$daysRemaining} hari sebelum batas waktu penyelesaian. Mohon untuk disiapkan dengan baik.",
         };
     }
 }

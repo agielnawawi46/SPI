@@ -279,12 +279,14 @@ class OtherActivityController extends Controller
             'attachment'       => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:307200',
         ]);
 
+        $selectedType = DocumentType::find($request->document_type_id);
+
         $document = Document::create([
             'title'            => $request->title,
             'document_type_id' => $request->document_type_id,
             'content'          => $request->content ?? '',
             'created_by'       => Auth::id(),
-            'status'           => 'draft',
+            'status'           => ($selectedType && !$selectedType->requires_approval) ? 'approved' : 'draft',
         ]);
 
         if ($request->hasFile('attachment')) {
@@ -393,7 +395,7 @@ class OtherActivityController extends Controller
             ]);
         }
 
-        return redirect()->route('assurance.show', $document)->with('success', 'Dokumen berhasil diperbarui.');
+        return redirect()->route('other-activities.pendamping.index')->with('success', 'Dokumen berhasil diperbarui.');
     }
 
     public function pendampingDestroy(Document $document)
@@ -542,7 +544,7 @@ class OtherActivityController extends Controller
         $dataToStore = [
             'title'            => $request->title,
             'document_type_id' => $request->document_type_id,
-            'status'           => 'draft',
+            'status'           => ($selectedType && !$selectedType->requires_approval) ? 'approved' : 'draft',
             'created_by'       => Auth::id(),
             'tgl_stg'          => $request->tgl_stg,
             'auditee'          => $request->auditee,

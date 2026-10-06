@@ -75,6 +75,7 @@
                                             <a href="{{ Storage::url($uploadedFiles[$key]->file_path) }}" download target="_blank" title="Unduh" class="text-primary-600 hover:text-primary-800 flex items-center justify-center bg-primary-50 hover:bg-primary-100 rounded-md p-1.5 transition-colors">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                             </a>
+                                            @if($document && $document->status === 'draft')
                                             <form action="{{ route('pkpt.destroy-kertas-kerja-attachment', [$pkpt, $uploadedFiles[$key]->id]) }}" method="POST" class="inline-block m-0 p-0 leading-none" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?')">
                                                 @csrf
                                                 @method('DELETE')
@@ -82,10 +83,12 @@
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                 </button>
                                             </form>
+                                            @endif
                                         </div>
                                     </div>
                                 @endif
 
+                                @if($document && $document->status === 'draft')
                                 <form action="{{ route('pkpt.store-kertas-kerja', $pkpt) }}" method="POST" enctype="multipart/form-data" class="mt-2">
                                     @csrf
                                     <label class="text-xs font-medium text-charcoal block mb-1">
@@ -100,13 +103,32 @@
                                     </div>
                                     <p class="text-[10.5px] text-charcoal-muted mt-1.5">Format: PDF, DOC, DOCX, XLS, XLSX. Maks: 300MB.</p>
                                 </form>
+                                @endif
                             </div>
                         </div>
                     @endforeach
                 </div>
+
+                @if($document && $document->status === 'draft')
+                    <div class="mt-8 flex justify-end pt-6 border-t border-surface-200">
+                        <form action="{{ route('approvals.submit', ['type' => 'document', 'id' => $document->id]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin sudah selesai mengunggah semua file Kertas Kerja? Setelah klik selesai, dokumen akan dikunci (Closed).')">
+                            @csrf
+                            <button type="submit" class="btn-primary">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                Selesai & Tutup (Closed)
+                            </button>
+                        </form>
+                    </div>
+                @elseif($document && $document->status !== 'draft')
+                    <div class="mt-8 pt-6 border-t border-surface-200">
+                        <div class="bg-green-50 border border-green-200 text-green-700 p-4 rounded-lg flex items-center">
+                            <svg class="w-5 h-5 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Kertas Kerja PKPT ini telah selesai dan ditutup.
+                        </div>
+                    </div>
+                @endif
         </div>
     </div>
 </div>
-    </div>
-</div>
+
 @endsection

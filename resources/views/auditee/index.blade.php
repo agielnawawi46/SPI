@@ -12,7 +12,7 @@
     </div>
 
     {{-- Stats --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="stat-card">
             <div class="flex items-center gap-4">
                 <div class="stat-card-icon bg-orange-100 text-orange-600">
@@ -63,7 +63,7 @@
         <div class="card-header">
             <div>
                 <h2 class="card-title">Daftar Tindak Lanjut</h2>
-                <p class="text-xs text-charcoal-muted">Silakan upload bukti penyelesaian untuk setiap rekomendasi.</p>
+                <p class="text-xs text-charcoal-muted mt-1">Silakan upload bukti penyelesaian untuk setiap rekomendasi.</p>
             </div>
         </div>
 
@@ -83,28 +83,28 @@
         </div>
 
         <div class="table-wrapper">
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-surface-50 text-charcoal font-semibold border-b border-surface-200">
+            <div class="hidden md:block overflow-x-auto">
+                <table class="data-table w-full">
+                    <thead>
                         <tr>
-                            <th class="w-16 text-center px-4 py-3">No</th>
-                            <th class="px-4 py-3">Temuan</th>
-                            <th class="px-4 py-3">Rekomendasi</th>
-                            <th class="px-4 py-3">Jatuh Tempo</th>
-                            <th class="px-4 py-3">Status Persetujuan Bukti</th>
-                            <th class="px-4 py-3 text-center">Aksi</th>
+                            <th class="w-16 text-center">No</th>
+                            <th>Temuan</th>
+                            <th>Rekomendasi</th>
+                            <th>Jatuh Tempo</th>
+                            <th>Status Persetujuan Bukti</th>
+                            <th class="text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-surface-200">
+                    <tbody>
                         @forelse($followUps as $index => $fu)
-                            <tr class="hover:bg-surface-50 transition-colors">
-                                <td class="px-4 py-3 text-center text-charcoal-muted">{{ $followUps->firstItem() + $index }}</td>
-                                <td class="px-4 py-3 font-medium text-charcoal max-w-xs truncate" title="{{ $fu->finding }}">{{ $fu->finding }}</td>
-                                <td class="px-4 py-3 text-charcoal-muted max-w-xs truncate" title="{{ $fu->recommendation }}">{{ $fu->recommendation }}</td>
-                                <td class="px-4 py-3 {{ $fu->status === 'overdue' ? 'text-red-600 font-medium' : 'text-charcoal-muted' }}">
+                            <tr>
+                                <td class="text-center text-charcoal-muted">{{ $followUps->firstItem() + $index }}</td>
+                                <td class="font-medium text-charcoal max-w-xs truncate" title="{{ $fu->finding }}">{{ $fu->finding }}</td>
+                                <td class="text-charcoal-muted max-w-xs truncate" title="{{ $fu->recommendation }}">{{ $fu->recommendation }}</td>
+                                <td class="{{ $fu->status === 'overdue' ? 'text-red-600 font-medium' : 'text-charcoal-muted' }}">
                                     {{ \Carbon\Carbon::parse($fu->due_date)->format('d M Y') }}
                                 </td>
-                                <td class="px-4 py-3">
+                                <td>
                                     @if($fu->approval_status === 'pending' && $fu->evidences_count > 0)
                                         <span class="badge badge-in-progress">Draf (Belum Dikirim)</span>
                                     @elseif($fu->status === 'closed' || $fu->approval_status === 'approved')
@@ -115,8 +115,8 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-center">
-                                    <div class="flex items-center justify-center gap-2">
+                                <td class="text-right">
+                                    <div class="flex items-center justify-end gap-2">
                                         <a href="{{ route('auditee.show', $fu) }}" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 shadow-sm transition-all inline-flex" title="Lihat Detail">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
@@ -125,8 +125,14 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-charcoal-muted">
-                                    Tidak ada tindak lanjut untuk bidang Anda.
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">
+                                            <svg class="w-8 h-8 text-charcoal-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                        </div>
+                                        <h3 class="empty-state-title">Tidak ada tindak lanjut</h3>
+                                        <p class="empty-state-description">Tidak ada tindak lanjut untuk bidang Anda.</p>
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
@@ -134,8 +140,60 @@
                 </table>
             </div>
 
+            {{-- Mobile Card View --}}
+            <div class="md:hidden space-y-4 p-4">
+                @forelse($followUps as $fu)
+                <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start gap-4 mb-3">
+                            <h3 class="font-semibold text-charcoal text-base leading-snug break-words line-clamp-2">
+                                <a href="{{ route('auditee.show', $fu) }}" class="hover:text-primary-600 transition-colors">
+                                    {{ $fu->finding }}
+                                </a>
+                            </h3>
+                            <span class="flex-shrink-0">
+                                @if($fu->approval_status === 'pending' && $fu->evidences_count > 0)
+                                    <span class="badge badge-in-progress">Draf</span>
+                                @elseif($fu->status === 'closed' || $fu->approval_status === 'approved')
+                                    <span class="badge badge-approved">Closed</span>
+                                @else
+                                    <span class="badge {{ $fu->approval_status === 'rejected' ? 'badge-rejected' : 'badge-pending' }}">
+                                        {{ ucwords(str_replace('_', ' ', $fu->approval_status)) }}
+                                    </span>
+                                @endif
+                            </span>
+                        </div>
+                        
+                        <div class="flex flex-col gap-2">
+                            <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
+                                <span class="text-charcoal-muted">Rekomendasi</span>
+                                <span class="font-medium text-charcoal max-w-[150px] truncate" title="{{ $fu->recommendation }}">{{ $fu->recommendation }}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-charcoal-muted">Jatuh Tempo</span>
+                                <span class="font-medium {{ $fu->status === 'overdue' ? 'text-red-600 font-medium' : 'text-charcoal' }}">{{ \Carbon\Carbon::parse($fu->due_date)->format('d M Y') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-surface-50 px-4 py-3 flex items-center justify-end gap-3 border-t border-surface-200">
+                        <a href="{{ route('auditee.show', $fu) }}" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 shadow-sm transition-all" title="Lihat Detail">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                @empty
+                <div class="empty-state border border-surface-200 rounded-xl m-4">
+                    <div class="empty-state-icon">
+                        <svg class="w-8 h-8 text-charcoal-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    </div>
+                    <h3 class="empty-state-title">Tidak ada tindak lanjut</h3>
+                    <p class="empty-state-description">Tidak ada tindak lanjut untuk bidang Anda.</p>
+                </div>
+                @endforelse
+            </div>
+
             @if($followUps->hasPages())
-                <div class="p-4 border-t border-surface-200">
+                <div class="pagination-wrapper p-4 border-t border-surface-200">
                     {{ $followUps->links() }}
                 </div>
             @endif

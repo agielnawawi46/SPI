@@ -105,7 +105,7 @@ class AdvisoryController extends Controller
         }
 
         $selectedType = DocumentType::find($request->document_type_id);
-        $status = ($selectedType && $selectedType->slug === 'lap-konsultasi') ? 'approved' : 'draft';
+        $status = ($selectedType && !$selectedType->requires_approval) ? 'approved' : 'draft';
 
         $document = Document::create([
             'title'                  => $request->title,

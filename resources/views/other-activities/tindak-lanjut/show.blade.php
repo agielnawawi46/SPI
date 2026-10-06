@@ -171,19 +171,19 @@
             <p class="text-xs text-primary-600 mt-1">Daftar tugas upload bukti yang diteruskan ke masing-masing PIC/Departemen Auditee.</p>
         </div>
         <div class="card-body p-0">
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-surface-50 text-charcoal font-semibold border-b border-surface-200">
+            <div class="hidden md:block overflow-x-auto">
+                <table class="data-table w-full">
+                    <thead>
                         <tr>
-                            <th class="px-4 py-3">No</th>
-                            <th class="px-4 py-3">Temuan (LHA)</th>
-                            <th class="px-4 py-3">PIC / Email</th>
-                            <th class="px-4 py-3">Jatuh Tempo</th>
-                            <th class="px-4 py-3">Status Persetujuan Bukti</th>
-                            <th class="px-4 py-3">Aksi</th>
+                            <th class="w-16 text-center">No</th>
+                            <th>Temuan (LHA)</th>
+                            <th>PIC / Email</th>
+                            <th>Jatuh Tempo</th>
+                            <th>Status Persetujuan Bukti</th>
+                            <th class="text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-surface-200">
+                    <tbody>
                         @foreach($document->followUps as $index => $followUp)
                             @php
                                 // Restrict row visibility based on department for auditees
@@ -197,17 +197,17 @@
                                 }
                             @endphp
                             @if($canView)
-                            <tr class="hover:bg-surface-50 transition-colors">
-                                <td class="px-4 py-3">{{ $index + 1 }}</td>
-                                <td class="px-4 py-3 max-w-xs truncate" title="{{ $followUp->finding }}">{{ Str::limit($followUp->finding, 50) }}</td>
-                                <td class="px-4 py-3">
-                                    <div class="font-medium">{{ $followUp->pic_name ?? '-' }}</div>
+                            <tr>
+                                <td class="text-center text-charcoal-muted">{{ $index + 1 }}</td>
+                                <td class="max-w-xs truncate" title="{{ $followUp->finding }}">{{ Str::limit($followUp->finding, 50) }}</td>
+                                <td>
+                                    <div class="font-medium text-charcoal">{{ $followUp->pic_name ?? '-' }}</div>
                                     <div class="text-xs text-charcoal-muted">{{ $followUp->pic_email ?? '-' }}</div>
                                 </td>
-                                <td class="px-4 py-3 {{ $followUp->status === 'overdue' ? 'text-red-600 font-medium' : '' }}">
+                                <td class="{{ $followUp->status === 'overdue' ? 'text-red-600 font-medium' : 'text-charcoal-muted' }}">
                                     {{ \Carbon\Carbon::parse($followUp->due_date)->format('d M Y') }}
                                 </td>
-                                <td class="px-4 py-3">
+                                <td>
                                     @if($followUp->approval_status === 'pending' && $followUp->evidences_count > 0)
                                         <span class="badge badge-in-progress">Draf (Belum Dikirim)</span>
                                     @elseif($followUp->status === 'closed' || $followUp->approval_status === 'approved')
@@ -218,7 +218,7 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3">
+                                <td class="text-right">
                                     <a href="{{ route('auditee.show', $followUp) }}" class="btn-outline btn-sm">Detail & Upload</a>
                                 </td>
                             </tr>
@@ -226,6 +226,58 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            {{-- Mobile Card View --}}
+            <div class="md:hidden space-y-4 p-4">
+                @foreach($document->followUps as $index => $followUp)
+                    @php
+                        $user = Auth::user();
+                        $canView = true;
+                        if ($user->hasRole(['manager', 'asman', 'staff'])) {
+                            $deptId = $user->department_id ?? 1;
+                            if ($followUp->auditee_department_id !== $deptId && $followUp->assigned_to !== $user->id) {
+                                $canView = false;
+                            }
+                        }
+                    @endphp
+                    @if($canView)
+                    <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
+                        <div class="p-4">
+                            <div class="flex justify-between items-start gap-4 mb-3">
+                                <h3 class="font-semibold text-charcoal text-base leading-snug break-words line-clamp-2">
+                                    {{ $followUp->finding }}
+                                </h3>
+                                <span class="flex-shrink-0">
+                                    @if($followUp->approval_status === 'pending' && $followUp->evidences_count > 0)
+                                        <span class="badge badge-in-progress">Draf</span>
+                                    @elseif($followUp->status === 'closed' || $followUp->approval_status === 'approved')
+                                        <span class="badge badge-approved">Closed</span>
+                                    @else
+                                        <span class="badge {{ $followUp->approval_status === 'rejected' ? 'badge-rejected' : 'badge-pending' }}">
+                                            {{ str_replace('_', ' ', $followUp->approval_status) }}
+                                        </span>
+                                    @endif
+                                </span>
+                            </div>
+                            
+                            <div class="flex flex-col gap-2">
+                                <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
+                                    <span class="text-charcoal-muted">PIC</span>
+                                    <span class="font-medium text-charcoal text-right">{{ $followUp->pic_name ?? '-' }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-charcoal-muted">Jatuh Tempo</span>
+                                    <span class="font-medium {{ $followUp->status === 'overdue' ? 'text-red-600 font-medium' : 'text-charcoal' }}">{{ \Carbon\Carbon::parse($followUp->due_date)->format('d M Y') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-surface-50 px-4 py-3 flex items-center justify-end border-t border-surface-200">
+                            <a href="{{ route('auditee.show', $followUp) }}" class="btn-outline btn-sm">Detail & Upload</a>
+                        </div>
+                    </div>
+                    @endif
+                @endforeach
             </div>
         </div>
     </div>
@@ -239,7 +291,7 @@
                 <td class="w-1/2 align-top border-none">
                         <img src="{{ asset('pln.jpg') }}" alt="Logo" class="max-h-16 object-contain">
                 </td>
-                <td class="w-1/2 align-top text-right text-[8pt] border-none">
+                <td class="w-1/2 align-top text-right text-[8pt] border-none text-[#002060]">
                     <table class="w-auto float-right text-left">
                         <tr>
                             <td class="py-0.5">No. Formulir</td><td class="px-2 py-0.5">:</td><td class="py-0.5">{{ $document->nomor_formulir ?? '-' }}</td>

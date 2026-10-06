@@ -168,7 +168,7 @@ class AssuranceController extends Controller
             'title'            => $request->title,
             'document_type_id' => $request->document_type_id,
             'audit_type'       => $request->audit_type,
-            'status'           => 'draft',
+            'status'           => ($selectedType && !$selectedType->requires_approval) ? 'approved' : 'draft',
             'created_by'       => Auth::id(),
             'tgl_pka'          => $request->tgl_pka,
             'disusun_oleh'     => $request->disusun_oleh,

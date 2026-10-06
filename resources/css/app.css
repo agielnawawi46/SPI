@@ -82,7 +82,7 @@
 
     /* --- Cards --- */
     .card {
-        @apply bg-white rounded-xl shadow-card border border-surface-100 overflow-hidden transition-shadow duration-200;
+        @apply bg-white rounded-xl shadow-card border border-surface-100 transition-shadow duration-200;
     }
     .card:hover {
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);

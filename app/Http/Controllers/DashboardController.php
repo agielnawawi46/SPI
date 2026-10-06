@@ -95,9 +95,10 @@ class DashboardController extends Controller
     }
 
     /**
-     * AJAX live-search across Documents.
+     * AJAX live-search across Documents + Pkpt (PKPT Utama).
      * Supports: no dokumen, nama/title, tanggal (YYYY-MM-DD / d M Y / d/m/Y)
      * Also supports: module filter (pkpt | assurance | advisory | pendamping | qa | all)
+     * PKPT Utama (model Pkpt) dan Kertas Kerja PKPT (Document) dibedakan labelnya.
      */
     public function search(Request $request)
     {
@@ -117,18 +118,34 @@ class DashboardController extends Controller
             $module = 'advisory'; // paksa, tidak bisa di-override
         }
 
-        $query = Document::with(['documentType', 'creator'])
+        // ── 1. Search Documents ────────────────────────
+        $docQuery = Document::with(['documentType', 'creator'])
             ->whereNull('deleted_at');
 
-        // ── Module filter ──────────────────────────────
-        if ($module === 'kegiatan-lainnya') {
-            // Kegiatan Lainnya mencakup: Pendamping Eksternal, QA, Monitoring TL
-            $query->whereHas('documentType', function ($q2) {
+        // Module filter untuk Documents
+        if ($module === 'pkpt') {
+            $docQuery->whereHas('documentType', function ($q2) {
+                $q2->where('module', 'pkpt');
+            });
+        } elseif ($module === 'kertas-kerja-pkpt') {
+            $docQuery->whereHas('documentType', function ($q2) {
+                $q2->where('module', 'pkpt')->where('slug', 'kertas-kerja-pkpt');
+            });
+        } elseif ($module === 'pkpt-utama') {
+            $docQuery->whereRaw('1 = 0');
+        } elseif ($module === 'kegiatan-lainnya') {
+            $docQuery->whereHas('documentType', function ($q2) {
                 $q2->whereIn('module', ['pendamping', 'qa', 'tindak-lanjut']);
             });
         } elseif ($module !== 'all') {
-            $query->whereHas('documentType', function ($q2) use ($module) {
+            $docQuery->whereHas('documentType', function ($q2) use ($module) {
                 $q2->where('module', $module);
+            });
+        } else {
+            // Saat 'all': exclude slug 'pkpt' dari Document karena PKPT asli
+            // dicari via model Pkpt langsung (di bawah)
+            $docQuery->whereHas('documentType', function ($q2) {
+                $q2->where('slug', '!=', 'pkpt');
             });
         }
 
@@ -142,7 +159,7 @@ class DashboardController extends Controller
             }
         }
 
-        $query->where(function ($w) use ($q, $type, $parsedDate) {
+        $docQuery->where(function ($w) use ($q, $type, $parsedDate) {
             if ($type === 'no' || $type === 'all') {
                 $w->orWhere('document_number', 'like', "%{$q}%");
                 $w->orWhere('nomor_formulir',  'like', "%{$q}%");
@@ -160,21 +177,20 @@ class DashboardController extends Controller
             }
         });
 
-
-        $results = $query->latest()->take(15)->get()->map(function (Document $doc) {
-            // Pick the best "tanggal" field to display
+        $docResults = $docQuery->latest()->take(12)->get()->map(function (Document $doc) {
             $tanggal = $doc->tgl_lha ?? $doc->tgl_pka ?? $doc->tgl_entry ?? $doc->tanggal_formulir ?? $doc->created_at;
             $mod     = $doc->documentType?->module ?? '';
+            $slug    = $doc->documentType?->slug ?? '';
 
-            $moduleLabel = match($mod) {
-                'pkpt'          => 'PKPT',
-                'assurance'     => 'Assurance',
-                'advisory'      => 'Advisory',
-                'pendamping',
-                'qa',
-                'tindak-lanjut' => 'Kegiatan Lainnya',
-                'report'        => 'Laporan Kinerja',
-                default         => $mod,
+            // Label yang jelas membedakan Kertas Kerja PKPT vs dokumen lainnya
+            $moduleLabel = match(true) {
+                $mod === 'pkpt' && $slug === 'kertas-kerja-pkpt' => 'Kertas Kerja PKPT',
+                $mod === 'pkpt'                                  => 'PKPT',
+                $mod === 'assurance'                             => 'Assurance',
+                $mod === 'advisory'                              => 'Advisory',
+                in_array($mod, ['pendamping', 'qa', 'tindak-lanjut']) => 'Kegiatan Lainnya',
+                $mod === 'report'                                => 'Laporan Kinerja',
+                default                                          => $mod,
             };
 
             return [
@@ -183,7 +199,7 @@ class DashboardController extends Controller
                 'no'           => $doc->document_number ?? $doc->nomor_formulir ?? '-',
                 'nama'         => $doc->title ?? $doc->judul_dokumen ?? '-',
                 'type'         => $doc->documentType?->name ?? '-',
-                'type_slug'    => $doc->documentType?->slug ?? '',
+                'type_slug'    => $slug,
                 'module'       => $mod,
                 'module_label' => $moduleLabel,
                 'status'       => $doc->status,
@@ -195,6 +211,44 @@ class DashboardController extends Controller
             ];
         });
 
+        // ── 2. Search Pkpt model (PKPT Utama) ─────────
+        // PKPT Utama disimpan di tabel `pkpts` (bukan `documents`)
+        $pkptResults = collect();
+        if (!$user->isAuditee() && in_array($module, ['all', 'pkpt', 'pkpt-utama'])) {
+            $pkptQuery = \App\Models\Pkpt::with('creator')->whereNull('deleted_at');
+
+            $pkptQuery->where(function ($w) use ($q, $type, $parsedDate) {
+                if ($type === 'no' || $type === 'nama' || $type === 'all') {
+                    $w->orWhere('title', 'like', "%{$q}%")
+                      ->orWhere('period_year', 'like', "%{$q}%");
+                }
+                if (($type === 'tanggal' || $type === 'all') && $parsedDate) {
+                    $w->orWhereDate('created_at', $parsedDate);
+                }
+            });
+
+            $pkptResults = $pkptQuery->latest()->take(5)->get()->map(function (\App\Models\Pkpt $pkpt) {
+                return [
+                    'id'           => 'pkpt-' . $pkpt->id,
+                    'uuid'         => null,
+                    'no'           => (string) $pkpt->period_year,
+                    'nama'         => $pkpt->title,
+                    'type'         => 'PKPT Utama',
+                    'type_slug'    => 'pkpt',
+                    'module'       => 'pkpt',
+                    'module_label' => 'PKPT Utama',
+                    'status'       => $pkpt->status,
+                    'status_label' => $pkpt->status_label,
+                    'status_color' => 'badge-draft',
+                    'tanggal'      => $pkpt->created_at?->format('d M Y') ?? '-',
+                    'creator'      => $pkpt->creator?->name ?? '-',
+                    'url'          => route('pkpt.show', $pkpt),
+                ];
+            });
+        }
+
+        // Gabungkan: PKPT Utama tampil di atas, lalu dokumen lainnya
+        $results = $pkptResults->concat($docResults)->take(15)->values();
 
         return response()->json([
             'results' => $results,
@@ -208,15 +262,21 @@ class DashboardController extends Controller
      */
     private function resolveDocumentUrl(Document $doc): string
     {
-        $slug = $doc->documentType?->slug ?? '';
         $module = $doc->documentType?->module ?? '';
+        $slug   = $doc->documentType?->slug ?? '';
 
         try {
             return match ($module) {
-                'assurance'       => route('assurance.show', $doc),
-                'advisory'        => route('advisory.show', $doc),
-                'other_activity'  => route('other-activities.show', $doc),
-                default           => '#',
+                'assurance'     => route('assurance.show', $doc),
+                'advisory'      => route('advisory.show', $doc),
+                'tindak-lanjut' => route('other-activities.tl.show', $doc),
+                'pendamping'    => route('other-activities.pendamping.index'),
+                'qa'            => route('other-activities.qa.show', $doc),
+                'report'        => route('performance-reports.show', $doc),
+                'pkpt'          => $slug === 'kertas-kerja-pkpt' && $doc->pkpt_id
+                                    ? route('pkpt.kertas-kerja', $doc->pkpt_id)
+                                    : route('pkpt.show', $doc->pkpt_id ?? $doc->id),
+                default         => '#',
             };
         } catch (\Exception $e) {
             return '#';

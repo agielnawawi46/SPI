@@ -37,6 +37,14 @@ class ApprovalController extends Controller
         }
 
         DB::transaction(function () use ($document) {
+            // Bypass approval if the document type doesn't require it
+            if ($document->documentType && !$document->documentType->requires_approval) {
+                $document->update([
+                    'status' => 'approved',
+                ]);
+                return;
+            }
+
             if ($document->documentType?->slug === 'bak') {
                 $document->update([
                     'status' => 'pending_kspi',

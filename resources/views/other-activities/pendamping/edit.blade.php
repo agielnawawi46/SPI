@@ -31,7 +31,7 @@
         </div>
         
         <div class="px-6 py-4 bg-surface-50 border-t border-surface-100 flex items-center justify-end gap-3 mt-8">
-            <a href="{{ route('other-activities.pendamping.show', $document) }}" class="btn-secondary">Batal</a>
+            <a href="{{ route('other-activities.pendamping.index') }}" class="btn-secondary">Batal</a>
             <button type="submit" class="btn-primary">Simpan Kertas Kerja</button>
         </div>
     </form>

@@ -10,7 +10,7 @@
         .header-table td { vertical-align: top; }
         .header-logo { width: 25%; }
         .header-logo img { max-height: 80px; }
-        .header-text { width: 75%; text-align: right; font-size: 8pt; }
+        .header-text { width: 75%; text-align: right; font-size: 8pt; color: #002060; }
         .title-section { text-align: center; margin-bottom: 10px; font-weight: bold; font-size: 10pt; line-height: 1.3; clear: both;}
         .content-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; table-layout: fixed; word-wrap: break-word; }
         .content-table th, .content-table td { border: 1px solid #000; padding: 4px; vertical-align: top; text-align: center; }

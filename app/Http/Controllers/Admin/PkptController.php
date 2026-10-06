@@ -44,7 +44,7 @@ class PkptController extends Controller
 
         $pkpt = new Pkpt($request->only('title', 'period_year'));
         $pkpt->created_by = Auth::id();
-        $pkpt->status = 'draft';
+        $pkpt->status = 'approved';
         
         if ($request->hasFile('pkpt_file')) {
             $file = $request->file('pkpt_file');
