@@ -363,3 +363,22 @@
     .sidebar, .topbar { display: none !important; }
     .main-content { margin: 0 !important; padding: 0 !important; }
 }
+
+/* ============================================
+   HERO ANIMATIONS & EFFECTS
+   ============================================ */
+@keyframes float-gentle {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-7px); }
+}
+@keyframes float-subtle {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+}
+.animate-float-gentle {
+    animation: float-gentle 4s ease-in-out infinite;
+}
+.animate-float-subtle {
+    animation: float-subtle 5s ease-in-out infinite;
+}
+
