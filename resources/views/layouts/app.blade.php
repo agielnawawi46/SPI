@@ -77,7 +77,7 @@
 {{-- Mobile Sidebar Overlay --}}
 <div x-show="sidebarOpen" x-transition.opacity 
      @click="sidebarOpen = false"
-     class="fixed inset-0 bg-charcoal/50 z-40 lg:hidden" style="display: none;">
+     class="fixed inset-0 bg-charcoal/50 z-[90] lg:hidden" style="display: none;">
 </div>
 
 {{-- ============================================
@@ -292,18 +292,19 @@
 {{-- ============================================
      TOP NAVBAR
      ============================================ --}}
-<header class="topbar">
+<header class="topbar w-full">
     {{-- Breadcrumbs / Page Title --}}
-    <div class="flex items-center">
+    <div class="flex items-center flex-1">
         {{-- Mobile Hamburger --}}
         <button @click="sidebarOpen = true" class="lg:hidden text-charcoal hover:text-primary-500 focus:outline-none mr-3" aria-label="Buka Menu">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
+        
         <h1 class="page-title text-base font-semibold">@yield('page_title', 'Dashboard')</h1>
     </div>
 
     {{-- Right Side: Notifications + User Menu --}}
-    <div class="flex items-center gap-3">
+    <div class="flex items-center justify-end gap-3">
 
         {{-- Notification Bell --}}
         <div class="relative" x-data="notificationDropdown()" @click.outside="close()">
@@ -392,5 +393,258 @@
 </footer>
 
 @stack('scripts')
+
+{{-- ============================================
+     CUSTOM ALERT DIALOG (Replaces browser native alert)
+     ============================================ --}}
+<div id="custom-alert-overlay"
+     style="display:none; position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center; padding:1rem;"
+     class="bg-charcoal/60 backdrop-blur-sm">
+
+    <div id="custom-alert-box"
+         style="transform: scale(0.95); opacity: 0; transition: transform 0.2s ease, opacity 0.2s ease;"
+         class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto p-0 overflow-hidden border border-surface-200">
+
+        {{-- Header --}}
+        <div class="flex items-center gap-3 px-6 pt-6 pb-4">
+            <div id="alert-icon-wrap" class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-100">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-charcoal">Informasi</p>
+                <p class="text-xs text-charcoal-muted">SPI PT Pelayanan Energi Batam</p>
+            </div>
+        </div>
+
+        {{-- Body --}}
+        <div class="px-6 pb-2">
+            <p id="custom-alert-message" class="text-sm text-charcoal leading-relaxed"></p>
+        </div>
+
+        {{-- Divider --}}
+        <div class="border-t border-surface-100 mx-6 my-4"></div>
+
+        {{-- Button --}}
+        <div class="flex items-center justify-end px-6 pb-6">
+            <button id="custom-alert-ok"
+                    class="px-5 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors shadow-sm">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ============================================
+     CUSTOM CONFIRM DIALOG (Replaces browser native confirm)
+     ============================================ --}}
+<div id="custom-confirm-overlay"
+     style="display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; padding:1rem;"
+     class="bg-charcoal/60 backdrop-blur-sm">
+
+    <div id="custom-confirm-box"
+         style="transform: scale(0.95); opacity: 0; transition: transform 0.2s ease, opacity 0.2s ease;"
+         class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto p-0 overflow-hidden border border-surface-200">
+
+        {{-- Header --}}
+        <div class="flex items-center gap-3 px-6 pt-6 pb-4">
+            <div id="confirm-icon-wrap" class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100">
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-charcoal">Konfirmasi Tindakan</p>
+                <p class="text-xs text-charcoal-muted">SPI PT Pelayanan Energi Batam</p>
+            </div>
+        </div>
+
+        {{-- Body --}}
+        <div class="px-6 pb-2">
+            <p id="custom-confirm-message" class="text-sm text-charcoal leading-relaxed"></p>
+        </div>
+
+        {{-- Divider --}}
+        <div class="border-t border-surface-100 mx-6 my-4"></div>
+
+        {{-- Buttons --}}
+        <div class="flex items-center justify-end gap-3 px-6 pb-6">
+            <button id="custom-confirm-cancel"
+                    class="px-5 py-2 text-sm font-semibold text-charcoal bg-surface-100 hover:bg-surface-200 rounded-lg transition-colors border border-surface-200">
+                Batal
+            </button>
+            <button id="custom-confirm-ok"
+                    class="px-5 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors shadow-sm">
+                Ya, Lanjutkan
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const overlay  = document.getElementById('custom-confirm-overlay');
+    const box      = document.getElementById('custom-confirm-box');
+    const msgEl    = document.getElementById('custom-confirm-message');
+    const btnOk    = document.getElementById('custom-confirm-ok');
+    const btnCancel= document.getElementById('custom-confirm-cancel');
+
+    let _resolve = null;
+
+    function showDialog(message) {
+        // Detect "destructive" keywords → switch icon to red
+        const isDestructive = /hapus|delete|tutup|locked|closed/i.test(message);
+        const iconWrap = document.getElementById('confirm-icon-wrap');
+        if (isDestructive) {
+            iconWrap.className = 'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-red-100';
+            iconWrap.querySelector('svg').setAttribute('class', 'w-5 h-5 text-red-600');
+            btnOk.className = 'px-5 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm';
+        } else {
+            iconWrap.className = 'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100';
+            iconWrap.querySelector('svg').setAttribute('class', 'w-5 h-5 text-amber-600');
+            btnOk.className = 'px-5 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors shadow-sm';
+        }
+
+        msgEl.textContent = message;
+        overlay.style.display = 'flex';
+        // Animate in
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                box.style.transform = 'scale(1)';
+                box.style.opacity   = '1';
+            });
+        });
+    }
+
+    function hideDialog() {
+        box.style.transform = 'scale(0.95)';
+        box.style.opacity   = '0';
+        setTimeout(() => { overlay.style.display = 'none'; }, 200);
+    }
+
+    btnOk.addEventListener('click', () => {
+        hideDialog();
+        if (_resolve) { _resolve(true); _resolve = null; }
+    });
+
+    btnCancel.addEventListener('click', () => {
+        hideDialog();
+        if (_resolve) { _resolve(false); _resolve = null; }
+    });
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            hideDialog();
+            if (_resolve) { _resolve(false); _resolve = null; }
+        }
+    });
+
+    // Override native confirm()
+    window.confirm = function (message) {
+        return true; // Fallback — real interception done via event listeners below
+    };
+
+    // Expose showDialog globally for direct JS usage: window.showConfirmDialog('msg', callback)
+    window.showConfirmDialog = function(message, onConfirm) {
+        showDialog(message);
+        _resolve = (confirmed) => {
+            if (confirmed && typeof onConfirm === 'function') onConfirm();
+        };
+    };
+
+    // Override native alert()
+    (function () {
+        const alertOverlay = document.getElementById('custom-alert-overlay');
+        const alertBox     = document.getElementById('custom-alert-box');
+        const alertMsgEl   = document.getElementById('custom-alert-message');
+        const alertBtnOk   = document.getElementById('custom-alert-ok');
+
+        function showAlert(message) {
+            // Detect error-ish keywords → red icon
+            const isError = /error|gagal|tidak valid|minimal|wajib/i.test(message);
+            const iconWrap = document.getElementById('alert-icon-wrap');
+            if (isError) {
+                iconWrap.className = 'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-red-100';
+                iconWrap.querySelector('svg').setAttribute('class', 'w-5 h-5 text-red-600');
+                iconWrap.querySelector('svg path').setAttribute('d', 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z');
+            } else {
+                iconWrap.className = 'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-100';
+                iconWrap.querySelector('svg').setAttribute('class', 'w-5 h-5 text-blue-600');
+                iconWrap.querySelector('svg path').setAttribute('d', 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z');
+            }
+            alertMsgEl.textContent = message;
+            alertOverlay.style.display = 'flex';
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    alertBox.style.transform = 'scale(1)';
+                    alertBox.style.opacity   = '1';
+                });
+            });
+        }
+
+        function hideAlert() {
+            alertBox.style.transform = 'scale(0.95)';
+            alertBox.style.opacity   = '0';
+            setTimeout(() => { alertOverlay.style.display = 'none'; }, 200);
+        }
+
+        alertBtnOk.addEventListener('click', hideAlert);
+        alertOverlay.addEventListener('click', (e) => { if (e.target === alertOverlay) hideAlert(); });
+
+        window.alert = showAlert;
+    })();
+
+    // Intercept all form submissions that use onsubmit="return confirm(...)"
+    document.addEventListener('submit', function (e) {
+        const form = e.target;
+        if (!form || form._confirmHandled) return;
+
+        // Check if onsubmit attribute contains confirm(
+        const onsubmitAttr = form.getAttribute('onsubmit') || '';
+        const match = onsubmitAttr.match(/(?:return\s+)?confirm\(['"](.+?)['"]\)/);
+        if (match) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            form.removeAttribute('onsubmit');
+            showDialog(match[1]);
+            _resolve = (confirmed) => {
+                if (confirmed) {
+                    form._confirmHandled = true;
+                    form.submit();
+                }
+            };
+        }
+    }, true); // capture phase
+
+    // Intercept all button/element onclick="return confirm(...)"
+    document.addEventListener('click', function (e) {
+        const el = e.target.closest('[onclick]');
+        if (!el) return;
+        const onclickAttr = el.getAttribute('onclick') || '';
+        const match = onclickAttr.match(/(?:return\s+)?confirm\(['"](.+?)['"]\)/);
+        if (match) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            el.removeAttribute('onclick');
+
+            showDialog(match[1]);
+            _resolve = (confirmed) => {
+                if (confirmed) {
+                    // Re-trigger: if inside a form, submit it
+                    const form = el.closest('form') || el.form;
+                    if (form) {
+                        form._confirmHandled = true;
+                        form.submit();
+                    } else {
+                        el.click();
+                    }
+                }
+            };
+        }
+    }, true); // capture phase
+
+})();
+</script>
 </body>
 </html>

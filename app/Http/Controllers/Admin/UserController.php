@@ -48,9 +48,23 @@ class UserController extends Controller
             'nip'           => 'nullable|string|max:50|unique:users',
             'position'      => 'nullable|string|max:255',
             'department_id' => 'nullable|exists:departments,id',
+            'custom_department' => 'nullable|string|max:255|required_if:department_id,' . (Department::where('code', 'LAIN')->first()?->id ?? -1),
             'role'          => 'required|exists:roles,name',
             'is_active'     => 'boolean',
         ]);
+
+        $lainDept = Department::where('code', 'LAIN')->first();
+        if ($lainDept && $request->department_id == $lainDept->id && $request->filled('custom_department')) {
+            $customDeptName = $request->custom_department;
+            $code = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $customDeptName), 0, 4));
+            if (empty($code)) $code = 'CUST';
+            
+            $newDept = Department::firstOrCreate(
+                ['name' => $customDeptName],
+                ['code' => $code, 'description' => $customDeptName, 'is_active' => true]
+            );
+            $validated['department_id'] = $newDept->id;
+        }
 
         DB::transaction(function () use ($validated) {
             $user = User::create([
@@ -85,9 +99,23 @@ class UserController extends Controller
             'nip'           => ['nullable', 'string', 'max:50', Rule::unique('users')->ignore($user->id)],
             'position'      => 'nullable|string|max:255',
             'department_id' => 'nullable|exists:departments,id',
+            'custom_department' => 'nullable|string|max:255|required_if:department_id,' . (Department::where('code', 'LAIN')->first()?->id ?? -1),
             'role'          => 'required|exists:roles,name',
             'is_active'     => 'boolean',
         ]);
+
+        $lainDept = Department::where('code', 'LAIN')->first();
+        if ($lainDept && $request->department_id == $lainDept->id && $request->filled('custom_department')) {
+            $customDeptName = $request->custom_department;
+            $code = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $customDeptName), 0, 4));
+            if (empty($code)) $code = 'CUST';
+            
+            $newDept = Department::firstOrCreate(
+                ['name' => $customDeptName],
+                ['code' => $code, 'description' => $customDeptName, 'is_active' => true]
+            );
+            $validated['department_id'] = $newDept->id;
+        }
 
         DB::transaction(function () use ($request, $validated, $user) {
             $updateData = [

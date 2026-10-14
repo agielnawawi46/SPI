@@ -25,18 +25,8 @@
         <form action="{{ route('pkpt.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3">
             <x-live-search module="pkpt-utama" placeholder="Cari judul atau tahun PKPT..." />
             
-            <div class="w-full sm:w-48">
-                <select name="status" class="form-select">
-                    <option value="">Semua Status</option>
-                    <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
-                    <option value="pending_kspi" {{ request('status') == 'pending_kspi' ? 'selected' : '' }}>Menunggu KSPI</option>
-                    <option value="pending_direktur" {{ request('status') == 'pending_direktur' ? 'selected' : '' }}>Menunggu Direktur</option>
-                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
-                </select>
-            </div>
-            
-            <button type="submit" class="btn-secondary">Filter</button>
-            @if(request()->hasAny(['search', 'status']))
+            <button type="submit" class="btn-secondary">Cari</button>
+            @if(request()->has('search') && request('search') != '')
                 <a href="{{ route('pkpt.index') }}" class="btn-secondary text-red-600 hover:text-red-700 hover:bg-red-50 border-transparent">Reset</a>
             @endif
         </form>

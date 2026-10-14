@@ -315,10 +315,11 @@
             // Remove Group
             if (e.target.closest('.removeGroup')) {
                 if (document.querySelectorAll('.group-body').length > 1) {
-                    if(confirm('Hapus temuan nomor ini?')) {
-                        e.target.closest('.group-body').remove();
+                    const groupEl = e.target.closest('.group-body');
+                    window.showConfirmDialog('Hapus temuan nomor ini?', () => {
+                        groupEl.remove();
                         updateGroupNumbers();
-                    }
+                    });
                 }
             }
 

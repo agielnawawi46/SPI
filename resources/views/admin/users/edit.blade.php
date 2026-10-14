@@ -79,17 +79,26 @@
                 </div>
 
                 {{-- Bidang / Department --}}
-                <div class="form-group">
+                @php $lainDeptId = \App\Models\Department::where('code', 'LAIN')->first()?->id; @endphp
+                <div class="form-group" x-data="{ selectedDept: '{{ old('department_id', $user->department_id) }}' }">
                     <label for="department_id" class="form-label">Bidang (Department)</label>
-                    <select name="department_id" id="department_id" class="form-input @error('department_id') border-red-400 @enderror">
+                    <select name="department_id" id="department_id" x-model="selectedDept" class="form-input @error('department_id') border-red-400 @enderror">
                         <option value="">-- Pilih Bidang (Opsional) --</option>
                         @foreach($departments as $dept)
-                            <option value="{{ $dept->id }}" {{ old('department_id', $user->department_id) == $dept->id ? 'selected' : '' }}>
+                            <option value="{{ $dept->id }}">
                                 {{ $dept->code }} - {{ $dept->name }}
                             </option>
                         @endforeach
                     </select>
+
+                    <template x-if="selectedDept == '{{ $lainDeptId }}'">
+                        <div class="mt-2">
+                            <input type="text" name="custom_department" placeholder="Masukkan nama bidang/department baru..." class="form-input @error('custom_department') border-red-400 @enderror" value="{{ old('custom_department') }}" required>
+                        </div>
+                    </template>
+
                     @error('department_id') <p class="form-error">{{ $message }}</p> @enderror
+                    @error('custom_department') <p class="form-error">{{ $message }}</p> @enderror
                 </div>
 
                 {{-- Status Aktif --}}

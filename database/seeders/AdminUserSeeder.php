@@ -17,7 +17,7 @@ class AdminUserSeeder extends Seeder
 
         // 1. Super Admin
         $admin = User::firstOrCreate(
-            ['email' => 'admin@spi.com'],
+            ['email' => 'it.infra@peb.co.id'],
             [
                 'name'          => 'Administrator SPI',
                 'password'      => $defaultPassword,
