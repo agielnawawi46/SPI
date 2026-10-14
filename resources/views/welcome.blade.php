@@ -122,17 +122,17 @@
 
                 </div>
 
-                {{-- Right Column: Combined Hero Illustration (dok & dok2) --}}
+                {{-- Right Column: Hero Illustration (dok2) --}}
                 <div class="lg:col-span-6 xl:col-span-6 w-full relative flex items-center justify-center mt-8 lg:mt-0 select-none">
                     
                     {{-- Ambient Glow Aura matching PLN brand colors --}}
-                    <div class="absolute w-80 sm:w-96 lg:w-[520px] h-72 sm:h-88 lg:h-[420px] bg-gradient-to-tr from-primary-300/35 via-teal-200/25 to-amber-200/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+                    <div class="absolute w-72 sm:w-88 lg:w-[480px] h-72 sm:h-88 lg:h-[480px] bg-gradient-to-tr from-primary-300/35 via-teal-200/25 to-amber-200/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
 
-                    {{-- Unified Combined Artwork --}}
-                    <div class="relative w-full max-w-2xl flex items-center justify-center p-1 sm:p-2 group">
-                        <img src="{{ asset('dok_combined.png') }}?v={{ filemtime(public_path('dok_combined.png')) }}" 
+                    {{-- Hero Artwork --}}
+                    <div class="relative w-full max-w-lg lg:max-w-xl flex items-center justify-center p-2 group">
+                        <img src="{{ asset('dok2.png') }}?v={{ filemtime(public_path('dok2.png')) }}" 
                              alt="Sistem Informasi Pengawasan Internal - PT Pelayanan Energi Batam" 
-                             class="w-full max-w-[580px] lg:max-w-[640px] xl:max-w-[680px] h-auto object-contain filter drop-shadow-2xl transition-all duration-500 ease-out group-hover:scale-[1.02]">
+                             class="w-full max-w-[440px] sm:max-w-[480px] lg:max-w-[500px] h-auto object-contain filter drop-shadow-2xl transition-all duration-500 ease-out group-hover:scale-[1.02]">
                     </div>
 
                 </div>
