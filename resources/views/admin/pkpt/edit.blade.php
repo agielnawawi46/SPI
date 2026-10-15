@@ -33,11 +33,11 @@
                     <label for="period_year" class="form-label">Tahun Periode <span class="text-red-500">*</span></label>
                     <select id="period_year" name="period_year" class="form-select" required>
                         @php
-                            $currentYear = date('Y');
+                            $currentYear = (int) date('Y');
                         @endphp
-                        @for($year = $currentYear - 2; $year <= $currentYear + 2; $year++)
+                        @foreach(range($currentYear - 2, $currentYear + 2) as $year)
                             <option value="{{ $year }}" {{ old('period_year', $pkpt->period_year) == $year ? 'selected' : '' }}>{{ $year }}</option>
-                        @endfor
+                        @endforeach
                     </select>
                     @error('period_year') <p class="form-error"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ $message }}</p> @enderror
                 </div>
