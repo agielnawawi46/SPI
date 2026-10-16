@@ -162,12 +162,12 @@
                 </div>
 
                 {{-- ============================================
-                     SLOT 2: DOK3 ILLUSTRATION (SLIDES LEFT ON LOGIN)
+                     SLOT 2: CART ILLUSTRATION (SLIDES LEFT ON LOGIN)
                      ============================================ --}}
                 <div class="hidden lg:flex lg:w-1/3 flex-shrink-0 px-4 sm:px-6 lg:px-8 xl:px-10 items-center justify-center relative">
                     <div class="absolute w-72 sm:w-88 lg:w-[460px] h-72 sm:h-88 lg:h-[460px] bg-gradient-to-tr from-primary-300/35 via-teal-200/25 to-amber-200/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
 
-                    <img src="{{ asset('dok3.png') }}?v={{ filemtime(public_path('dok3.png')) }}" 
+                    <img src="{{ asset('cart.png') }}?v={{ filemtime(public_path('cart.png')) }}" 
                          alt="Sistem Informasi Pengawasan Internal - PT Pelayanan Energi Batam" 
                          style="max-height: min(450px, calc(100vh - 180px));"
                          class="relative z-10 w-full max-w-[460px] lg:max-w-[480px] xl:max-w-[530px] h-auto object-contain filter drop-shadow-2xl transition-all duration-500 ease-out hover:scale-[1.02]">
