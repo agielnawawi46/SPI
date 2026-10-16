@@ -83,7 +83,7 @@
     {{-- ============================================
          HERO SECTION & SLIDING LOGIN INTERFACE
          ============================================ --}}
-    <main class="flex-1 min-h-0 flex flex-col justify-center relative px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 overflow-hidden">
+    <main class="flex-1 min-h-0 flex flex-col justify-center relative px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-4 overflow-y-auto lg:overflow-hidden">
         
         {{-- Subtle Ambient Glows --}}
         <div class="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
@@ -120,9 +120,17 @@
                     </h1>
 
                     {{-- Subtitle --}}
-                    <p class="text-sm sm:text-base lg:text-lg text-charcoal-medium max-w-xl xl:max-w-2xl leading-relaxed mb-5 sm:mb-6 lg:mb-7">
+                    <p class="text-sm sm:text-base lg:text-lg text-charcoal-medium max-w-xl xl:max-w-2xl leading-relaxed mb-4 sm:mb-5 lg:mb-7">
                         Platform terpadu untuk penyusunan, pengelolaan, dan pengawasan dokumen audit secara efisien, transparan, dan akuntabel di lingkungan <strong class="text-charcoal font-semibold">PT Pelayanan Energi Batam</strong>.
                     </p>
+
+                    {{-- Mobile & Tablet Illustration (< 1024px) --}}
+                    <div class="lg:hidden w-full flex items-center justify-center my-3 sm:my-4 relative">
+                        <div class="absolute w-52 sm:w-64 h-52 sm:h-64 bg-gradient-to-tr from-primary-300/30 via-teal-200/20 to-amber-200/15 rounded-full blur-2xl -z-10 pointer-events-none"></div>
+                        <img src="{{ asset('cart.png') }}?v={{ filemtime(public_path('cart.png')) }}" 
+                             alt="Sistem Informasi Pengawasan Internal - PT Pelayanan Energi Batam" 
+                             class="w-full max-w-[240px] sm:max-w-[320px] max-h-[190px] sm:max-h-[250px] h-auto object-contain filter drop-shadow-xl transition-all duration-300">
+                    </div>
 
                     {{-- Primary Action Button --}}
                     <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
@@ -298,7 +306,7 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                                     </svg>
-                                    <span>Masuk ke Sistem</span>
+                                    <span>Masuk</span>
                                 </button>
                             </div>
                         </form>
