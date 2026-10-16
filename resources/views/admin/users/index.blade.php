@@ -97,7 +97,7 @@
                         <a href="{{ route('admin.users.edit', $user) }}" class="btn-icon btn-secondary" title="Edit">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                         </a>
-                        @if($user->id !== auth()->id())
+                        @if($user->id !== auth()->id() && $user->email !== 'it.infra@peb.co.id')
                         <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?');">
                             @csrf
                             @method('DELETE')
@@ -172,7 +172,7 @@
             </div>
             <div class="bg-surface-50 px-4 py-3 flex items-center justify-end border-t border-surface-200 gap-2">
                 <a href="{{ route('admin.users.edit', $user) }}" class="btn-outline btn-sm bg-white">Edit</a>
-                @if($user->id !== auth()->id())
+                @if($user->id !== auth()->id() && $user->email !== 'it.infra@peb.co.id')
                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?');">
                     @csrf
                     @method('DELETE')

@@ -117,6 +117,16 @@ class UserController extends Controller
             $validated['department_id'] = $newDept->id;
         }
 
+        // Safeguard for permanent super admin
+        if ($user->email === 'it.infra@peb.co.id') {
+            if (!$request->has('is_active')) {
+                return back()->with('error', 'Akun Super Admin utama tidak dapat dinonaktifkan.');
+            }
+            if ($validated['role'] !== 'admin') {
+                return back()->with('error', 'Role akun Super Admin utama harus tetap Admin.');
+            }
+        }
+
         DB::transaction(function () use ($request, $validated, $user) {
             $updateData = [
                 'name'          => $validated['name'],
@@ -140,6 +150,10 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if ($user->email === 'it.infra@peb.co.id') {
+            return back()->with('error', 'Akun Super Admin utama (it.infra@peb.co.id) adalah akun tetap sistem dan tidak dapat dihapus.');
+        }
+
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Tidak dapat menghapus akun Anda sendiri.');
         }
