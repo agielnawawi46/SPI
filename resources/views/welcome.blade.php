@@ -15,7 +15,7 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('welcomeSlider', () => ({
-                isLogin: {{ ($errors->any() || session('error') || request()->has('login')) ? 'true' : 'false' }},
+                isLogin: {{ ($errors->any() || session('error') || request()->has('login') || request()->is('login') || !empty($autoLogin)) ? 'true' : 'false' }},
                 isLg: window.innerWidth >= 1024,
                 toggleLogin() {
                     this.isLogin = !this.isLogin;
@@ -36,16 +36,16 @@
          NAVBAR
          ============================================ --}}
     <nav class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-surface-200 flex-shrink-0">
-        <div class="w-full px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 flex justify-between items-center">
+        <div class="w-full px-3.5 sm:px-6 lg:px-8 py-3 sm:py-4 flex justify-between items-center gap-2">
             
             {{-- Brand Logos --}}
-            <div class="flex items-center gap-4 sm:gap-5">
-                <a href="{{ url('/') }}" class="flex items-center gap-3">
-                    <img src="{{ asset('pln.jpg') }}" alt="PLN Batam" class="h-10 sm:h-12 w-auto object-contain mix-blend-multiply filter contrast-125">
-                    <img src="{{ asset('DI.png') }}" alt="Danantara Indonesia" class="h-6 sm:h-7 w-auto object-contain border-l border-surface-200 pl-3 sm:pl-4 hidden sm:block">
+            <div class="flex items-center gap-2.5 sm:gap-5 min-w-0">
+                <a href="{{ url('/') }}" class="flex items-center gap-2 sm:gap-3.5 min-w-0">
+                    <img src="{{ asset('pln.jpg') }}" alt="PLN Batam" class="h-8 sm:h-11 md:h-12 w-auto object-contain mix-blend-multiply filter contrast-125 flex-shrink-0">
+                    <img src="{{ asset('DI.png') }}" alt="Danantara Indonesia" class="h-5 sm:h-6 md:h-7 w-auto object-contain border-l border-surface-200 pl-2 sm:pl-3.5 block flex-shrink-0">
                 </a>
                 
-                <div class="hidden md:flex items-center gap-2.5 pl-4 border-l border-surface-200">
+                <div class="hidden md:flex items-center gap-2.5 pl-4 border-l border-surface-200 flex-shrink-0">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-primary-50 text-primary-700">
                         Intranet SPI
                     </span>
@@ -53,7 +53,7 @@
             </div>
 
             {{-- Right Action --}}
-            <div>
+            <div class="flex-shrink-0">
                 @auth
                     <a href="{{ route('dashboard') }}" 
                        class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl transition-all shadow-sm hover:shadow hover:-translate-y-0.5">
@@ -64,7 +64,7 @@
                     <button type="button"
                             @click="toggleLogin()" 
                             id="btn-nav-masuk"
-                            class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow hover:-translate-y-0.5 active:translate-y-0 focus:outline-none cursor-pointer"
+                            class="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow hover:-translate-y-0.5 active:translate-y-0 focus:outline-none cursor-pointer"
                             :class="isLogin ? 'bg-surface-100 hover:bg-surface-200 text-charcoal border border-surface-300' : 'text-white bg-primary-600 hover:bg-primary-700 shadow-primary-600/25'">
                         <span x-show="!isLogin" class="inline-flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
