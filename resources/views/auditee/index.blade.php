@@ -60,7 +60,7 @@
     </div>
 
     <div class="card">
-        <div class="card-header">
+        <div class="card-header flex flex-col items-start text-left gap-3">
             <div>
                 <h2 class="card-title">Daftar Tindak Lanjut</h2>
                 <p class="text-xs text-charcoal-muted mt-1">Silakan upload bukti penyelesaian untuk setiap rekomendasi.</p>

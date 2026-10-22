@@ -11,12 +11,12 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header flex flex-col items-center text-center sm:text-left sm:flex-row sm:items-center justify-between gap-4">
+    <div class="card-header flex flex-col items-start text-left gap-3">
         <div>
             <h2 class="card-title">Daftar Pengguna Sistem</h2>
             <p class="text-xs text-charcoal-muted mt-1">Kelola data user, role, dan hak akses aplikasi.</p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
             <a href="{{ route('admin.users.import') }}" class="btn-outline btn-sm">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                 Import CSV

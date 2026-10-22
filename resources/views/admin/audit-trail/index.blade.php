@@ -11,7 +11,7 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header flex flex-col items-center text-center sm:text-left sm:flex-row sm:items-center justify-between gap-4">
+    <div class="card-header flex flex-col items-start text-left gap-3">
         <div>
             <h2 class="card-title">Log Aktivitas Sistem</h2>
             <p class="text-xs text-charcoal-muted mt-1">Catatan rekaman setiap aktivitas user di dalam sistem.</p>

@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="card" x-data="{ showModal: false, selectedDoc: '' }">
-    <div class="card-header flex flex-col items-center text-center md:text-left md:flex-row md:items-center justify-between gap-4">
+    <div class="card-header flex flex-col items-start text-left gap-3">
         <div>
             <h2 class="card-title">Daftar Monitoring Tindak Lanjut</h2>
             <p class="text-xs text-charcoal-muted mt-1">Kelola dokumen Monitoring Tindak Lanjut</p>
@@ -157,7 +157,7 @@
 {{-- Lower Table: Daftar Penugasan Tindak Lanjut --}}
 @if(isset($followUps))
 <div class="card mt-8">
-    <div class="card-header flex flex-col items-center text-center md:text-left md:flex-row md:items-center justify-between gap-4">
+    <div class="card-header flex flex-col items-start text-left gap-3">
         <div>
             <h2 class="card-title">Daftar Penugasan Tindak Lanjut Anda</h2>
             <p class="text-xs text-charcoal-muted mt-1">Daftar tugas upload bukti yang ditugaskan ke departemen Anda.</p>

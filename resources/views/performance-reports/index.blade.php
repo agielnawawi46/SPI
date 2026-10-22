@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="card" x-data="{ showModal: false, selectedDoc: '' }">
-    <div class="card-header flex flex-col items-center text-center md:text-left md:flex-row md:items-center justify-between gap-4">
+    <div class="card-header flex flex-col items-start text-left gap-3">
         <div>
             <h2 class="card-title">Daftar Laporan Kinerja</h2>
             <p class="text-xs text-charcoal-muted mt-1">Rekap laporan kinerja SPI per bulan</p>

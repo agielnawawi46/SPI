@@ -374,9 +374,13 @@
      ============================================ --}}
 @unless($isKomisaris)
 <div class="card">
-    <div class="card-header gap-3">
-        <h2 class="card-title flex-1 leading-snug">Tindak Lanjut Mendekati Jatuh Tempo</h2>
-        <a href="#" class="btn-outline btn-sm flex-shrink-0">Lihat Semua</a>
+    <div class="card-header flex flex-col items-start text-left gap-3">
+        <div>
+            <h2 class="card-title">Tindak Lanjut Mendekati Jatuh Tempo</h2>
+        </div>
+        <div>
+            <a href="{{ route($isAuditee ? 'auditee.index' : 'other-activities.tl.index') }}" class="btn-outline btn-sm">Lihat Semua</a>
+        </div>
     </div>
 
     @if($followUpStats['upcomingDeadlines']->isEmpty())
