@@ -39,7 +39,7 @@ class PkptController extends Controller
         $request->validate([
             'title'       => 'required|string|max:255',
             'period_year' => 'required|digits:4|integer',
-            'pkpt_file'   => 'required|file|mimes:pdf|max:307200', // Wajib PDF, max 300MB
+            'pkpt_file'   => 'required|file|mimes:pdf', // Wajib PDF
         ]);
 
         $pkpt = new Pkpt($request->only('title', 'period_year'));
@@ -72,7 +72,7 @@ class PkptController extends Controller
         $request->validate([
             'title'       => 'required|string|max:255',
             'period_year' => 'required|digits:4|integer',
-            'pkpt_file'   => 'nullable|file|mimes:pdf|max:307200', // PDF optional for update, max 300MB
+            'pkpt_file'   => 'nullable|file|mimes:pdf', // PDF optional for update
         ]);
 
         $pkpt->title = $request->title;
@@ -183,7 +183,6 @@ class PkptController extends Controller
     {
         $request->validate([
             'attachments' => 'nullable|array',
-            'attachments.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:307200', // 300MB
         ]);
 
         $documentType = \App\Models\DocumentType::where('slug', 'kertas-kerja-pkpt')->firstOrFail();
@@ -191,31 +190,36 @@ class PkptController extends Controller
             ->where('document_type_id', $documentType->id)
             ->firstOrFail();
 
+        $allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
+        $uploadedCount = 0;
+
         if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $category => $file) {
-                if ($file) {
-                    // Jika ada file dengan kategori yang sama sebelumnya, hapus yang lama (opsional)
-                    $existing = $document->attachments()->where('description', $category)->first();
-                    if ($existing) {
-                        if (Storage::disk('public')->exists($existing->file_path)) {
-                            Storage::disk('public')->delete($existing->file_path);
-                        }
-                        $existing->delete();
+            foreach ($request->file('attachments') as $category => $files) {
+                $fileList = is_array($files) ? $files : [$files];
+
+                foreach ($fileList as $file) {
+                    if (!$file || !$file->isValid()) {
+                        continue;
+                    }
+
+                    $extension = strtolower($file->getClientOriginalExtension());
+                    if (!in_array($extension, $allowedExtensions)) {
+                        continue;
                     }
 
                     $originalName = $file->getClientOriginalName();
-                    $fileName = time() . '_' . $originalName;
+                    $uniqueId = uniqid();
+                    $fileName = time() . '_' . $uniqueId . '_' . $originalName;
                     $filePath = $file->storeAs('attachments', $fileName, 'public');
 
                     $pdfPath = null;
-                    $extension = strtolower($file->getClientOriginalExtension());
                     if (in_array($extension, ['doc', 'docx'])) {
                         try {
                             \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
                             \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
                             
                             $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $filePath));
-                            $pdfFilename = time() . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
+                            $pdfFilename = time() . '_' . $uniqueId . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
                             $pdfRelativePath = 'attachments/' . $pdfFilename;
                             $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
                             
@@ -231,17 +235,26 @@ class PkptController extends Controller
                     $document->attachments()->create([
                         'uploaded_by' => Auth::id(),
                         'description' => $category, // 'RJP', 'RKAP', dll
-                        'file_name' => $originalName,
-                        'file_path' => $filePath,
-                        'file_type' => $file->getClientMimeType(),
-                        'file_size' => $file->getSize(),
-                        'pdf_path'  => $pdfPath,
+                        'file_name'   => $originalName,
+                        'file_path'   => $filePath,
+                        'file_type'   => $file->getClientMimeType(),
+                        'file_size'   => $file->getSize(),
+                        'pdf_path'    => $pdfPath,
                     ]);
+
+                    $uploadedCount++;
                 }
             }
         }
 
-        return redirect()->route('pkpt.kertas-kerja', $pkpt)->with('success', 'File Kertas Kerja berhasil diunggah.');
+        if ($uploadedCount > 0) {
+            $msg = $uploadedCount > 1 
+                ? "{$uploadedCount} berkas Kertas Kerja berhasil ditambahkan."
+                : 'Berkas Kertas Kerja berhasil ditambahkan.';
+            return redirect()->route('pkpt.kertas-kerja', $pkpt)->with('success', $msg);
+        }
+
+        return redirect()->route('pkpt.kertas-kerja', $pkpt)->with('error', 'Tidak ada berkas valid yang diunggah. Pastikan format file PDF, Word, atau Excel.');
     }
 
     public function destroyKertasKerjaAttachment(Pkpt $pkpt, DocumentAttachment $attachment)

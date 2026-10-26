@@ -37,7 +37,7 @@
                     <div class="form-group">
                         <label class="form-label">Upload File <span class="text-red-500">*</span></label>
                         <input type="file" name="attachment" class="form-input p-1.5" required accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
-                        <p class="text-xs text-charcoal-muted mt-1">Format: PDF, DOC/DOCX, XLS/XLSX, JPG/PNG. Maks: 300MB.</p>
+                        <p class="text-xs text-charcoal-muted mt-1">Format: PDF, DOC/DOCX, XLS/XLSX, JPG/PNG.</p>
                         @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
                     </div>
                 </div>
@@ -208,7 +208,7 @@
             <div class="form-group border-t border-surface-200 pt-6 mt-6">
                 <label class="form-label font-semibold">Upload File Dokumen Utama</label>
                 <input type="file" name="attachment" class="form-input p-1.5" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                <p class="text-xs text-charcoal-muted mt-1">Anda dapat mengunggah file utama dokumen di sini. Maksimal ukuran 300MB.</p>
+                <p class="text-xs text-charcoal-muted mt-1">Anda dapat mengunggah file utama dokumen di sini.</p>
                 @error('attachment')<p class="form-error mt-1">{{ $message }}</p>@enderror
             </div>
         </div>

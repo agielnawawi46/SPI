@@ -54,7 +54,7 @@
                 @endif
                 
                 <input type="file" id="pkpt_file" name="pkpt_file" class="form-input bg-white w-full" accept=".pdf">
-                <p class="text-xs text-charcoal-muted mt-2">Biarkan kosong jika tidak ingin mengubah file PDF. Maks: 300MB.</p>
+                <p class="text-xs text-charcoal-muted mt-2">Biarkan kosong jika tidak ingin mengubah file PDF.</p>
                 @error('pkpt_file') <p class="form-error"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ $message }}</p> @enderror
             </div>
             

@@ -22,7 +22,7 @@
                 <div class="form-group">
                     <label class="form-label">Upload File Baru (Opsional)</label>
                     <input type="file" name="attachment" class="form-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
-                    <p class="text-xs text-charcoal-muted mt-1">Biarkan kosong jika tidak ingin mengubah file. Format: PDF, DOC/DOCX, XLS/XLSX, JPG/PNG. Maks: 300MB.</p>
+                    <p class="text-xs text-charcoal-muted mt-1">Biarkan kosong jika tidak ingin mengubah file. Format: PDF, DOC/DOCX, XLS/XLSX, JPG/PNG.</p>
                     @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
             </div>
@@ -208,10 +208,38 @@
                 <textarea name="content" class="form-textarea w-full h-32" placeholder="Tuliskan catatan tambahan di sini...">{!! old('content', strip_tags($document->content)) !!}</textarea>
                 @error('content')<p class="form-error">{{ $message }}</p>@enderror
             </div>
-            <div class="form-group">
-                <label class="form-label">Unggah Lampiran (Opsional)</label>
-                <input type="file" name="attachment" class="form-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar. Maks: 300MB.</p>
+            <div class="p-5 bg-gradient-to-r from-primary-50/70 to-surface-50 border border-primary-200 rounded-xl shadow-sm mb-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <label class="form-label font-bold text-charcoal text-sm mb-0">File Dokumen / Tanda Tangan Basah (Opsional)</label>
+                    <span class="badge bg-amber-100 text-amber-800 text-[11px] font-medium border-amber-200">Opsional</span>
+                </div>
+                @if($document->attachments->count() > 0)
+                    <div class="mb-3 p-3 bg-white border border-primary-200 rounded-lg flex items-center justify-between shadow-sm">
+                        <div class="flex items-center gap-2.5 overflow-hidden">
+                            <div class="p-1.5 bg-primary-100 text-primary-700 rounded-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </div>
+                            <div class="truncate">
+                                <p class="text-xs font-semibold text-charcoal truncate">{{ $document->attachments->first()->file_name }}</p>
+                                <p class="text-[11px] text-charcoal-muted">{{ $document->attachments->first()->file_size_formatted }}</p>
+                            </div>
+                            <span class="badge bg-green-100 text-green-800 text-[10px] ml-1">File Terunggah</span>
+                        </div>
+                        <a href="{{ Storage::url($document->attachments->first()->pdf_path ?? $document->attachments->first()->file_path) }}" target="_blank" class="text-primary-600 hover:text-primary-800 text-xs font-semibold flex items-center gap-1 flex-shrink-0 ml-3">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            Lihat Berkas
+                        </a>
+                    </div>
+                @endif
+                <input type="file" name="attachment" class="form-input bg-white w-full p-2 border-surface-300 rounded-lg focus:border-primary-500" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+                <p class="text-[11px] text-charcoal-muted mt-2">
+                    @if($document->attachments->count() > 0)
+                        <strong>Biarkan kosong jika tidak ingin mengubah berkas.</strong> Unggah berkas baru untuk mengganti berkas saat ini.
+                    @else
+                        Format didukung: <strong>PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</strong>.
+                    @endif
+                </p>
+                @error('attachment')<p class="form-error mt-1">{{ $message }}</p>@enderror
             </div>
         </div>
 

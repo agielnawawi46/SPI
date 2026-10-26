@@ -157,7 +157,7 @@
                     Upload file baru hanya jika Anda ingin mengganti file lampiran yang sebelumnya telah diunggah.
                 </div>
                 <input type="file" name="attachment" class="form-input p-2" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar. Maks: 300MB.</p>
+                <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar.</p>
                 @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
             </div>
             @endif

@@ -205,7 +205,7 @@
                 <div class="form-group">
                     <label class="form-label">File Bukti <span class="text-red-500">*</span></label>
                     <input type="file" name="file" class="form-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                    <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar. Maks: 300MB.</p>
+                    <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar.</p>
                     @error('file')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
                 <div class="form-group">

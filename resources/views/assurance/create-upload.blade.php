@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 @section('title', 'Upload Dokumen')
 @section('page_title', 'Upload Dokumen')
 
@@ -25,7 +25,7 @@
                 <label class="form-label">Upload File <span class="text-red-500">*</span></label>
                 <input type="file" name="attachment" class="form-input" required
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
-                <p class="text-xs text-charcoal-muted mt-1">Format: PDF, DOC/DOCX, XLS/XLSX, JPG/PNG. Maks: 300MB.</p>
+                <p class="text-xs text-charcoal-muted mt-1">Format: PDF, DOC/DOCX, XLS/XLSX, JPG/PNG.</p>
                 @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
             </div>
         </div>

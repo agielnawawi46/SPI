@@ -9,7 +9,7 @@ class DocumentAttachment extends Model
 {
     protected $fillable = [
         'document_id', 'uploaded_by', 'file_name',
-        'file_path', 'file_type', 'file_size', 'description',
+        'file_path', 'pdf_path', 'file_type', 'file_size', 'description',
     ];
 
     public function document(): BelongsTo

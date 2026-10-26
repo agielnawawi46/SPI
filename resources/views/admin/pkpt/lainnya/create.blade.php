@@ -18,7 +18,7 @@
         <h2 class="card-title">Form Tambah Data</h2>
     </div>
     
-    <form action="{{ route('pkpt.lainnya.store') }}" method="POST" enctype="multipart/form-data" x-data="{ auditee: '{{ old('auditee_department_id') }}' }">
+    <form action="{{ route('pkpt.lainnya.store') }}" method="POST" x-data="{ auditee: '{{ old('auditee_department_id') }}' }">
         @csrf
         <div class="card-body space-y-6">
             
@@ -74,13 +74,6 @@
                     <input type="date" name="planned_end" id="planned_end" class="form-input @error('planned_end') border-red-500 @enderror" value="{{ old('planned_end') }}">
                     @error('planned_end') <p class="form-error"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ $message }}</p> @enderror
                 </div>
-            </div>
-
-            <div class="form-group mb-0">
-                <label for="attachment" class="form-label">Unggah Dokumen (Opsional)</label>
-                <input type="file" name="attachment" id="attachment" class="form-input bg-white w-full @error('attachment') border-red-500 @enderror" accept=".pdf,.doc,.docx,.xls,.xlsx">
-                <p class="text-xs text-charcoal-muted mt-2">Format: PDF, DOC, DOCX, XLS, XLSX. Maks: 300MB.</p>
-                @error('attachment') <p class="form-error"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ $message }}</p> @enderror
             </div>
 
         </div>

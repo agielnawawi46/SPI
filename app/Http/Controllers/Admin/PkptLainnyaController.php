@@ -37,28 +37,22 @@ class PkptLainnyaController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'pkpt_id' => 'required|exists:pkpts,id',
             'audit_object' => 'required|string|max:255',
             'auditee_department_id' => 'nullable',
             'custom_auditee_name' => 'nullable|string|max:255',
             'planned_start' => 'nullable|date',
             'planned_end' => 'nullable|date|after_or_equal:planned_start',
-            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:307200',
         ]);
 
-        $data = $request->all();
-        if ($data['auditee_department_id'] === 'other') {
-            $data['auditee_department_id'] = null;
+        if ($validated['auditee_department_id'] === 'other') {
+            $validated['auditee_department_id'] = null;
         } else {
-            $data['custom_auditee_name'] = null;
+            $validated['custom_auditee_name'] = null;
         }
 
-        if ($request->hasFile('attachment')) {
-            $data['attachment_path'] = $request->file('attachment')->store('pkpt/lainnya', 'public');
-        }
-
-        PkptItem::create($data);
+        PkptItem::create($validated);
 
         return redirect()->route('pkpt.lainnya.index')->with('success', 'Data Objek Audit (Lainnya) berhasil ditambahkan.');
     }
@@ -78,37 +72,22 @@ class PkptLainnyaController extends Controller
 
     public function update(Request $request, PkptItem $lainnya)
     {
-        $request->validate([
+        $validated = $request->validate([
             'pkpt_id' => 'required|exists:pkpts,id',
             'audit_object' => 'required|string|max:255',
             'auditee_department_id' => 'nullable',
             'custom_auditee_name' => 'nullable|string|max:255',
             'planned_start' => 'nullable|date',
             'planned_end' => 'nullable|date|after_or_equal:planned_start',
-            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:307200',
-            'remove_attachment' => 'nullable|boolean',
         ]);
 
-        $data = $request->all();
-        if ($data['auditee_department_id'] === 'other') {
-            $data['auditee_department_id'] = null;
+        if ($validated['auditee_department_id'] === 'other') {
+            $validated['auditee_department_id'] = null;
         } else {
-            $data['custom_auditee_name'] = null;
+            $validated['custom_auditee_name'] = null;
         }
 
-        if ($request->has('remove_attachment') && $request->remove_attachment) {
-            if ($lainnya->attachment_path) {
-                Storage::disk('public')->delete($lainnya->attachment_path);
-            }
-            $data['attachment_path'] = null;
-        } elseif ($request->hasFile('attachment')) {
-            if ($lainnya->attachment_path) {
-                Storage::disk('public')->delete($lainnya->attachment_path);
-            }
-            $data['attachment_path'] = $request->file('attachment')->store('pkpt/lainnya', 'public');
-        }
-
-        $lainnya->update($data);
+        $lainnya->update($validated);
 
         return redirect()->route('pkpt.lainnya.index')->with('success', 'Data Objek Audit (Lainnya) berhasil diperbarui.');
     }

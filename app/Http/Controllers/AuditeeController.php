@@ -85,7 +85,7 @@ class AuditeeController extends Controller
         }
 
         $request->validate([
-            'file'        => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:307200',
+            'file'        => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             'description' => 'nullable|string',
         ]);
 

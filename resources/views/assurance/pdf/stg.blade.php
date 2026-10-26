@@ -118,7 +118,7 @@
                 <img src="{{ public_path('pln.jpg') }}" alt="Logo">
             </td>
             <td class="header-text">
-                <table style="display: inline-block; text-align: left; border: none;">
+                <table align="right" style="text-align: left; border: none; border-collapse: collapse;">
                     @if($document->header_text)
                     <tr><td style="padding: 0; border: none; width: 65px;">No. Formulir</td><td style="padding: 0 4px; border: none;">:</td><td style="padding: 0; border: none;">{{ $document->header_text }}</td></tr>
                     @endif
@@ -176,6 +176,11 @@
                     <td style="text-align: center; vertical-align: middle;">{{ $tim['jabatan_tim'] ?? '-' }}</td>
                 </tr>
                 @endforeach
+            @else
+                <tr>
+                    <td style="text-align: center;">-</td>
+                    <td colspan="2" style="text-align: center; color: #777; font-style: italic; padding: 10px;">(Tidak ada susunan tim audit yang dicantumkan)</td>
+                </tr>
             @endif
         </tbody>
     </table>

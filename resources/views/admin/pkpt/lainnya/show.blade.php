@@ -59,53 +59,37 @@
         </div>
     </div>
 
-    {{-- Dokumen Card --}}
+    @if($lainnya->attachment_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($lainnya->attachment_path))
+    {{-- Dokumen Card (jika ada file tersimpan sebelumnya) --}}
     <div class="card">
         <div class="card-header bg-primary-50 border-b border-primary-100">
             <h3 class="card-title text-primary-800">Lampiran Dokumen</h3>
             <p class="text-sm text-primary-600 mt-1">Dokumen rincian objek audit</p>
         </div>
         <div class="card-body">
-            @if($lainnya->attachment_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($lainnya->attachment_path))
-                <div class="p-4 border border-green-200 bg-green-50 rounded-lg shadow-sm">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h4 class="font-semibold text-charcoal">Dokumen Lampiran</h4>
-                            <p class="text-xs text-charcoal-muted">File PDF/Office terkait auditee & jadwal ini</p>
-                        </div>
-                        <span class="badge bg-green-100 text-green-700 border-green-200">Terunggah</span>
+            <div class="p-4 border border-green-200 bg-green-50 rounded-lg shadow-sm">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h4 class="font-semibold text-charcoal">Dokumen Lampiran</h4>
+                        <p class="text-xs text-charcoal-muted">File PDF/Office terkait auditee & jadwal ini</p>
                     </div>
-                    
-                    <div class="p-3 bg-white border border-green-100 rounded-md flex items-center justify-between">
-                        <div class="flex items-center gap-2 overflow-hidden">
-                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            <span class="text-sm font-medium text-charcoal truncate" title="{{ basename($lainnya->attachment_path) }}">{{ basename($lainnya->attachment_path) }}</span>
-                        </div>
-                        <a href="{{ Storage::url($lainnya->attachment_path) }}" target="_blank" class="text-primary-600 hover:text-primary-800 text-sm font-medium ml-4 flex-shrink-0 flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            Lihat Dokumen
-                        </a>
-                    </div>
+                    <span class="badge bg-green-100 text-green-700 border-green-200">Terunggah</span>
                 </div>
-            @else
-                <div class="p-4 border border-surface-200 bg-white rounded-lg shadow-sm">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h4 class="font-semibold text-charcoal">Dokumen Lampiran</h4>
-                            <p class="text-xs text-charcoal-muted">File PDF/Office terkait auditee & jadwal ini</p>
-                        </div>
-                        <span class="badge bg-gray-100 text-gray-600 border-gray-200">Belum ada</span>
+                
+                <div class="p-3 bg-white border border-green-100 rounded-md flex items-center justify-between">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span class="text-sm font-medium text-charcoal truncate" title="{{ basename($lainnya->attachment_path) }}">{{ basename($lainnya->attachment_path) }}</span>
                     </div>
-                    <div class="p-8 text-center bg-surface-50 rounded-md border border-dashed border-surface-300">
-                        <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-surface-200 text-charcoal-muted mb-3">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        </div>
-                        <p class="text-sm text-charcoal-muted">Lampiran untuk objek audit ini belum diunggah atau tidak tersedia.</p>
-                    </div>
+                    <a href="{{ Storage::url($lainnya->attachment_path) }}" target="_blank" class="text-primary-600 hover:text-primary-800 text-sm font-medium ml-4 flex-shrink-0 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        Lihat Dokumen
+                    </a>
                 </div>
-            @endif
+            </div>
         </div>
     </div>
+    @endif
 
 </div>
 @endsection

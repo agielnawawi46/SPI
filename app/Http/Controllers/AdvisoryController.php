@@ -74,7 +74,7 @@ class AdvisoryController extends Controller
         $request->validate([
             'title'                  => 'required|string|max:255',
             'document_type_id'       => 'required|exists:document_types,id',
-            'attachment'             => 'nullable|file|max:307200',
+            'attachment'             => 'nullable|file',
             'nama_kspi'              => 'nullable|string',
             'nama_pimpinan_klien'    => 'nullable|string',
             'nama_jabatan'           => 'nullable|string',
@@ -238,7 +238,7 @@ class AdvisoryController extends Controller
 
         $request->validate([
             'title'                  => 'nullable|string|max:255',
-            'attachment'             => 'nullable|file|max:307200',
+            'attachment'             => 'nullable|file',
             'nama_kspi'              => 'nullable|string',
             'nama_pimpinan_klien'    => 'nullable|string',
             'nama_jabatan'           => 'nullable|string',

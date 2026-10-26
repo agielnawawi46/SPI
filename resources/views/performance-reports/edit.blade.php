@@ -28,7 +28,7 @@
                 <div class="form-group mt-2">
                     <h3 class="text-sm font-semibold text-charcoal mb-4">Unggah Lampiran Baru (Opsional)</h3>
                     <input type="file" name="attachment" class="form-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                    <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar. Maks: 300MB. Unggah file baru akan menambah daftar lampiran.</p>
+                    <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar. Unggah file baru akan menambah daftar lampiran.</p>
                     @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
             </div>

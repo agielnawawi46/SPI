@@ -116,7 +116,9 @@
                         <td class="text-charcoal-muted">{{ $doc->creator->name ?? '-' }}</td>
                         <td class="text-charcoal-muted">{{ $doc->isApproved() ? ($doc->approvals->where('action', 'approve')->last()->approver->name ?? '-') : '-' }}</td>
                     @elseif(in_array($typeSlug, ['surat-tugas', 'kertas-kerja-audit']))
-                        <td class="font-medium text-charcoal max-w-xs truncate" title="{{ $doc->title }}">{{ $doc->title ?? '-' }}</td>
+                        <td class="font-medium text-charcoal max-w-xs truncate" title="{{ $doc->title }}">
+                            {{ $doc->title ?? '-' }}
+                        </td>
                         <td><span class="badge {{ $doc->status_color }}">{{ $doc->status_label }}</span></td>
                         <td class="text-charcoal-muted">{{ $doc->creator?->name ?? '-' }}</td>
                         <td class="text-charcoal-muted text-xs">{{ $doc->created_at->format('d/m/Y') }}</td>

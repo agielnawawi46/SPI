@@ -276,7 +276,7 @@ class OtherActivityController extends Controller
             'title'            => 'required|string|max:255',
             'document_type_id' => 'required|exists:document_types,id',
             'content'          => 'nullable|string',
-            'attachment'       => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:307200',
+            'attachment'       => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $selectedType = DocumentType::find($request->document_type_id);
@@ -351,7 +351,7 @@ class OtherActivityController extends Controller
         $request->validate([
             'title'      => 'required|string|max:255',
             'content'    => 'nullable|string',
-            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:307200',
+            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $document->update([
@@ -475,7 +475,7 @@ class OtherActivityController extends Controller
             $request->validate([
                 'title'            => 'required|string|max:255',
                 'document_type_id' => 'required|exists:document_types,id',
-                'attachment'       => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:307200',
+                'attachment'       => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             ]);
 
             $document = Document::create([
@@ -538,7 +538,7 @@ class OtherActivityController extends Controller
             'tim_audit'        => 'nullable|array',
             'jabatan_direktur' => 'nullable|string|max:255',
             'nama_direktur'    => 'nullable|string|max:255',
-            'attachment'       => 'nullable|file|max:307200',
+            'attachment'       => 'nullable|file',
         ]);
 
         $dataToStore = [
@@ -634,7 +634,7 @@ class OtherActivityController extends Controller
         $request->validate([
             'title'            => 'nullable|string|max:255',
             'content'          => 'nullable|string',
-            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:307200',
+            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             'tgl_stg'          => 'nullable|date',
             'auditee'          => 'nullable|string|max:255',
             'jadwal_audit'     => 'nullable|string|max:255',

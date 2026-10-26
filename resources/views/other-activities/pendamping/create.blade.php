@@ -41,7 +41,7 @@
             <div class="form-group mt-6 border-t border-surface-200 pt-6">
                 <h3 class="text-sm font-semibold text-charcoal mb-4">Unggah Lampiran <span class="text-red-500">*</span></h3>
                 <input type="file" name="attachment" class="form-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" required>
-                <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar. Maks: 300MB.</p>
+                <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar.</p>
                 @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
             </div>
         </div>

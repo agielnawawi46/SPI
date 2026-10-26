@@ -175,6 +175,17 @@
                 <div class="hidden lg:flex lg:w-1/3 flex-shrink-0 px-4 sm:px-6 lg:px-8 xl:px-10 items-center justify-center relative">
                     <div class="absolute w-72 sm:w-88 lg:w-[460px] h-72 sm:h-88 lg:h-[460px] bg-gradient-to-tr from-primary-300/35 via-teal-200/25 to-amber-200/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
 
+                    {{-- Floating Glass Accent Badges --}}
+                    <div class="absolute -top-1 xl:-top-2 right-4 xl:right-8 z-20 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-surface-200/90 shadow-lg shadow-primary-950/10 flex items-center gap-2 pointer-events-none">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-xs font-semibold text-charcoal">Dokumen Terintegrasi</span>
+                    </div>
+
+                    <div class="absolute -bottom-1 xl:-bottom-2 left-4 xl:left-8 z-20 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-surface-200/90 shadow-lg shadow-primary-950/10 flex items-center gap-2 pointer-events-none">
+                        <span class="text-xs font-bold text-primary-600">SPI PLN PEB</span>
+                        <span class="text-xs text-charcoal-muted">| 100% Digital</span>
+                    </div>
+
                     <img src="{{ asset('cart.png') }}?v={{ filemtime(public_path('cart.png')) }}" 
                          alt="Sistem Informasi Pengawasan Internal - PT Pelayanan Energi Batam" 
                          style="max-height: min(450px, calc(100vh - 180px));"

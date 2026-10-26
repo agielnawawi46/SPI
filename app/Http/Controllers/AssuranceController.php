@@ -14,7 +14,7 @@ class AssuranceController extends Controller
         $typeSlug = $request->get('type');
         $auditType = $request->get('audit_type'); // 'terjadwal' or 'tidak_terjadwal'
 
-        $query = Document::with(['documentType', 'creator'])
+        $query = Document::with(['documentType', 'creator', 'attachments'])
             ->whereHas('documentType', fn($q) => $q->where('module', 'assurance'));
 
         if ($typeSlug) {
@@ -82,7 +82,7 @@ class AssuranceController extends Controller
                 'title'            => 'required|string|max:255',
                 'document_type_id' => 'required|exists:document_types,id',
                 'audit_type'       => 'required|in:terjadwal,tidak_terjadwal',
-                'attachment'       => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:307200',
+                'attachment'       => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             ]);
 
             $document = Document::create([
@@ -161,7 +161,7 @@ class AssuranceController extends Controller
             'tim_audit'        => 'nullable|array',
             'jabatan_direktur' => 'nullable|string|max:255',
             'nama_direktur'    => 'nullable|string|max:255',
-            'attachment'       => 'nullable|file|max:307200',
+            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $dataToStore = [
@@ -307,7 +307,7 @@ class AssuranceController extends Controller
 
         $request->validate([
             'content'       => 'nullable|string',
-            'attachment'    => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:307200',
+            'attachment'    => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             'title'         => 'nullable|string|max:255',
             'tgl_pka'       => 'nullable|date',
             'disusun_oleh'  => 'nullable|string|max:255',
@@ -376,9 +376,20 @@ class AssuranceController extends Controller
         $document->update($dataToUpdate);
 
         if ($request->hasFile('attachment')) {
+            // Hapus lampiran lama jika ada untuk digantikan dengan berkas baru
+            foreach ($document->attachments as $oldAtt) {
+                if ($oldAtt->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldAtt->file_path)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAtt->file_path);
+                }
+                if ($oldAtt->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldAtt->pdf_path)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAtt->pdf_path);
+                }
+                $oldAtt->delete();
+            }
+
             $file = $request->file('attachment');
             $originalName = $file->getClientOriginalName();
-            $path = $file->storeAs('attachments', time() . '_' . $originalName, 'public');
+            $path = $file->store('attachments/' . date('Y/m'), 'public');
 
             $pdfPath = null;
             $extension = strtolower($file->getClientOriginalExtension());
@@ -389,7 +400,7 @@ class AssuranceController extends Controller
                     
                     $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $path));
                     $pdfFilename = time() . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
-                    $pdfRelativePath = 'attachments/' . $pdfFilename;
+                    $pdfRelativePath = 'attachments/' . date('Y/m') . '/' . $pdfFilename;
                     $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
                     
                     $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');

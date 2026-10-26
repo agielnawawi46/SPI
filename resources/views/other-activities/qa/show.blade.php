@@ -178,7 +178,8 @@
 
 
 
-    {{-- STQ Document Preview --}}
+    {{-- STQ Document Preview (Hanya tampil jika tidak ada berkas unggahan) --}}
+    @if($document->attachments->count() === 0)
     <div class="bg-white shadow-xl mx-auto p-10 max-w-[210mm] min-h-[297mm] mb-8 text-black text-[11pt] flex flex-col leading-[1.15]" style="font-family: Arial, sans-serif;">
         <div class="flex items-center justify-between mb-4 pb-2">
             <div class="w-1/4">
@@ -276,9 +277,10 @@
         </div>
     </div>
     @endif
+    @endif
 
-    {{-- Attachments (for non-STQ types) --}}
-    @if(in_array($document->documentType?->slug, ['pk-qa', 'kk-qa', 'lap-qa']))
+    {{-- Attachments (Dokumen yang Diunggah) --}}
+    @if($document->attachments->count() > 0 || in_array($document->documentType?->slug, ['pk-qa', 'kk-qa', 'lap-qa']))
     <div class="card border-l-4 {{ $document->isApproved() ? 'border-l-green-500' : 'border-l-amber-400' }}">
         <div class="card-header bg-surface-50 border-b border-surface-200 flex justify-between items-center">
             <h3 class="card-title text-charcoal flex items-center gap-2">

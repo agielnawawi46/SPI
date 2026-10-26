@@ -174,7 +174,7 @@
                     <div class="md:col-span-2 form-group border-t border-surface-200 pt-4 mt-2">
                         <h4 class="font-medium text-charcoal mb-4">File Lampiran <span class="text-red-500">*</span></h4>
                         <input type="file" name="attachment" class="form-input p-2" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                        <p class="text-xs text-charcoal-muted mt-1">Format didukung: PDF, Word, Excel, Gambar. Maksimal 300MB.</p>
+                        <p class="text-xs text-charcoal-muted mt-1">Format didukung: PDF, Word, Excel, Gambar.</p>
                         @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
                     </div>
                 @endif

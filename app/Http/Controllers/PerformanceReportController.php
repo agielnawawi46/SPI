@@ -34,7 +34,7 @@ class PerformanceReportController extends Controller
         $request->validate([
             'title'            => 'required|string|max:255',
             'content'          => 'nullable|string',
-            'attachment'       => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:307200',
+            'attachment'       => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $documentType = DocumentType::where('module', 'report')->first();
@@ -116,7 +116,7 @@ class PerformanceReportController extends Controller
         $request->validate([
             'title'      => 'required|string|max:255',
             'content'    => 'nullable|string',
-            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:307200',
+            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $document->update([
