@@ -59,8 +59,12 @@
                 <tr>
                     <td class="text-center text-charcoal-muted">{{ $items->firstItem() + $index }}</td>
                     <td>
-                        <p class="font-medium text-charcoal">{{ $item->pkpt->title }}</p>
-                        <p class="text-xs text-charcoal-muted">Tahun: {{ $item->pkpt->period_year }}</p>
+                        @if($item->pkpt)
+                            <p class="font-medium text-charcoal">{{ $item->pkpt->title }}</p>
+                            <p class="text-xs text-charcoal-muted">Tahun: {{ $item->pkpt->period_year }}</p>
+                        @else
+                            <span class="text-xs text-charcoal-muted italic">Tidak terkait PKPT</span>
+                        @endif
                     </td>
                     <td>
                         <span class="font-medium text-charcoal">{{ $item->audit_object }}</span>
@@ -137,7 +141,13 @@
                 <div class="flex flex-col gap-2">
                     <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
                         <span class="text-charcoal-muted">PKPT</span>
-                        <span class="font-medium text-charcoal text-right">{{ $item->pkpt->title }}<br><span class="text-xs text-charcoal-muted">Tahun: {{ $item->pkpt->period_year }}</span></span>
+                        <span class="font-medium text-charcoal text-right">
+                            @if($item->pkpt)
+                                {{ $item->pkpt->title }}<br><span class="text-xs text-charcoal-muted">Tahun: {{ $item->pkpt->period_year }}</span>
+                            @else
+                                <span class="text-xs text-charcoal-muted italic">Tidak terkait PKPT</span>
+                            @endif
+                        </span>
                     </div>
                     <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
                         <span class="text-charcoal-muted">Auditee</span>

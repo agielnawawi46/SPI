@@ -24,7 +24,7 @@ class PkptItem extends Model
 
     public function pkpt(): BelongsTo
     {
-        return $this->belongsTo(Pkpt::class);
+        return $this->belongsTo(Pkpt::class)->withTrashed();
     }
 
     public function auditeeDepartment(): BelongsTo

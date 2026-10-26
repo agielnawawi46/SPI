@@ -22,7 +22,7 @@
             <div>
                 <h2 class="card-title">{{ $lainnya->audit_object }}</h2>
                 <p class="text-sm text-charcoal-muted mt-2 space-y-1">
-                    <span class="block">Terkait PKPT: <strong>{{ $lainnya->pkpt->title }} ({{ $lainnya->pkpt->period_year }})</strong></span>
+                    <span class="block">Terkait PKPT: <strong>{{ $lainnya->pkpt->title ?? '-' }} ({{ $lainnya->pkpt->period_year ?? '-' }})</strong></span>
                     <span class="block">Auditee: <strong>
                         @if($lainnya->auditeeDepartment)
                             {{ $lainnya->auditeeDepartment->code }} - {{ $lainnya->auditeeDepartment->name }}

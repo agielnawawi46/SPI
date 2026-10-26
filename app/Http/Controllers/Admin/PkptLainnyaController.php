@@ -65,7 +65,7 @@ class PkptLainnyaController extends Controller
 
     public function edit(PkptItem $lainnya)
     {
-        $pkpts = Pkpt::orderBy('period_year', 'desc')->get();
+        $pkpts = Pkpt::withTrashed()->orderBy('period_year', 'desc')->get();
         $departments = Department::orderBy('name')->get();
         return view('admin.pkpt.lainnya.edit', compact('lainnya', 'pkpts', 'departments'));
     }
