@@ -85,61 +85,57 @@ class AuditeeController extends Controller
         }
 
         $request->validate([
-            'file'        => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'files'       => 'nullable|array',
+            'files.*'     => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
+            'file'        => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
             'description' => 'nullable|string',
         ]);
 
-        $file = $request->file('file');
-        $originalName = $file->getClientOriginalName();
-        $path = $file->storeAs('evidences', time() . '_' . $originalName, 'public');
-        
-        $pdfPath = null;
-        $extension = strtolower($file->getClientOriginalExtension());
-        if (in_array($extension, ['doc', 'docx'])) {
-            try {
-                // Konfigurasi PhpWord untuk menggunakan DomPDF
-                \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
-                \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
-                
-                // Load DOCX dan simpan ke PDF
-                $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $path));
-                $pdfFilename = time() . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
-                $pdfRelativePath = 'evidences/' . $pdfFilename;
-                $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
-                
-                $phpWord->save($pdfAbsolutePath, 'PDF');
-                $pdfPath = $pdfRelativePath;
-            } catch (\Exception $e) {
-                // Abaikan jika gagal konversi (bisa karena format tidak disupport atau error memory)
-                \Log::error('DOCX to PDF Conversion failed: ' . $e->getMessage());
-            }
+        $rawFiles = $request->file('files') ?? $request->file('file');
+        if (!$rawFiles) {
+            return back()->withErrors(['files' => 'Berkas bukti wajib diunggah.'])->withInput();
         }
 
-        $existingEvidence = $followUp->evidences()->first();
+        $files = is_array($rawFiles) ? $rawFiles : [$rawFiles];
+        $savedCount = 0;
 
-        $data = [
-            'file_name'   => $originalName,
-            'file_path'   => $path,
-            'pdf_path'    => $pdfPath,
-            'file_type'   => $file->getClientMimeType(),
-            'file_size'   => $file->getSize(),
-            'description' => $request->description,
-        ];
+        foreach ($files as $file) {
+            if (!$file || !$file->isValid()) continue;
 
-        if ($existingEvidence) {
-            // Hapus file lama
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($existingEvidence->file_path);
-            if ($existingEvidence->pdf_path) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($existingEvidence->pdf_path);
-            }
+            $originalName = $file->getClientOriginalName();
+            $uniqueId = uniqid();
+            $path = $file->storeAs('evidences', time() . '_' . $uniqueId . '_' . $originalName, 'public');
             
-            $data['updated_by'] = Auth::id();
-            $existingEvidence->update($data);
-            $message = 'Bukti berhasil diperbarui (Disimpan sebagai Draf).';
-        } else {
-            $data['uploaded_by'] = Auth::id();
-            $followUp->evidences()->create($data);
-            $message = 'Bukti berhasil diunggah (Disimpan sebagai Draf).';
+            $pdfPath = null;
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (in_array($extension, ['doc', 'docx'])) {
+                try {
+                    \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
+                    \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
+                    
+                    $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $path));
+                    $pdfFilename = time() . '_' . $uniqueId . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
+                    $pdfRelativePath = 'evidences/' . $pdfFilename;
+                    $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
+                    
+                    $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
+                    $pdfWriter->save($pdfAbsolutePath);
+                    $pdfPath = $pdfRelativePath;
+                } catch (\Exception $e) {
+                    \Log::error('DOCX to PDF Conversion failed: ' . $e->getMessage());
+                }
+            }
+
+            $followUp->evidences()->create([
+                'uploaded_by' => Auth::id(),
+                'file_name'   => $originalName,
+                'file_path'   => $path,
+                'pdf_path'    => $pdfPath,
+                'file_type'   => $file->getClientMimeType(),
+                'file_size'   => $file->getSize(),
+                'description' => $request->description,
+            ]);
+            $savedCount++;
         }
 
         // Update follow-up status to in_progress (draft mode)
@@ -147,6 +143,7 @@ class AuditeeController extends Controller
             'status' => 'in_progress'
         ]);
 
+        $message = "{$savedCount} berkas bukti berhasil diunggah (Disimpan sebagai Draf).";
         return redirect()->back()->with('success', $message);
     }
 

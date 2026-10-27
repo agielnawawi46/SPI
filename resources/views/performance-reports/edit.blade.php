@@ -25,12 +25,17 @@
                     @error('content')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="form-group mt-2">
-                    <h3 class="text-sm font-semibold text-charcoal mb-4">Unggah Lampiran Baru (Opsional)</h3>
-                    <input type="file" name="attachment" class="form-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                    <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar. Unggah file baru akan menambah daftar lampiran.</p>
-                    @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
-                </div>
+                <x-file-upload 
+                    name="attachments"
+                    label="Unggah Berkas Lampiran"
+                    badge="Opsional"
+                    :multiple="true"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                    hint="Pilih satu atau beberapa berkas untuk ditambahkan (PDF, Word, Excel, Gambar - Maks. 20MB per berkas)"
+                    :existingFiles="$document->attachments"
+                    :document="$document"
+                    :required="false"
+                />
             </div>
             
             <div class="flex justify-end gap-3 mt-8">

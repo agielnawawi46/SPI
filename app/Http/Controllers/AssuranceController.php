@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\DocumentType;
+use App\Traits\HandlesDocumentAttachments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AssuranceController extends Controller
 {
+    use HandlesDocumentAttachments;
     public function index(Request $request)
     {
         $typeSlug = $request->get('type');
@@ -82,8 +84,14 @@ class AssuranceController extends Controller
                 'title'            => 'required|string|max:255',
                 'document_type_id' => 'required|exists:document_types,id',
                 'audit_type'       => 'required|in:terjadwal,tidak_terjadwal',
-                'attachment'       => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+                'attachments'      => 'nullable|array',
+                'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+                'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             ]);
+
+            if (!$request->hasFile('attachments') && !$request->hasFile('attachment')) {
+                return back()->withErrors(['attachments' => 'Wajib memilih minimal satu berkas dokumen.'])->withInput();
+            }
 
             $document = Document::create([
                 'title'            => $request->title,
@@ -94,35 +102,7 @@ class AssuranceController extends Controller
                 'created_by'       => Auth::id(),
             ]);
 
-            $file = $request->file('attachment');
-            $originalName = $file->getClientOriginalName();
-            $path = $file->storeAs('attachments', time() . '_' . $originalName, 'public');
-
-            $pdfPath = null;
-            $extension = strtolower($file->getClientOriginalExtension());
-            if (in_array($extension, ['doc', 'docx'])) {
-                try {
-                    \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
-                    \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
-                    $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $path));
-                    $pdfFilename = time() . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
-                    $pdfRelativePath = 'attachments/' . $pdfFilename;
-                    $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
-                    $pdfWriter->save(storage_path('app/public/' . $pdfRelativePath));
-                    $pdfPath = $pdfRelativePath;
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Error converting DOCX to PDF: ' . $e->getMessage());
-                }
-            }
-
-            $document->attachments()->create([
-                'uploaded_by' => Auth::id(),
-                'file_name'   => $originalName,
-                'file_path'   => $path,
-                'file_type'   => $file->getClientMimeType(),
-                'file_size'   => $file->getSize(),
-                'pdf_path'    => $pdfPath,
-            ]);
+            $this->saveDocumentAttachments($request, $document);
 
             return redirect()->route('assurance.show', $document)
                 ->with('success', $selectedType->name . ' berhasil diunggah.');
@@ -161,6 +141,8 @@ class AssuranceController extends Controller
             'tim_audit'        => 'nullable|array',
             'jabatan_direktur' => 'nullable|string|max:255',
             'nama_direktur'    => 'nullable|string|max:255',
+            'attachments'      => 'nullable|array',
+            'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
@@ -207,42 +189,8 @@ class AssuranceController extends Controller
 
         $document = Document::create($dataToStore);
 
-        if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
-            $originalName = $file->getClientOriginalName();
-            $path = $file->store('attachments/' . date('Y/m'), 'public');
-
-            $pdfPath = null;
-            $extension = strtolower($file->getClientOriginalExtension());
-            if (in_array($extension, ['doc', 'docx'])) {
-                try {
-                    \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
-                    \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
-                    
-                    $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $path));
-                    $pdfFilename = time() . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
-                    $pdfRelativePath = 'attachments/' . date('Y/m') . '/' . $pdfFilename;
-                    $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
-                    
-                    $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
-                    $pdfWriter->save($pdfAbsolutePath);
-                    
-                    $pdfPath = $pdfRelativePath;
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Error converting DOCX to PDF: ' . $e->getMessage());
-                }
-            }
-
-            \App\Models\DocumentAttachment::create([
-                'document_id' => $document->id,
-                'uploaded_by' => \Illuminate\Support\Facades\Auth::id(),
-                'file_name'   => $originalName,
-                'file_path'   => $path,
-                'file_type'   => $file->getClientMimeType(),
-                'file_size'   => $file->getSize(),
-                'description' => 'Lampiran Dokumen',
-                'pdf_path'    => $pdfPath,
-            ]);
+        if ($request->hasFile('attachments') || $request->hasFile('attachment')) {
+            $this->saveDocumentAttachments($request, $document);
         }
 
         return redirect()->route('assurance.show', $document)
@@ -306,7 +254,8 @@ class AssuranceController extends Controller
         }
 
         $request->validate([
-            'content'       => 'nullable|string',
+            'attachments'   => 'nullable|array',
+            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             'attachment'    => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             'title'         => 'nullable|string|max:255',
             'tgl_pka'       => 'nullable|date',
@@ -375,51 +324,8 @@ class AssuranceController extends Controller
 
         $document->update($dataToUpdate);
 
-        if ($request->hasFile('attachment')) {
-            // Hapus lampiran lama jika ada untuk digantikan dengan berkas baru
-            foreach ($document->attachments as $oldAtt) {
-                if ($oldAtt->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldAtt->file_path)) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAtt->file_path);
-                }
-                if ($oldAtt->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldAtt->pdf_path)) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAtt->pdf_path);
-                }
-                $oldAtt->delete();
-            }
-
-            $file = $request->file('attachment');
-            $originalName = $file->getClientOriginalName();
-            $path = $file->store('attachments/' . date('Y/m'), 'public');
-
-            $pdfPath = null;
-            $extension = strtolower($file->getClientOriginalExtension());
-            if (in_array($extension, ['doc', 'docx'])) {
-                try {
-                    \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
-                    \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
-                    
-                    $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $path));
-                    $pdfFilename = time() . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
-                    $pdfRelativePath = 'attachments/' . date('Y/m') . '/' . $pdfFilename;
-                    $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
-                    
-                    $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
-                    $pdfWriter->save($pdfAbsolutePath);
-                    
-                    $pdfPath = $pdfRelativePath;
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Error converting DOCX to PDF: ' . $e->getMessage());
-                }
-            }
-
-            $document->attachments()->create([
-                'uploaded_by' => Auth::id(),
-                'file_name'   => $originalName,
-                'file_path'   => $path,
-                'file_type'   => $file->getClientMimeType(),
-                'file_size'   => $file->getSize(),
-                'pdf_path'    => $pdfPath,
-            ]);
+        if ($request->hasFile('attachments') || $request->hasFile('attachment')) {
+            $this->saveDocumentAttachments($request, $document, false);
         }
 
         return redirect()->route('assurance.show', $document)->with('success', 'Dokumen berhasil diperbarui.');

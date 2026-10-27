@@ -193,26 +193,30 @@
     {{-- Upload Bukti --}}
     @if($canUploadEvidence)
     <div class="card mb-8">
-        <div class="card-header"><h2 class="card-title">{{ $followUp->evidences->count() > 0 ? 'Perbarui Bukti Tindak Lanjut' : 'Upload Bukti Tindak Lanjut' }}</h2></div>
+        <div class="card-header"><h2 class="card-title">Upload Bukti Tindak Lanjut</h2></div>
         <div class="card-body">
-            @if($followUp->evidences->count() > 0)
-                <div class="alert alert-warning mb-4 bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                    <p class="text-sm text-yellow-700"><strong>Catatan:</strong> Mengunggah file baru di sini akan <strong>menimpa</strong> bukti yang sudah Anda unggah sebelumnya.</p>
-                </div>
-            @endif
             <form action="{{ route('auditee.upload-evidence', $followUp) }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="form-group">
-                    <label class="form-label">File Bukti <span class="text-red-500">*</span></label>
-                    <input type="file" name="file" class="form-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                    <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar.</p>
-                    @error('file')<p class="form-error">{{ $message }}</p>@enderror
+                <div class="space-y-4">
+                    <x-file-upload 
+                        name="files"
+                        label="Unggah Berkas Bukti"
+                        badge="Wajib"
+                        :multiple="true"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                        hint="Pilih satu atau beberapa berkas bukti tindak lanjut (PDF, Word, Excel, Gambar - Maks. 20MB per berkas)"
+                        :required="true"
+                    />
+
+                    <div class="form-group">
+                        <label class="form-label font-medium text-charcoal">Deskripsi / Keterangan Bukti (Opsional)</label>
+                        <textarea name="description" class="form-textarea" rows="2" placeholder="Jelaskan keterangan bukti yang diunggah..."></textarea>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" class="btn-primary">Unggah Bukti</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Deskripsi Bukti</label>
-                    <textarea name="description" class="form-textarea" rows="2" placeholder="Jelaskan bukti yang diunggah..."></textarea>
-                </div>
-                <button type="submit" class="btn-primary">Unggah Bukti</button>
             </form>
         </div>
     </div>

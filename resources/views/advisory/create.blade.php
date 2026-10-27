@@ -171,11 +171,17 @@
                         @error('title')<p class="form-error">{{ $message }}</p>@enderror
                     </div>
                     
-                    <div class="md:col-span-2 form-group border-t border-surface-200 pt-4 mt-2">
-                        <h4 class="font-medium text-charcoal mb-4">File Lampiran <span class="text-red-500">*</span></h4>
-                        <input type="file" name="attachment" class="form-input p-2" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                        <p class="text-xs text-charcoal-muted mt-1">Format didukung: PDF, Word, Excel, Gambar.</p>
-                        @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
+                    <div class="md:col-span-2 pt-2">
+                        <x-file-upload 
+                            name="attachments" 
+                            label="File Lampiran Dokumen"
+                            subtitle="Pilih satu atau beberapa berkas dokumen pendukung (bisa pilih lebih dari 1 file)"
+                            :required="false"
+                            :multiple="true"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                        />
+                        @error('attachments')<p class="form-error mt-1">{{ $message }}</p>@enderror
+                        @error('attachment')<p class="form-error mt-1">{{ $message }}</p>@enderror
                     </div>
                 @endif
             </div>

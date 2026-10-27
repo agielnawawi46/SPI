@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\DocumentType;
+use App\Traits\HandlesDocumentAttachments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PerformanceReportController extends Controller
 {
+    use HandlesDocumentAttachments;
+
     public function index(Request $request)
     {
         $query = Document::with(['creator', 'documentType'])
@@ -34,8 +37,14 @@ class PerformanceReportController extends Controller
         $request->validate([
             'title'            => 'required|string|max:255',
             'content'          => 'nullable|string',
-            'attachment'       => 'required|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'attachments'      => 'nullable|array',
+            'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
+            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
         ]);
+
+        if (!$request->hasFile('attachments') && !$request->hasFile('attachment')) {
+            return back()->withErrors(['attachments' => 'Berkas lampiran wajib diunggah.'])->withInput();
+        }
 
         $documentType = DocumentType::where('module', 'report')->first();
 
@@ -49,35 +58,7 @@ class PerformanceReportController extends Controller
             'status'           => 'approved', // Marking as approved since it's just an upload
         ]);
 
-        $file = $request->file('attachment');
-        $originalName = $file->getClientOriginalName();
-        $path = $file->storeAs('attachments', time() . '_' . $originalName, 'public');
-
-        $pdfPath = null;
-        $extension = strtolower($file->getClientOriginalExtension());
-        if (in_array($extension, ['doc', 'docx'])) {
-            try {
-                \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
-                \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
-                $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $path));
-                $pdfFilename = time() . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
-                $pdfRelativePath = 'attachments/' . $pdfFilename;
-                $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
-                $pdfWriter->save(storage_path('app/public/' . $pdfRelativePath));
-                $pdfPath = $pdfRelativePath;
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Error converting DOCX to PDF: ' . $e->getMessage());
-            }
-        }
-
-        $document->attachments()->create([
-            'uploaded_by' => Auth::id(),
-            'file_name'   => $originalName,
-            'file_path'   => $path,
-            'file_type'   => $file->getClientMimeType(),
-            'file_size'   => $file->getSize(),
-            'pdf_path'    => $pdfPath,
-        ]);
+        $this->saveDocumentAttachments($request, $document);
 
         return redirect()->route('performance-reports.index')
             ->with('success', 'Laporan Kinerja berhasil diunggah.');
@@ -114,9 +95,11 @@ class PerformanceReportController extends Controller
         }
 
         $request->validate([
-            'title'      => 'required|string|max:255',
-            'content'    => 'nullable|string',
-            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'title'         => 'required|string|max:255',
+            'content'       => 'nullable|string',
+            'attachments'   => 'nullable|array',
+            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
+            'attachment'    => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
         ]);
 
         $document->update([
@@ -124,41 +107,7 @@ class PerformanceReportController extends Controller
             'content' => $request->content ?? '',
         ]);
 
-        if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
-            $originalName = $file->getClientOriginalName();
-            $path = $file->storeAs('attachments', time() . '_' . $originalName, 'public');
-
-            $pdfPath = null;
-            $extension = strtolower($file->getClientOriginalExtension());
-            if (in_array($extension, ['doc', 'docx'])) {
-                try {
-                    \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
-                    \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
-                    
-                    $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $path));
-                    $pdfFilename = time() . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
-                    $pdfRelativePath = 'attachments/' . $pdfFilename;
-                    $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
-                    
-                    $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
-                    $pdfWriter->save($pdfAbsolutePath);
-                    
-                    $pdfPath = $pdfRelativePath;
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Error converting DOCX to PDF: ' . $e->getMessage());
-                }
-            }
-
-            $document->attachments()->create([
-                'uploaded_by' => Auth::id(),
-                'file_name'   => $originalName,
-                'file_path'   => $path,
-                'file_type'   => $file->getClientMimeType(),
-                'file_size'   => $file->getSize(),
-                'pdf_path'    => $pdfPath,
-            ]);
-        }
+        $this->saveDocumentAttachments($request, $document);
 
         return redirect()->route('performance-reports.show', $document)->with('success', 'Laporan berhasil diperbarui.');
     }

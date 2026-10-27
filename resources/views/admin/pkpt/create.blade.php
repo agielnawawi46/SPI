@@ -42,12 +42,15 @@
                 </div>
             </div>
 
-            <div class="form-group mb-0">
-                <label for="pkpt_file" class="form-label">Unggah Dokumen PKPT Utama <span class="text-red-500">*</span></label>
-                <input type="file" id="pkpt_file" name="pkpt_file" class="form-input bg-white w-full" accept=".pdf" required>
-                <p class="text-xs text-charcoal-muted mt-2">Format: PDF (Wajib).</p>
-                @error('pkpt_file') <p class="form-error"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ $message }}</p> @enderror
-            </div>
+            <x-file-upload 
+                name="pkpt_file"
+                label="Unggah Dokumen PKPT Utama"
+                badge="Wajib PDF"
+                :multiple="false"
+                accept=".pdf"
+                hint="Format: PDF (Maks. 20MB). File ini akan melalui proses review sebelum disetujui."
+                :required="true"
+            />
             
             <div class="alert alert-info border-l-4">
                 <div class="flex-shrink-0">

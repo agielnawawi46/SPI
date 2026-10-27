@@ -71,6 +71,7 @@ Route::middleware(['auth', 'check.active', 'audit.trail'])->group(function () {
     Route::post('/approvals/document/{id}/sign-auditee', [\App\Http\Controllers\ApprovalController::class, 'signAuditee'])->name('approvals.sign_auditee');
     Route::post('/approvals/{approval}/action', [\App\Http\Controllers\ApprovalController::class, 'action'])->name('approvals.action');
     Route::post('/approvals/document/{id}/approve-direct', [\App\Http\Controllers\ApprovalController::class, 'approveDirect'])->name('approvals.approve_direct');
+    Route::delete('/documents/{document}/attachments/{attachment}', [\App\Http\Controllers\DocumentAttachmentController::class, 'destroy'])->name('documents.destroy-attachment');
 
 
 

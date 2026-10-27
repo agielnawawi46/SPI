@@ -296,14 +296,14 @@
                     @if($document->attachments->count() > 0)
                         @foreach($document->attachments as $attachment)
                         <div class="p-4 border border-surface-200 rounded-lg bg-white shadow-sm mb-4 last:mb-0">
-                            <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3 overflow-hidden">
                                     <div class="p-2 bg-primary-50 rounded-lg text-primary-600 flex-shrink-0">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                                     </div>
                                     <div>
                                         <p class="text-sm font-semibold text-charcoal truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</p>
-                                        <p class="text-xs text-charcoal-muted mt-0.5">{{ $attachment->file_size_formatted }} â€¢ Diunggah {{ $attachment->created_at->format('d/m/Y H:i') }}</p>
+                                        <p class="text-xs text-charcoal-muted mt-0.5">{{ $attachment->file_size_formatted }} &bull; Diunggah {{ $attachment->created_at->format('d/m/Y H:i') }}</p>
                                     </div>
                                 </div>
                                 <div class="flex gap-2 flex-shrink-0">
@@ -319,9 +319,7 @@
                         </div>
                         @endforeach
                     @else
-                        <div class="p-6 border border-dashed border-surface-300 rounded-lg text-center text-charcoal-muted bg-surface-50">
-                            <p class="text-sm">Belum ada file yang diunggah.</p>
-                        </div>
+                        <p class="text-sm text-charcoal-muted">Belum ada file yang diunggah.</p>
                     @endif
                 </div>
                 <div>

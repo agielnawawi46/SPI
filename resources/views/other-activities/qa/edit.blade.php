@@ -19,12 +19,17 @@
                     <input type="text" name="title" class="form-input" value="{{ old('title', $document->title) }}" placeholder="Masukkan judul dokumen">
                     @error('title')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Upload File Baru (Opsional)</label>
-                    <input type="file" name="attachment" class="form-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
-                    <p class="text-xs text-charcoal-muted mt-1">Biarkan kosong jika tidak ingin mengubah file. Format: PDF, DOC/DOCX, XLS/XLSX, JPG/PNG.</p>
-                    @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
-                </div>
+                <x-file-upload 
+                    name="attachments"
+                    label="Unggah Berkas Baru"
+                    badge="Opsional"
+                    :multiple="true"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                    hint="Pilih satu atau beberapa berkas untuk ditambahkan (PDF, Word, Excel, Gambar - Maks. 20MB per berkas)"
+                    :existingFiles="$document->attachments"
+                    :document="$document"
+                    :required="false"
+                />
             </div>
 
             @elseif($document->documentType?->slug === 'st-qa')
@@ -202,16 +207,26 @@
             </div>
             @endif
 
+            @if(!in_array($document->documentType?->slug, ['pk-qa', 'kk-qa', 'lap-qa']))
             <div class="form-group">
                 <label class="form-label">Catatan Tambahan (Opsional)</label>
                 <textarea name="content" class="form-textarea w-full h-32" placeholder="Tuliskan catatan tambahan di sini...">{!! old('content', strip_tags($document->content)) !!}</textarea>
                 @error('content')<p class="form-error">{{ $message }}</p>@enderror
             </div>
-            <div class="form-group">
-                <label class="form-label">Unggah Lampiran (Opsional)</label>
-                <input type="file" name="attachment" class="form-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar.</p>
+            <div class="border-t border-surface-200 pt-6">
+                <x-file-upload 
+                    name="attachments"
+                    label="Unggah Berkas Lampiran"
+                    badge="Opsional"
+                    :multiple="true"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                    hint="Pilih satu atau beberapa berkas untuk ditambahkan (PDF, Word, Excel, Gambar - Maks. 20MB per berkas)"
+                    :existingFiles="$document->attachments"
+                    :document="$document"
+                    :required="false"
+                />
             </div>
+            @endif
         </div>
 
         <div class="px-6 py-4 bg-surface-50 border-t border-surface-100 flex items-center justify-end gap-3 mt-6">

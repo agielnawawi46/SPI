@@ -118,44 +118,53 @@
                 </div>
             @endif
 
-            {{-- Berkas yang Diunggah (Hanya Tampilkan Kartu Berkas dengan Tombol Lihat & Unduh) --}}
-            @php
-                $attachment = $document->attachments->first();
-                $ext = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
-                $previewUrl = $attachment->pdf_path ? Storage::url($attachment->pdf_path) : Storage::url($attachment->file_path);
-                $downloadUrl = Storage::url($attachment->file_path);
-            @endphp
+            {{-- Berkas yang Diunggah --}}
             <div class="card shadow-sm">
-                <div class="card-header bg-surface-50 border-b border-surface-200 py-3.5 px-5">
+                <div class="card-header bg-surface-50 border-b border-surface-200 py-3.5 px-5 flex items-center justify-between">
                     <h3 class="text-sm font-bold text-charcoal flex items-center gap-2">
                         <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        Berkas Dokumen yang Diunggah
+                        Berkas Dokumen yang Diunggah ({{ $document->attachments->count() }})
                     </h3>
                 </div>
-                <div class="card-body p-5">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-surface-200 rounded-xl bg-white hover:border-surface-300 transition-all">
-                        <div class="flex items-center gap-3.5 overflow-hidden">
-                            <div class="p-3 bg-red-50 text-red-600 rounded-xl flex-shrink-0 shadow-sm">
-                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                <div class="card-body p-5 space-y-3">
+                    @forelse($document->attachments as $attachment)
+                        @php
+                            $ext = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
+                            $previewUrl = $attachment->pdf_path ? Storage::url($attachment->pdf_path) : Storage::url($attachment->file_path);
+                            $downloadUrl = Storage::url($attachment->file_path);
+                            $iconColor = match($ext) {
+                                'pdf' => 'bg-red-50 text-red-600',
+                                'doc', 'docx' => 'bg-blue-50 text-blue-600',
+                                'xls', 'xlsx' => 'bg-emerald-50 text-emerald-600',
+                                default => 'bg-surface-100 text-primary-600'
+                            };
+                        @endphp
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-surface-200 rounded-xl bg-white hover:border-surface-300 transition-all">
+                            <div class="flex items-center gap-3.5 overflow-hidden">
+                                <div class="p-3 {{ $iconColor }} rounded-xl flex-shrink-0 shadow-sm">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                </div>
+                                <div class="truncate">
+                                    <h4 class="text-sm font-bold text-charcoal truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</h4>
+                                    <p class="text-xs text-charcoal-muted mt-1">
+                                        {{ $attachment->file_size_formatted }} • Diunggah oleh {{ $attachment->uploader->name ?? '-' }} pada {{ $attachment->created_at->format('d F Y, H:i') }}
+                                    </p>
+                                </div>
                             </div>
-                            <div class="truncate">
-                                <h4 class="text-sm font-bold text-charcoal truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</h4>
-                                <p class="text-xs text-charcoal-muted mt-1">
-                                    {{ $attachment->file_size_formatted }} • Diunggah oleh {{ $attachment->uploader->name ?? '-' }} pada {{ $attachment->created_at->format('d F Y, H:i') }}
-                                </p>
+                            <div class="flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
+                                <a href="{{ $previewUrl }}" target="_blank" class="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    Lihat
+                                </a>
+                                <a href="{{ $downloadUrl }}" download class="btn-secondary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    Unduh
+                                </a>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
-                            <a href="{{ $previewUrl }}" target="_blank" class="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                Lihat
-                            </a>
-                            <a href="{{ $downloadUrl }}" download class="btn-secondary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                Unduh
-                            </a>
-                        </div>
-                    </div>
+                    @empty
+                        <p class="text-xs text-charcoal-muted italic text-center py-4">Belum ada berkas terlampir.</p>
+                    @endforelse
                 </div>
             </div>
 
@@ -365,9 +374,7 @@
                             </div>
                             @endforeach
                         @else
-                            <div class="p-6 border border-dashed border-surface-300 rounded-lg text-center text-charcoal-muted bg-surface-50 mb-4">
-                                <p class="text-sm">Belum ada file yang diunggah.</p>
-                            </div>
+                            <p class="text-sm text-charcoal-muted mb-4">Belum ada file yang diunggah.</p>
                         @endif
                     </div>
 

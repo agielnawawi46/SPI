@@ -323,9 +323,7 @@
                         </div>
                         @endforeach
                     @else
-                        <div class="p-6 border border-dashed border-surface-300 rounded-lg text-center text-charcoal-muted bg-surface-50 mb-4">
-                            <p class="text-sm">Belum ada file yang diunggah.</p>
-                        </div>
+                        <p class="text-sm text-charcoal-muted mb-4">Belum ada file yang diunggah.</p>
                     @endif
                 </div>
 

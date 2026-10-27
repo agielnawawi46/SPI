@@ -21,13 +21,15 @@
                 @error('content')<p class="form-error">{{ $message }}</p>@enderror
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Upload File <span class="text-red-500">*</span></label>
-                <input type="file" name="attachment" class="form-input" required
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
-                <p class="text-xs text-charcoal-muted mt-1">Format: PDF, DOC/DOCX, XLS/XLSX, JPG/PNG.</p>
-                @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
-            </div>
+            <x-file-upload 
+                name="attachments"
+                label="Unggah Berkas Laporan"
+                badge="Wajib"
+                :multiple="true"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                hint="Pilih satu atau beberapa berkas (PDF, DOC/DOCX, XLS/XLSX, JPG/PNG - Maks. 20MB per berkas)"
+                :required="true"
+            />
         </div>
 
         <div class="px-6 py-4 bg-surface-50 border-t border-surface-100 flex items-center justify-end gap-3">

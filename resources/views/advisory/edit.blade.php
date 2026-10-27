@@ -151,14 +151,19 @@
             @endif
             
             @if($document->documentType?->slug !== 'bak')
-            <div class="form-group border-t border-surface-200 pt-6">
-                <h3 class="text-sm font-semibold text-charcoal mb-4">Timpa Lampiran (Opsional)</h3>
-                <div class="alert alert-warning text-xs mb-3">
-                    Upload file baru hanya jika Anda ingin mengganti file lampiran yang sebelumnya telah diunggah.
-                </div>
-                <input type="file" name="attachment" class="form-input p-2" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                <p class="text-xs text-charcoal-muted mt-1">Format: PDF, Word, Excel, Gambar.</p>
-                @error('attachment')<p class="form-error">{{ $message }}</p>@enderror
+            <div class="pt-4">
+                <x-file-upload 
+                    name="attachments" 
+                    label="Unggah Berkas Baru / Tambahan"
+                    subtitle="Pilih berkas baru untuk menambah lampiran dokumen advisory ini (bisa multi-file)"
+                    :required="false"
+                    :multiple="true"
+                    :existingFiles="$document->attachments"
+                    badge="Opsional"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                />
+                @error('attachments')<p class="form-error mt-1">{{ $message }}</p>@enderror
+                @error('attachment')<p class="form-error mt-1">{{ $message }}</p>@enderror
             </div>
             @endif
             

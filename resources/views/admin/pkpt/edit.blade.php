@@ -43,20 +43,32 @@
                 </div>
             </div>
 
-            <div class="form-group mb-0">
-                <label for="pkpt_file" class="form-label">Unggah Dokumen PKPT Utama Baru (Opsional)</label>
-                
-                @if($pkpt->file_name)
-                    <div class="mb-3 p-3 bg-primary-50 border border-primary-100 rounded-md flex items-center gap-2">
-                        <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        <span class="text-sm font-medium text-primary-800">File Saat Ini: {{ $pkpt->file_name }}</span>
+            @if($pkpt->file_name)
+                <div class="p-4 bg-primary-50 border border-primary-100 rounded-xl flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-primary-100 text-primary-700 rounded-lg">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <div>
+                            <span class="text-xs font-semibold text-primary-600 uppercase tracking-wider">Berkas Saat Ini</span>
+                            <p class="text-sm font-medium text-charcoal">{{ $pkpt->file_name }}</p>
+                        </div>
                     </div>
-                @endif
-                
-                <input type="file" id="pkpt_file" name="pkpt_file" class="form-input bg-white w-full" accept=".pdf">
-                <p class="text-xs text-charcoal-muted mt-2">Biarkan kosong jika tidak ingin mengubah file PDF.</p>
-                @error('pkpt_file') <p class="form-error"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ $message }}</p> @enderror
-            </div>
+                    @if($pkpt->file_path)
+                        <a href="{{ Storage::url($pkpt->file_path) }}" target="_blank" class="btn-secondary btn-sm py-1.5 px-3">Lihat Berkas</a>
+                    @endif
+                </div>
+            @endif
+
+            <x-file-upload 
+                name="pkpt_file"
+                label="Unggah Dokumen PKPT Baru (Opsional)"
+                badge="PDF"
+                :multiple="false"
+                accept=".pdf"
+                hint="Biarkan kosong jika tidak ingin mengubah file PDF (Maks. 20MB)."
+                :required="false"
+            />
             
         </div>
         <div class="px-6 py-4 bg-surface-50 border-t border-surface-100 flex items-center justify-end gap-3">

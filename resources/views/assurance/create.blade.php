@@ -246,30 +246,17 @@
                 </template>
 
                 <div class="md:col-span-2 border-t border-surface-200 pt-6 mt-4">
-                    <div class="p-5 bg-gradient-to-r from-primary-50/70 to-surface-50 border border-primary-200 rounded-xl shadow-sm">
-                        <div class="flex items-start gap-3.5">
-                            <div class="p-2.5 bg-primary-100 text-primary-700 rounded-xl flex-shrink-0 mt-0.5 shadow-sm">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <label for="attachment" class="form-label font-bold text-charcoal text-sm mb-0">
-                                        Upload File Surat Tugas / Tanda Tangan Basah
-                                    </label>
-                                    <span class="badge bg-amber-100 text-amber-800 text-[11px] font-medium border-amber-200">Opsional</span>
-                                </div>
-                                <p class="text-xs text-charcoal-muted leading-relaxed mb-3">
-                                    Jika surat tugas sudah memiliki fisik bertanda tangan basah dan hanya perlu diunggah, silakan unggah scan berkas di bawah ini. Anda dapat tetap mengisi form di atas atau membiarkan opsional sesuai kebutuhan.
-                                </p>
-                                <input type="file" name="attachment" id="attachment" class="form-input bg-white w-full p-2 border-surface-300 rounded-lg focus:border-primary-500" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                                <p class="text-[11px] text-charcoal-muted mt-1.5 flex items-center gap-1">
-                                    <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    Format didukung: <strong>PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</strong>
-                                </p>
-                                @error('attachment')<p class="form-error mt-1.5">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-                    </div>
+                    <x-file-upload 
+                        name="attachments" 
+                        label="Upload File Surat Tugas / Berkas Pendukung"
+                        subtitle="Jika ada scan bertanda tangan basah atau lampiran pendukung, unggah di sini (bisa pilih lebih dari 1)"
+                        :required="false"
+                        :multiple="true"
+                        badge="Opsional"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                    />
+                    @error('attachments')<p class="form-error mt-1">{{ $message }}</p>@enderror
+                    @error('attachment')<p class="form-error mt-1">{{ $message }}</p>@enderror
                 </div>
 
             </div>
