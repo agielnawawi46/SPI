@@ -215,9 +215,51 @@
 
                         {{-- Card Footer: Upload Form (Only in Draft Status) --}}
                         @if($document && $document->status === 'draft')
-                            <div class="p-4 sm:p-5 border-t border-surface-100 bg-surface-50/60">
+                            <div class="p-4 sm:p-5 border-t border-surface-100 bg-surface-50/60" x-data="{
+                                selectedFiles: [],
+                                getDt() {
+                                    if (!this.$el._dt) this.$el._dt = new DataTransfer();
+                                    return this.$el._dt;
+                                },
+                                setDt(newDt) {
+                                    this.$el._dt = newDt;
+                                },
+                                handleFiles(e) {
+                                    const dt = this.getDt();
+                                    const files = Array.from(e.target.files || []);
+                                    for (let f of files) {
+                                        const exists = Array.from(dt.files).some(x => x.name === f.name && x.size === f.size && x.lastModified === f.lastModified);
+                                        if (!exists) dt.items.add(f);
+                                    }
+                                    e.target.files = dt.files;
+                                    this.syncList();
+                                },
+                                removeFile(idx) {
+                                    const dt = this.getDt();
+                                    const newDt = new DataTransfer();
+                                    Array.from(dt.files).forEach((f, i) => {
+                                        if (i !== idx) newDt.items.add(f);
+                                    });
+                                    this.setDt(newDt);
+                                    if (this.$refs.fileInput) {
+                                        this.$refs.fileInput.files = newDt.files;
+                                        if (newDt.files.length === 0) {
+                                            this.$refs.fileInput.value = '';
+                                        }
+                                    }
+                                    this.syncList();
+                                },
+                                syncList() {
+                                    const dt = this.getDt();
+                                    this.selectedFiles = Array.from(dt.files).map(f => ({
+                                        name: f.name,
+                                        size: f.size > 1048576 ? (f.size / 1048576).toFixed(1) + ' MB' : Math.round(f.size / 1024) + ' KB'
+                                    }));
+                                }
+                            }">
                                 <form action="{{ route('pkpt.store-kertas-kerja', $pkpt) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
+                                    <input type="hidden" name="category" value="{{ $key }}">
                                     <div class="flex items-center justify-between mb-1.5">
                                         <label class="text-xs font-semibold text-charcoal flex items-center gap-1.5">
                                             <svg class="w-3.5 h-3.5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
@@ -228,10 +270,31 @@
                                         </span>
                                     </div>
                                     
+                                    {{-- Selected files list preview --}}
+                                    <div x-show="selectedFiles.length > 0" class="mb-2 space-y-1">
+                                        <div class="flex items-center justify-between text-[11px] font-semibold text-emerald-800 pb-0.5">
+                                            <span x-text="selectedFiles.length + ' Berkas Siap Diunggah:'"></span>
+                                            <button type="button" @click="$refs.fileInput.click()" class="text-primary-600 hover:text-primary-800 font-medium hover:underline flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                                Tambah berkas lain
+                                            </button>
+                                        </div>
+                                        <template x-for="(f, i) in selectedFiles" :key="i">
+                                            <div class="flex items-center justify-between p-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs">
+                                                <span class="truncate flex-1 font-medium text-emerald-900" x-text="f.name + ' (' + f.size + ')'"></span>
+                                                <button type="button" @click="removeFile(i)" class="text-red-500 hover:text-red-700 ml-2 p-0.5" title="Hapus">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+
                                     <div class="flex items-center gap-2">
                                         <input type="file" 
-                                               name="attachments[{{ $key }}][]" 
+                                               x-ref="fileInput"
+                                               name="attachments[]" 
                                                multiple
+                                               @change="handleFiles($event)"
                                                class="form-input flex-1 text-xs bg-white h-[38px] cursor-pointer file:mr-2.5 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" 
                                                accept=".pdf,.doc,.docx,.xls,.xlsx" 
                                                required>
@@ -240,7 +303,7 @@
                                             Unggah
                                         </button>
                                     </div>
-                                    <p class="text-[10.5px] text-charcoal-muted mt-1.5">Format: PDF, DOC, DOCX, XLS, XLSX.</p>
+                                    <p class="text-[10.5px] text-charcoal-muted mt-1.5">Format: PDF, DOC, DOCX, XLS, XLSX. (Bisa pilih beberapa berkas sekaligus atau pilih bertahap)</p>
                                 </form>
                             </div>
                         @endif

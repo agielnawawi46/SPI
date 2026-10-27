@@ -48,7 +48,7 @@
                 badge="Wajib PDF"
                 :multiple="false"
                 accept=".pdf"
-                hint="Format: PDF (Maks. 20MB). File ini akan melalui proses review sebelum disetujui."
+                hint="Format: PDF (Ukuran bebas / tanpa batas). File ini akan melalui proses review sebelum disetujui."
                 :required="true"
             />
             

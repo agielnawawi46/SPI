@@ -38,8 +38,8 @@ class PerformanceReportController extends Controller
             'title'            => 'required|string|max:255',
             'content'          => 'nullable|string',
             'attachments'      => 'nullable|array',
-            'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
-            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
+            'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         if (!$request->hasFile('attachments') && !$request->hasFile('attachment')) {
@@ -98,8 +98,8 @@ class PerformanceReportController extends Controller
             'title'         => 'required|string|max:255',
             'content'       => 'nullable|string',
             'attachments'   => 'nullable|array',
-            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
-            'attachment'    => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
+            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'attachment'    => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $document->update([

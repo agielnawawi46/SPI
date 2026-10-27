@@ -86,8 +86,8 @@ class AuditeeController extends Controller
 
         $request->validate([
             'files'       => 'nullable|array',
-            'files.*'     => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
-            'file'        => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
+            'files.*'     => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'file'        => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             'description' => 'nullable|string',
         ]);
 

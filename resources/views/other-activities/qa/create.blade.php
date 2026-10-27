@@ -40,7 +40,7 @@
                         badge="Wajib"
                         :multiple="true"
                         accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                        hint="Pilih satu atau beberapa berkas (PDF, DOC/DOCX, XLS/XLSX, JPG/PNG - Maks. 20MB per berkas)"
+                        hint="Pilih satu atau beberapa berkas (PDF, DOC/DOCX, XLS/XLSX, JPG/PNG - Ukuran bebas / tanpa batas)"
                         :required="true"
                     />
                 </div>
@@ -215,7 +215,7 @@
                     badge="Opsional"
                     :multiple="true"
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
-                    hint="Pilih satu atau beberapa berkas dokumen pendukung (PDF, Word, Excel, Gambar - Maks. 20MB per berkas)"
+                    hint="Pilih satu atau beberapa berkas dokumen pendukung (PDF, Word, Excel, Gambar - Ukuran bebas / tanpa batas)"
                     :required="false"
                 />
             </div>

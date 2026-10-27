@@ -279,8 +279,8 @@ class OtherActivityController extends Controller
             'document_type_id' => 'required|exists:document_types,id',
             'content'          => 'nullable|string',
             'attachments'      => 'nullable|array',
-            'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
-            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
+            'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         if (!$request->hasFile('attachments') && !$request->hasFile('attachment')) {
@@ -326,8 +326,8 @@ class OtherActivityController extends Controller
             'title'         => 'required|string|max:255',
             'content'       => 'nullable|string',
             'attachments'   => 'nullable|array',
-            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
-            'attachment'    => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
+            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'attachment'    => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $document->update([
@@ -418,8 +418,8 @@ class OtherActivityController extends Controller
                 'title'            => 'required|string|max:255',
                 'document_type_id' => 'required|exists:document_types,id',
                 'attachments'      => 'nullable|array',
-                'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
-                'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
+                'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+                'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             ]);
 
             if (!$request->hasFile('attachments') && !$request->hasFile('attachment')) {
@@ -459,8 +459,8 @@ class OtherActivityController extends Controller
             'jabatan_direktur' => 'nullable|string|max:255',
             'nama_direktur'    => 'nullable|string|max:255',
             'attachments'      => 'nullable|array',
-            'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
-            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
+            'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
         $dataToStore = [
@@ -525,8 +525,8 @@ class OtherActivityController extends Controller
             'title'            => 'nullable|string|max:255',
             'content'          => 'nullable|string',
             'attachments'      => 'nullable|array',
-            'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
-            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg|max:20480',
+            'attachments.*'    => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
+            'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
             'tgl_stg'          => 'nullable|date',
             'auditee'          => 'nullable|string|max:255',
             'jadwal_audit'     => 'nullable|string|max:255',

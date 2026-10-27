@@ -204,7 +204,7 @@
                         badge="Wajib"
                         :multiple="true"
                         accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
-                        hint="Pilih satu atau beberapa berkas bukti tindak lanjut (PDF, Word, Excel, Gambar - Maks. 20MB per berkas)"
+                        hint="Pilih satu atau beberapa berkas bukti tindak lanjut (PDF, Word, Excel, Gambar - Ukuran bebas / tanpa batas)"
                         :required="true"
                     />
 

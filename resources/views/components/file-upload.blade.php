@@ -27,9 +27,64 @@
 <div class="border border-surface-200 rounded-2xl bg-white shadow-sm overflow-hidden" 
      x-data="{
         selectedFiles: [],
+        getDt() {
+            if (!this.$el._dt) this.$el._dt = new DataTransfer();
+            return this.$el._dt;
+        },
+        setDt(newDt) {
+            this.$el._dt = newDt;
+        },
         handleFileChange(event) {
-            const files = Array.from(event.target.files);
-            this.selectedFiles = files.map(f => {
+            const input = event.target;
+            const newFiles = Array.from(input.files || []);
+            const dt = this.getDt();
+
+            if (@json($multiple)) {
+                for (const file of newFiles) {
+                    const exists = Array.from(dt.files).some(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified);
+                    if (!exists) {
+                        dt.items.add(file);
+                    }
+                }
+                input.files = dt.files;
+            } else {
+                const singleDt = new DataTransfer();
+                if (newFiles.length > 0) {
+                    singleDt.items.add(newFiles[0]);
+                }
+                this.setDt(singleDt);
+                input.files = singleDt.files;
+            }
+
+            this.syncSelectedFiles();
+        },
+        removeFile(index) {
+            const dt = this.getDt();
+            const newDt = new DataTransfer();
+            Array.from(dt.files).forEach((file, i) => {
+                if (i !== index) {
+                    newDt.items.add(file);
+                }
+            });
+            this.setDt(newDt);
+            const input = document.getElementById('{{ $inputId }}');
+            if (input) {
+                input.files = newDt.files;
+                if (newDt.files.length === 0) {
+                    input.value = '';
+                }
+            }
+            this.syncSelectedFiles();
+        },
+        clearFiles() {
+            this.setDt(new DataTransfer());
+            const el = document.getElementById('{{ $inputId }}');
+            if (el) el.value = '';
+            this.syncSelectedFiles();
+        },
+        syncSelectedFiles() {
+            const dt = this.getDt();
+            this.selectedFiles = Array.from(dt.files).map(f => {
                 let sizeStr = '';
                 if (f.size > 1024 * 1024) {
                     sizeStr = (f.size / (1024 * 1024)).toFixed(2) + ' MB';
@@ -45,11 +100,6 @@
                     ext: ext
                 };
             });
-        },
-        clearFiles() {
-            this.selectedFiles = [];
-            const el = document.getElementById('{{ $inputId }}');
-            if (el) el.value = '';
         }
      }">
     
@@ -181,18 +231,35 @@
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span x-text="selectedFiles.length + ' Berkas Siap Diunggah'"></span>
             </span>
-            <button type="button" @click="clearFiles()" class="text-xs text-red-600 hover:text-red-700 font-medium hover:underline">
-                Batal Pilih
-            </button>
+            <div class="flex items-center gap-3">
+                @if($multiple)
+                <button type="button" @click="document.getElementById('{{ $inputId }}').click()" class="text-xs text-primary-700 hover:text-primary-800 font-semibold hover:underline flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Tambah Berkas Lain
+                </button>
+                <span class="text-surface-300">|</span>
+                @endif
+                <button type="button" @click="clearFiles()" class="text-xs text-red-600 hover:text-red-700 font-medium hover:underline">
+                    Batal Semua
+                </button>
+            </div>
         </div>
-        <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+        <div class="space-y-1.5 max-h-52 overflow-y-auto pr-1">
             <template x-for="(f, i) in selectedFiles" :key="i">
-                <div class="p-2 bg-white border border-emerald-200 rounded-lg flex items-center justify-between text-xs shadow-2xs">
+                <div class="p-2 bg-white border border-emerald-200 rounded-lg flex items-center justify-between text-xs shadow-2xs gap-2">
                     <div class="flex items-center gap-2 truncate flex-1 min-w-0">
                         <span class="font-bold uppercase text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200" x-text="f.ext"></span>
                         <span class="font-medium text-charcoal truncate" x-text="f.name"></span>
                     </div>
-                    <span class="text-charcoal-muted text-[11px] ml-2 flex-shrink-0" x-text="f.size"></span>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-charcoal-muted text-[11px]" x-text="f.size"></span>
+                        <button type="button" 
+                                @click="removeFile(i)" 
+                                title="Hapus berkas ini dari daftar pilihan"
+                                class="w-5 h-5 rounded-md flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
                 </div>
             </template>
         </div>
@@ -212,7 +279,7 @@
         </div>
         <p class="text-[11px] text-charcoal-muted mt-2 flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            {{ $hint }}
+            {{ $hint }} @if($multiple) (Bisa memilih beberapa berkas sekaligus atau memilih bertahap). @endif
         </p>
     </div>
 </div>

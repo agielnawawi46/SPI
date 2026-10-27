@@ -29,7 +29,7 @@
                     badge="Opsional"
                     :multiple="true"
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
-                    hint="Pilih satu atau beberapa berkas untuk ditambahkan (PDF, Word, Excel, Gambar - Maks. 20MB per berkas)"
+                    hint="Pilih satu atau beberapa berkas untuk ditambahkan (PDF, Word, Excel, Gambar - Ukuran bebas / tanpa batas)"
                     :existingFiles="$document->attachments"
                     :document="$document"
                     :required="false"

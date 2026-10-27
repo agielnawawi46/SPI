@@ -66,7 +66,7 @@
                 badge="PDF"
                 :multiple="false"
                 accept=".pdf"
-                hint="Biarkan kosong jika tidak ingin mengubah file PDF (Maks. 20MB)."
+                hint="Biarkan kosong jika tidak ingin mengubah file PDF (Ukuran bebas / tanpa batas)."
                 :required="false"
             />
             

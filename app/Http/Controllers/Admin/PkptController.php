@@ -181,24 +181,89 @@ class PkptController extends Controller
 
     public function storeKertasKerja(Request $request, Pkpt $pkpt)
     {
-        $request->validate([
-            'attachments' => 'nullable|array',
-        ]);
-
         $documentType = \App\Models\DocumentType::where('slug', 'kertas-kerja-pkpt')->firstOrFail();
-        $document = \App\Models\Document::where('pkpt_id', $pkpt->id)
-            ->where('document_type_id', $documentType->id)
-            ->firstOrFail();
+        $document = \App\Models\Document::firstOrCreate(
+            [
+                'pkpt_id' => $pkpt->id,
+                'document_type_id' => $documentType->id,
+            ],
+            [
+                'title' => 'Kertas Kerja PKPT: ' . $pkpt->title,
+                'created_by' => Auth::id(),
+                'status' => 'draft',
+                'content' => '',
+            ]
+        );
 
         $allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
         $uploadedCount = 0;
 
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $category => $files) {
-                $fileList = is_array($files) ? $files : [$files];
+        // Mode 1: Submit per-category (category field + attachments[] or attachment)
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            $rawFiles = $request->file('attachments') ?? $request->file('attachment');
+            $fileList = is_array($rawFiles) ? $rawFiles : ($rawFiles ? [$rawFiles] : []);
 
+            foreach ($fileList as $file) {
+                if (!$file || !($file instanceof \Illuminate\Http\UploadedFile) || !$file->isValid()) {
+                    continue;
+                }
+
+                $extension = strtolower($file->getClientOriginalExtension());
+                if (!in_array($extension, $allowedExtensions)) {
+                    continue;
+                }
+
+                $originalName = $file->getClientOriginalName();
+                $uniqueId = uniqid();
+                $fileName = time() . '_' . $uniqueId . '_' . $originalName;
+                $filePath = $file->storeAs('attachments', $fileName, 'public');
+
+                $pdfPath = null;
+                if (in_array($extension, ['doc', 'docx'])) {
+                    try {
+                        \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
+                        \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
+                        
+                        $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $filePath));
+                        $pdfFilename = time() . '_' . $uniqueId . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
+                        $pdfRelativePath = 'attachments/' . $pdfFilename;
+                        $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
+                        
+                        $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
+                        $pdfWriter->save($pdfAbsolutePath);
+                        
+                        $pdfPath = $pdfRelativePath;
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('Error converting DOCX to PDF: ' . $e->getMessage());
+                    }
+                }
+
+                $document->attachments()->create([
+                    'uploaded_by' => Auth::id(),
+                    'description' => $category,
+                    'file_name'   => $originalName,
+                    'file_path'   => $filePath,
+                    'file_type'   => $file->getClientMimeType(),
+                    'file_size'   => $file->getSize(),
+                    'pdf_path'    => $pdfPath,
+                ]);
+
+                $uploadedCount++;
+            }
+        }
+
+        // Mode 2: Multi-category submission (attachments[category][])
+        $rawAttachments = $request->file('attachments');
+        if (is_array($rawAttachments)) {
+            foreach ($rawAttachments as $category => $files) {
+                if (is_numeric($category)) {
+                    continue; // Skip numeric keys handled in Mode 1
+                }
+
+                $fileList = is_array($files) ? $files : [$files];
                 foreach ($fileList as $file) {
-                    if (!$file || !$file->isValid()) {
+                    if (!$file || !($file instanceof \Illuminate\Http\UploadedFile) || !$file->isValid()) {
                         continue;
                     }
 
@@ -227,14 +292,14 @@ class PkptController extends Controller
                             $pdfWriter->save($pdfAbsolutePath);
                             
                             $pdfPath = $pdfRelativePath;
-                        } catch (\Exception $e) {
+                        } catch (\Throwable $e) {
                             \Illuminate\Support\Facades\Log::error('Error converting DOCX to PDF: ' . $e->getMessage());
                         }
                     }
 
                     $document->attachments()->create([
                         'uploaded_by' => Auth::id(),
-                        'description' => $category, // 'RJP', 'RKAP', dll
+                        'description' => $category,
                         'file_name'   => $originalName,
                         'file_path'   => $filePath,
                         'file_type'   => $file->getClientMimeType(),
