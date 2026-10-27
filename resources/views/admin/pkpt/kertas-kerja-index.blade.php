@@ -3,9 +3,17 @@
 @section('title', 'Kertas Kerja PKPT')
 @section('page_title', 'Kertas Kerja PKPT')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('pkpt.index') }}" class="breadcrumb-link">PKPT</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Kertas Kerja</span>
+@endsection
+
 @section('content')
 <div class="card" x-data="{ showModal: false, selectedPkpt: '' }">
-    <div class="card-header flex flex-col items-start text-left gap-3">
+    <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="card-title">Daftar Kertas Kerja PKPT</h2>
             <p class="text-xs text-charcoal-muted mt-1">Kelola dan unggah lampiran Kertas Kerja (RJP, RKAP, dll) untuk PKPT yang telah ditetapkan.</p>

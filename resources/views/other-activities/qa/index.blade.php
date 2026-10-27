@@ -9,9 +9,19 @@
 @section('title', $pageTitle)
 @section('page_title', $pageTitle)
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('other-activities.qa.index') }}" class="breadcrumb-link">Quality Assurance</a>
+    @if(isset($typeSlug))
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">{{ $pageTitle }}</span>
+    @endif
+@endsection
+
 @section('content')
 <div class="card" x-data="{ showModal: false, selectedDoc: '' }">
-    <div class="card-header flex flex-col items-start text-left gap-3">
+    <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="card-title">Daftar {{ $pageTitle }}</h2>
             <p class="text-xs text-charcoal-muted mt-1">{{ $subtitle }}</p>
@@ -169,7 +179,7 @@
                 </div>
             </div>
             <div class="bg-surface-50 px-4 py-3 flex items-center justify-end border-t border-surface-200">
-                <a href="{{ route('other-activities.qa.show', $doc) }}" class="btn-outline btn-sm bg-white">Lihat Detail</a>
+                <a href="{{ route('other-activities.qa.show', $doc) }}" class="btn-secondary btn-sm">Lihat Detail</a>
             </div>
         </div>
         @empty

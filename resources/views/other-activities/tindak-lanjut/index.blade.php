@@ -2,9 +2,15 @@
 @section('title', 'Monitoring Tindak Lanjut')
 @section('page_title', 'Monitoring Tindak Lanjut')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Monitoring Tindak Lanjut</span>
+@endsection
+
 @section('content')
 <div class="card" x-data="{ showModal: false, selectedDoc: '' }">
-    <div class="card-header flex flex-col items-start text-left gap-3">
+    <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="card-title">Daftar Monitoring Tindak Lanjut</h2>
             <p class="text-xs text-charcoal-muted mt-1">Kelola dokumen Monitoring Tindak Lanjut</p>
@@ -31,7 +37,7 @@
     @if($documents->isEmpty())
         <div class="empty-state">
             <div class="empty-state-icon">
-                <svg class="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8l2 2 4-4"/></svg>
+                <svg class="w-7 h-7 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8l2 2 4-4"/></svg>
             </div>
             <p class="empty-state-title">Belum ada dokumen</p>
             <p class="empty-state-description">Dokumen akan muncul setelah Anda membuatnya.</p>
@@ -55,7 +61,7 @@
                         <tr>
                             <td class="text-center text-charcoal-muted">{{ $documents->firstItem() + $index }}</td>
                             <td class="font-medium text-charcoal">
-                                <a href="{{ route('other-activities.tl.show', $doc) }}" class="hover:text-indigo-600 transition-colors">
+                                <a href="{{ route('other-activities.tl.show', $doc) }}" class="hover:text-primary-600 transition-colors">
                                     {{ $doc->title }}
                                 </a>
                             </td>
@@ -157,10 +163,10 @@
 {{-- Lower Table: Daftar Penugasan Tindak Lanjut --}}
 @if(isset($followUps))
 <div class="card mt-8">
-    <div class="card-header flex flex-col items-start text-left gap-3">
+    <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="card-title">Daftar Penugasan Tindak Lanjut Anda</h2>
-            <p class="text-xs text-charcoal-muted mt-1">Daftar tugas upload bukti yang ditugaskan ke departemen Anda.</p>
+            <p class="text-xs text-charcoal-muted mt-1">Daftar tugas unggah bukti yang ditugaskan ke departemen Anda.</p>
         </div>
     </div>
     

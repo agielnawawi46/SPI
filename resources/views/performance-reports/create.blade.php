@@ -2,9 +2,17 @@
 @section('title', 'Buat Laporan Kinerja')
 @section('page_title', 'Buat Laporan Kinerja')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('performance-reports.index') }}" class="breadcrumb-link">Laporan Kinerja</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Buat Laporan</span>
+@endsection
+
 @section('content')
 <div class="card">
-    <div class="card-header"><h2 class="card-title">Upload Laporan Kinerja</h2></div>
+    <div class="card-header"><h2 class="card-title">Unggah Laporan Kinerja</h2></div>
     
     <form action="{{ route('performance-reports.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -17,7 +25,7 @@
             
             <div class="form-group">
                 <label class="form-label">Deskripsi (Opsional)</label>
-                <textarea name="content" class="form-input" rows="4" placeholder="Tambahkan deskripsi atau keterangan opsional">{{ old('content') }}</textarea>
+                <textarea name="content" class="form-textarea" rows="4" placeholder="Tambahkan deskripsi atau keterangan opsional">{{ old('content') }}</textarea>
                 @error('content')<p class="form-error">{{ $message }}</p>@enderror
             </div>
 
@@ -34,7 +42,7 @@
 
         <div class="px-6 py-4 bg-surface-50 border-t border-surface-100 flex items-center justify-end gap-3">
             <a href="{{ route('performance-reports.index') }}" class="btn-secondary">Batal</a>
-            <button type="submit" class="btn-primary">Upload Laporan</button>
+            <button type="submit" class="btn-primary">Unggah Laporan</button>
         </div>
     </form>
 </div>

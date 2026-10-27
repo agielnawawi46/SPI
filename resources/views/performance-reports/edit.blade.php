@@ -2,6 +2,16 @@
 @section('title', 'Tambah Lampiran')
 @section('page_title', 'Tambah Lampiran Laporan')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('performance-reports.index') }}" class="breadcrumb-link">Laporan Kinerja</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('performance-reports.show', $document) }}" class="breadcrumb-link">{{ $document->title }}</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Edit</span>
+@endsection
+
 @section('content')
 <div class="card">
     <div class="card-header">
@@ -21,7 +31,7 @@
                 
                 <div class="form-group">
                     <label class="form-label">Deskripsi (Opsional)</label>
-                    <textarea name="content" class="form-input" rows="4">{{ old('content', $document->content) }}</textarea>
+                    <textarea name="content" class="form-textarea" rows="4">{{ old('content', $document->content) }}</textarea>
                     @error('content')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
 
@@ -38,7 +48,7 @@
                 />
             </div>
             
-            <div class="flex justify-end gap-3 mt-8">
+            <div class="form-actions">
                 <a href="{{ route('performance-reports.show', $document) }}" class="btn-secondary">Batal</a>
                 <button type="submit" class="btn-primary">Simpan Perubahan</button>
             </div>

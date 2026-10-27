@@ -2,35 +2,43 @@
 @section('title', 'Detail Monitoring Tindak Lanjut')
 @section('page_title', 'Detail Dokumen')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('other-activities.tl.index') }}" class="breadcrumb-link">Monitoring Tindak Lanjut</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">{{ $document->title }}</span>
+@endsection
+
 @section('content')
 <div class="space-y-6 max-w-7xl mx-auto">
     {{-- Header Info --}}
     <div class="card">
         <div class="card-header flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div>
-                <h2 class="card-title">{{ $document->title }}</h2>
-                <p class="text-sm text-charcoal-muted mt-2 space-y-1">
-                    <span class="block">Dibuat oleh <strong>{{ $document->creator->name ?? '-' }}</strong> pada {{ $document->created_at->format('d F Y') }}</span>
-                </p>
+                <h2 class="card-title text-xl font-bold text-charcoal">{{ $document->title }}</h2>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-charcoal-muted mt-2">
+                    <span>Dibuat oleh <strong class="text-charcoal">{{ $document->creator->name ?? '-' }}</strong> pada {{ $document->created_at->format('d F Y') }}</span>
+                </div>
             </div>
             
             <div class="flex flex-col sm:flex-row items-center gap-3 flex-shrink-0">
                 <span class="badge {{ $document->status_color }}">{{ $document->status_label }}</span>
                 
-                <div class="flex gap-2">
+                <div class="flex items-center gap-2">
                     @if($document->status === 'approved')
-                        <a href="{{ route('other-activities.tl.pdf', $document) }}" class="btn-primary text-sm bg-red-600 hover:bg-red-700 border-red-600 hover:border-red-700 text-white" target="_blank">
+                        <a href="{{ route('other-activities.tl.pdf', $document) }}" class="btn-primary text-sm bg-red-600 hover:bg-red-700 border-red-600 hover:border-red-700 text-white flex items-center shadow-sm" target="_blank">
                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             Export PDF
                         </a>
                     @endif
                     @if($document->canBeEditedBy(Auth::user()))
-                        <a href="{{ route('other-activities.tl.edit', $document) }}" class="btn-primary text-sm">
+                        <a href="{{ route('other-activities.tl.edit', $document) }}" class="btn-secondary text-sm flex items-center shadow-sm">
                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             Edit
                         </a>
                     @endif
-                    <a href="{{ route('other-activities.tl.index') }}" class="btn-secondary text-sm">
+                    <a href="{{ route('other-activities.tl.index') }}" class="btn-secondary text-sm flex items-center shadow-sm">
                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                         Kembali
                     </a>
@@ -52,12 +60,12 @@
                     <div class="relative flex-1 text-center group px-1">
                         {{-- Connector Line --}}
                         @if(!$loop->last)
-                        <div class="absolute top-3.5 left-[50%] w-full h-0.5 {{ $approval->action === 'approve' ? 'bg-green-400' : 'bg-surface-200' }} z-0 mt-[1px]"></div>
+                        <div class="absolute top-3.5 left-[50%] w-full h-0.5 {{ $approval->action === 'approve' ? 'bg-emerald-400' : 'bg-surface-200' }} z-0 mt-[1px]"></div>
                         @endif
 
                         {{-- Step Icon --}}
                         <div class="relative z-10 mx-auto w-7 h-7 flex items-center justify-center rounded-full border-2 border-white shadow-sm {{ 
-                            $approval->action === 'approve' ? 'bg-green-100 text-green-600' : 
+                            $approval->action === 'approve' ? 'bg-emerald-100 text-emerald-600' : 
                             ($approval->action === 'reject' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600') 
                         }}">
                             @if($approval->action === 'approve')
@@ -75,7 +83,7 @@
                                 Level {{ $approval->approval_level }} &mdash; <span class="capitalize">{{ $approval->approval_role }}</span>
                             </h4>
                             <p class="text-[10px] font-bold mt-1 leading-none {{ 
-                                $approval->action === 'approve' ? 'text-green-600' : 
+                                $approval->action === 'approve' ? 'text-emerald-600' : 
                                 ($approval->action === 'reject' ? 'text-red-600' : 'text-amber-600') 
                             }}">
                                 {{ $approval->action === 'approve' ? 'Disetujui' : ($approval->action === 'reject' ? 'Revisi' : 'Menunggu') }}
@@ -94,17 +102,21 @@
 
         {{-- Approved: Show QR code info --}}
         @if($document->status === 'approved' && $document->qr_code_path)
-        <div class="card bg-gradient-to-br from-green-50 to-green-100 border border-green-200 lg:col-span-1 h-full">
+        <div class="card bg-gradient-to-br from-emerald-50 to-emerald-100/60 border border-emerald-200 lg:col-span-1 h-full shadow-sm">
             <div class="card-body p-4 md:p-5 flex flex-row justify-center items-center gap-4 h-full">
-                <div class="bg-white p-2 rounded-2xl shadow-sm flex-shrink-0">
+                <div class="bg-white p-2.5 rounded-xl border border-emerald-200 shadow-sm flex-shrink-0">
                     <img src="{{ asset('storage/' . $document->qr_code_path) }}" alt="QR Code" class="w-20 h-20 md:w-24 md:h-24 object-contain">
                 </div>
                 <div class="text-left">
-                    <h3 class="font-bold text-green-800 text-sm md:text-base">Dokumen Resmi</h3>
-                    <p class="text-[11px] text-green-700 mt-1 font-medium">Tgl: {{ $document->approved_at?->format('d M Y') }}</p>
-                    <a href="{{ route('document.verify', $document->uuid) }}" target="_blank" class="mt-3 text-[10px] font-bold text-green-700 bg-white hover:bg-green-50 py-1.5 px-3 rounded-full shadow-sm transition-colors border border-green-200 inline-flex items-center gap-1 uppercase tracking-wider">
+                    <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        Terverifikasi
+                    </span>
+                    <h3 class="font-bold text-emerald-900 text-sm md:text-base mt-1">Dokumen Resmi</h3>
+                    <p class="text-[11px] text-emerald-700 font-medium">Disahkan: {{ $document->approved_at?->format('d M Y') }}</p>
+                    <a href="{{ route('document.verify', $document->uuid) }}" target="_blank" class="mt-2.5 text-xs font-semibold text-emerald-800 bg-white hover:bg-emerald-50 py-1 px-3 rounded-lg shadow-sm transition-colors border border-emerald-200 inline-flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                        Verifikasi
+                        Cek Sertifikat Digital
                     </a>
                 </div>
             </div>
@@ -128,7 +140,7 @@
             </div>
             <form action="{{ route('approvals.submit', ['type' => 'document', 'id' => $document->id]) }}" method="POST" class="flex-shrink-0">
                 @csrf
-                <button type="submit" class="btn-primary text-sm flex items-center gap-2 bg-blue-600 border-blue-600 hover:bg-blue-700 hover:border-blue-700 text-white"
+                <button type="submit" class="btn-primary text-sm flex items-center gap-2 shadow-sm"
                     onclick="return confirm('Apakah Anda yakin menyetujui dokumen ini dan mengirimkannya ke KSPI?')">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     Approve & Kirim ke KSPI
@@ -168,7 +180,7 @@
     <div class="card mb-6 border-l-4 border-l-primary-500">
         <div class="card-header bg-primary-50">
             <h3 class="card-title text-primary-800">Daftar Penugasan Tindak Lanjut</h3>
-            <p class="text-xs text-primary-600 mt-1">Daftar tugas upload bukti yang diteruskan ke masing-masing PIC/Departemen Auditee.</p>
+            <p class="text-xs text-primary-600 mt-1">Daftar tugas unggah bukti yang diteruskan ke masing-masing PIC/Departemen Auditee.</p>
         </div>
         <div class="card-body p-0">
             <div class="hidden md:block overflow-x-auto">
@@ -219,7 +231,7 @@
                                     @endif
                                 </td>
                                 <td class="text-right">
-                                    <a href="{{ route('auditee.show', $followUp) }}" class="btn-outline btn-sm">Detail & Upload</a>
+                                    <a href="{{ route('auditee.show', $followUp) }}" class="btn-secondary btn-sm">Detail & Unggah</a>
                                 </td>
                             </tr>
                             @endif
@@ -273,7 +285,7 @@
                             </div>
                         </div>
                         <div class="bg-surface-50 px-4 py-3 flex items-center justify-end border-t border-surface-200">
-                            <a href="{{ route('auditee.show', $followUp) }}" class="btn-outline btn-sm">Detail & Upload</a>
+                            <a href="{{ route('auditee.show', $followUp) }}" class="btn-secondary btn-sm">Detail & Unggah</a>
                         </div>
                     </div>
                     @endif

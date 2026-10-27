@@ -1,11 +1,19 @@
 @extends('layouts.app')
-@section('title', 'Upload Dokumen')
-@section('page_title', 'Upload Dokumen')
+@section('title', 'Unggah Dokumen')
+@section('page_title', 'Unggah Dokumen')
+
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('assurance.index', ['audit_type' => $auditType, 'type' => $selectedType?->slug]) }}" class="breadcrumb-link">Assurance ({{ ucfirst(str_replace('_', ' ', $auditType)) }})</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Unggah {{ $selectedType?->name ?? 'Dokumen' }}</span>
+@endsection
 
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h2 class="card-title">Upload {{ $selectedType?->name ?? 'Dokumen' }} &mdash; {{ ucfirst(str_replace('_', ' ', $auditType)) }}</h2>
+        <h2 class="card-title">Unggah {{ $selectedType?->name ?? 'Dokumen' }} &mdash; {{ ucfirst(str_replace('_', ' ', $auditType)) }}</h2>
     </div>
 
     <form action="{{ route('assurance.store') }}" method="POST" enctype="multipart/form-data">
@@ -36,7 +44,7 @@
 
         <div class="px-6 py-4 bg-surface-50 border-t border-surface-100 flex items-center justify-end gap-3">
             <a href="{{ route('assurance.index', ['audit_type' => $auditType, 'type' => $selectedType?->slug]) }}" class="btn-secondary">Batal</a>
-            <button type="submit" class="btn-primary">Upload Dokumen</button>
+            <button type="submit" class="btn-primary">Unggah Dokumen</button>
         </div>
     </form>
 </div>

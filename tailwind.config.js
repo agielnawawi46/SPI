@@ -27,6 +27,7 @@ export default {
                     50:  '#f4f6f9',  // page background
                     100: '#e9ecf0',
                     200: '#d8dce5',
+                    300: '#c4cad4',  // border & subtle dividers
                 },
                 charcoal: {
                     DEFAULT: '#333333',

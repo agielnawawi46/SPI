@@ -65,7 +65,7 @@
         </div>
         <div class="px-6 py-4 bg-surface-50 border-t border-surface-100 flex items-center justify-end gap-3">
             <a href="{{ route('pkpt.index') }}" class="btn-secondary">Batal</a>
-            <button type="submit" class="btn-primary">Buat PKPT</button>
+            <button type="submit" class="btn-primary">Unggah Dokumen</button>
         </div>
     </form>
 </div>

@@ -2,6 +2,16 @@
 @section('title', 'Ubah Monitoring Tindak Lanjut')
 @section('page_title', 'Ubah Monitoring Tindak Lanjut')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('other-activities.tl.index') }}" class="breadcrumb-link">Monitoring Tindak Lanjut</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('other-activities.tl.show', $document) }}" class="breadcrumb-link">{{ $document->title }}</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Ubah</span>
+@endsection
+
 @section('content')
 <div class="max-w-7xl mx-auto space-y-6">
     <div class="card">
@@ -70,25 +80,25 @@
                             Tambah Baris
                         </button>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-gray-500 border" id="dynamicTable">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b">
+                    <div class="overflow-x-auto rounded-xl border border-surface-200 shadow-2xs">
+                        <table class="w-full text-sm text-left text-charcoal border-collapse" id="dynamicTable">
+                            <thead class="text-xs uppercase bg-surface-100 text-charcoal border-b border-surface-200">
                                 <tr>
-                                    <th rowspan="2" class="border p-2">LHA</th>
-                                    <th rowspan="2" class="border p-2">Sebab</th>
-                                    <th rowspan="2" class="border p-2">Akibat</th>
-                                    <th rowspan="2" class="border p-2">Rekomendasi</th>
-                                    <th rowspan="2" class="border p-2">PIC TL & Email</th>
-                                    <th rowspan="2" class="border p-2">Evidence TL</th>
-                                    <th colspan="3" class="border p-2 text-center">Status</th>
-                                    <th rowspan="2" class="border p-2">Evaluasi TL</th>
-                                    <th rowspan="2" class="border p-2">Jatuh Tempo</th>
-                                    <th rowspan="2" class="border p-2">Aksi</th>
+                                    <th rowspan="2" class="border-r border-surface-200 p-2.5 text-center font-semibold">LHA</th>
+                                    <th rowspan="2" class="border-r border-surface-200 p-2.5 text-center font-semibold">Sebab</th>
+                                    <th rowspan="2" class="border-r border-surface-200 p-2.5 text-center font-semibold">Akibat</th>
+                                    <th rowspan="2" class="border-r border-surface-200 p-2.5 text-center font-semibold">Rekomendasi</th>
+                                    <th rowspan="2" class="border-r border-surface-200 p-2.5 text-center font-semibold">PIC TL & Email</th>
+                                    <th rowspan="2" class="border-r border-surface-200 p-2.5 text-center font-semibold">Evidence TL</th>
+                                    <th colspan="3" class="border-r border-surface-200 p-2 text-center font-semibold bg-surface-200/50">Status</th>
+                                    <th rowspan="2" class="border-r border-surface-200 p-2.5 text-center font-semibold">Evaluasi TL</th>
+                                    <th rowspan="2" class="border-r border-surface-200 p-2.5 text-center font-semibold">Jatuh Tempo</th>
+                                    <th rowspan="2" class="p-2.5 text-center font-semibold">Aksi</th>
                                 </tr>
-                                <tr>
-                                    <th class="border p-2">Closed</th>
-                                    <th class="border p-2">On Progress</th>
-                                    <th class="border p-2">TDD</th>
+                                <tr class="bg-surface-50 text-[11px] border-t border-surface-200">
+                                    <th class="border-r border-surface-200 p-1.5 text-center font-semibold">Closed</th>
+                                    <th class="border-r border-surface-200 p-1.5 text-center font-semibold">On Progress</th>
+                                    <th class="border-r border-surface-200 p-1.5 text-center font-semibold">TDD</th>
                                 </tr>
                             </thead>
                             
@@ -123,13 +133,13 @@
                                 @if(isset($group['rows']) && is_array($group['rows']))
                                     @foreach($group['rows'] as $rIndex => $row)
                                     <tr class="item-row hover:bg-surface-50 transition-colors border-b">
-                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][lha]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly required placeholder="Klik utk edit...">{{ $row['lha'] ?? '' }}</textarea></td>
-                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][sebab]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['sebab'] ?? '' }}</textarea></td>
-                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][akibat]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['akibat'] ?? '' }}</textarea></td>
-                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][rekomendasi]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['rekomendasi'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][lha]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly required placeholder="Klik utk edit...">{{ $row['lha'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][sebab]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['sebab'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][akibat]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['akibat'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][rekomendasi]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['rekomendasi'] ?? '' }}</textarea></td>
                                         <td class="border-r border-surface-200 p-1.5">
                                             <div class="space-y-1">
-                                                <textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][pic_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="1" readonly placeholder="Nama PIC...">{{ $row['pic_tl'] ?? '' }}</textarea>
+                                                <textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][pic_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="1" readonly placeholder="Nama PIC...">{{ $row['pic_tl'] ?? '' }}</textarea>
                                                 <select name="items[{{ $gIndex }}][rows][{{ $rIndex }}][pic_email]" class="w-full text-xs p-2 border-surface-300 rounded shadow-sm">
                                                     <option value="">-- Pilih Email Akun --</option>
                                                     @if(isset($users))
@@ -140,13 +150,13 @@
                                                 </select>
                                             </div>
                                         </td>
-                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][evidence_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['evidence_tl'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][evidence_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['evidence_tl'] ?? '' }}</textarea></td>
                                         
-                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_closed]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['status_closed'] ?? '' }}</textarea></td>
-                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_on_progress]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['status_on_progress'] ?? '' }}</textarea></td>
-                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_tdd]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['status_tdd'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_closed]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['status_closed'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_on_progress]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['status_on_progress'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][status_tdd]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['status_tdd'] ?? '' }}</textarea></td>
                                         
-                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][evaluasi_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['evaluasi_tl'] ?? '' }}</textarea></td>
+                                        <td class="border-r border-surface-200 p-1.5"><textarea name="items[{{ $gIndex }}][rows][{{ $rIndex }}][evaluasi_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit...">{{ $row['evaluasi_tl'] ?? '' }}</textarea></td>
                                         <td class="border-r border-surface-200 p-1.5"><input type="date" name="items[{{ $gIndex }}][rows][{{ $rIndex }}][jatuh_tempo]" class="w-full text-xs p-2 border-surface-300 rounded shadow-sm" value="{{ $row['jatuh_tempo'] ?? '' }}"></td>
                                         <td class="p-1.5 text-center align-middle">
                                             <button type="button" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-md transition-colors removeRow" title="Hapus Baris">
@@ -216,12 +226,48 @@
 </div>
 
 @push('scripts')
-<dialog id="nativeModal" class="p-6 rounded-lg shadow-2xl border border-gray-300 w-full max-w-2xl bg-white backdrop:bg-gray-900/60" style="position: fixed; inset: 0; margin: auto; z-index: 2147483647;">
-    <h3 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b" id="nativeModalTitle">Edit Teks</h3>
-    <textarea id="nativeModalTextarea" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" style="min-height: 200px; resize: vertical;"></textarea>
-    <div class="mt-5 flex justify-end gap-3">
-        <button type="button" id="nativeModalClose" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md font-medium transition-colors">Batal</button>
-        <button type="button" id="nativeModalSave" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors">Simpan</button>
+<dialog id="nativeModal" class="p-0 rounded-2xl shadow-2xl border border-surface-200/90 w-full max-w-2xl bg-white backdrop:bg-charcoal/60 backdrop:backdrop-blur-sm overflow-hidden" style="position: fixed; inset: 0; margin: auto; z-index: 2147483647;">
+    {{-- Modal Header --}}
+    <div class="modal-header bg-surface-50/80 border-b border-surface-200/80 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-primary-50 border border-primary-200 text-primary-600 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-charcoal leading-tight" id="nativeModalTitle">Edit Kolom</h3>
+                <p class="text-xs text-charcoal-muted mt-0.5">Tulis atau perbarui rincian teks untuk kolom tabel ini.</p>
+            </div>
+        </div>
+        <button type="button" id="nativeModalXClose" class="w-8 h-8 rounded-lg text-charcoal-muted hover:text-charcoal hover:bg-surface-200/60 flex items-center justify-center transition-colors" title="Tutup (ESC)">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+    </div>
+
+    {{-- Modal Body --}}
+    <div class="modal-body space-y-3 p-6 bg-white">
+        <div class="relative">
+            <textarea id="nativeModalTextarea" 
+                      rows="8"
+                      placeholder="Tuliskan keterangan / rincian teks di sini..."
+                      class="w-full p-3.5 border border-surface-300 rounded-xl form-textarea focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 text-sm leading-relaxed text-charcoal shadow-2xs transition-all placeholder:text-charcoal-muted/60" 
+                      style="min-height: 220px; resize: vertical;"></textarea>
+        </div>
+        <div class="flex items-center justify-between text-xs text-charcoal-muted pt-0.5">
+            <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Tip: Tekan <kbd class="px-1.5 py-0.5 bg-surface-100 border border-surface-200 rounded text-[11px] font-mono text-charcoal font-medium">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 bg-surface-100 border border-surface-200 rounded text-[11px] font-mono text-charcoal font-medium">Enter</kbd> untuk simpan cepat
+            </span>
+            <span id="nativeModalCharCount" class="font-mono text-[11px] font-medium text-charcoal-muted">0 karakter</span>
+        </div>
+    </div>
+
+    {{-- Modal Footer --}}
+    <div class="modal-footer px-6 py-4 border-t border-surface-200/80 bg-surface-50 flex items-center justify-end gap-3">
+        <button type="button" id="nativeModalClose" class="btn-secondary">Batal</button>
+        <button type="button" id="nativeModalSave" class="btn-primary flex items-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Simpan Teks
+        </button>
     </div>
 </dialog>
 <script>
@@ -284,26 +330,26 @@
                     </td>
                 </tr>
                 <tr class="item-row hover:bg-surface-50 transition-colors">
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][lha]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly required placeholder="Klik utk edit..."></textarea></td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][sebab]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][akibat]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][rekomendasi]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][lha]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly required placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][sebab]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][akibat]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][rekomendasi]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
                     <td class="border-r border-surface-200 p-1.5">
                         <div class="space-y-1">
-                            <textarea name="items[999][rows][0][pic_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="1" readonly placeholder="Nama PIC..."></textarea>
+                            <textarea name="items[999][rows][0][pic_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="1" readonly placeholder="Nama PIC..."></textarea>
                             <select name="items[999][rows][0][pic_email]" class="w-full text-xs p-2 border-surface-300 rounded shadow-sm">
                                 <option value="">-- Pilih Email Akun --</option>
                                 {!! $userOptionsHtml !!}
                             </select>
                         </div>
                     </td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][evidence_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][evidence_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
                     
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][status_closed]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][status_on_progress]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][status_tdd]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][status_closed]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][status_on_progress]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][status_tdd]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
                     
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][evaluasi_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][0][evaluasi_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
                     <td class="border-r border-surface-200 p-1.5"><input type="date" name="items[999][rows][0][jatuh_tempo]" class="w-full text-xs p-2 border-surface-300 rounded shadow-sm"></td>
                     <td class="p-1.5 text-center align-middle">
                         <button type="button" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-md transition-colors removeRow" title="Hapus Sub-Baris">
@@ -347,26 +393,26 @@
                 const tr = document.createElement('tr');
                 tr.className = 'item-row hover:bg-surface-50 transition-colors';
                 tr.innerHTML = `
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][lha]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly required placeholder="Klik utk edit..."></textarea></td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][sebab]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][akibat]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][rekomendasi]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][lha]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly required placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][sebab]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][akibat]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][rekomendasi]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
                     <td class="border-r border-surface-200 p-1.5">
                         <div class="space-y-1">
-                            <textarea name="items[999][rows][999][pic_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="1" readonly placeholder="Nama PIC..."></textarea>
+                            <textarea name="items[999][rows][999][pic_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="1" readonly placeholder="Nama PIC..."></textarea>
                             <select name="items[999][rows][999][pic_email]" class="w-full text-xs p-2 border-surface-300 rounded shadow-sm">
                                 <option value="">-- Pilih Email Akun --</option>
                                 {!! $userOptionsHtml !!}
                             </select>
                         </div>
                     </td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][evidence_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][evidence_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
                     
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][status_closed]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][status_on_progress]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][status_tdd]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][status_closed]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][status_on_progress]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][status_tdd]" class="w-full text-xs p-2 border-surface-300 rounded text-center popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="-"></textarea></td>
                     
-                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][evaluasi_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-gray-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
+                    <td class="border-r border-surface-200 p-1.5"><textarea name="items[999][rows][999][evaluasi_tl]" class="w-full text-xs p-2 border-surface-300 rounded popup-textarea cursor-pointer hover:bg-surface-50 shadow-sm" rows="2" readonly placeholder="Klik utk edit..."></textarea></td>
                     <td class="border-r border-surface-200 p-1.5"><input type="date" name="items[999][rows][999][jatuh_tempo]" class="w-full text-xs p-2 border-surface-300 rounded shadow-sm"></td>
                     <td class="p-1.5 text-center align-middle">
                         <button type="button" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-md transition-colors removeRow" title="Hapus Sub-Baris">
@@ -401,11 +447,42 @@
         const dialogTextarea = document.getElementById('nativeModalTextarea');
         const dialogTitle = document.getElementById('nativeModalTitle');
         const dialogClose = document.getElementById('nativeModalClose');
+        const dialogXClose = document.getElementById('nativeModalXClose');
         const dialogSave = document.getElementById('nativeModalSave');
+        const dialogCharCount = document.getElementById('nativeModalCharCount');
         let currentTarget = null;
         
         // Always append dialog to body for absolute safety
         document.body.appendChild(dialog);
+
+        function updateCharCount() {
+            if (dialogCharCount && dialogTextarea) {
+                dialogCharCount.textContent = dialogTextarea.value.length + ' karakter';
+            }
+        }
+
+        if (dialogTextarea) {
+            dialogTextarea.addEventListener('input', updateCharCount);
+
+            // Shortcut Ctrl + Enter to save
+            dialogTextarea.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    dialogSave.click();
+                }
+            });
+        }
+
+        // Close when clicking dialog backdrop
+        dialog.addEventListener('click', function(e) {
+            const rect = dialog.getBoundingClientRect();
+            const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+                                rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+            if (!isInDialog) {
+                dialog.close();
+                currentTarget = null;
+            }
+        });
 
         document.getElementById('dynamicTable').addEventListener('click', function(e) {
             if (e.target.classList.contains('popup-textarea')) {
@@ -424,14 +501,28 @@
                 
                 dialogTitle.textContent = title;
                 dialogTextarea.value = currentTarget.value;
+                updateCharCount();
                 dialog.showModal();
+                setTimeout(() => {
+                    dialogTextarea.focus();
+                    dialogTextarea.setSelectionRange(dialogTextarea.value.length, dialogTextarea.value.length);
+                }, 50);
             }
         });
 
-        dialogClose.addEventListener('click', function() {
-            dialog.close();
-            currentTarget = null;
-        });
+        if (dialogClose) {
+            dialogClose.addEventListener('click', function() {
+                dialog.close();
+                currentTarget = null;
+            });
+        }
+
+        if (dialogXClose) {
+            dialogXClose.addEventListener('click', function() {
+                dialog.close();
+                currentTarget = null;
+            });
+        }
 
         dialogSave.addEventListener('click', function() {
             if (currentTarget) {

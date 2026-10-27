@@ -112,7 +112,7 @@
             </div>
 
             <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-surface-200">
-                <a href="{{ route('admin.users.index') }}" class="btn-outline">Batal</a>
+                <a href="{{ route('admin.users.index') }}" class="btn-secondary">Batal</a>
                 <button type="submit" class="btn-primary">Update User</button>
             </div>
         </form>

@@ -2,6 +2,14 @@
 @section('title', 'Buat Dokumen Assurance')
 @section('page_title', 'Buat Dokumen Assurance')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('assurance.index', ['audit_type' => $auditType, 'type' => $selectedType?->slug]) }}" class="breadcrumb-link">Assurance ({{ ucfirst(str_replace('_', ' ', $auditType)) }})</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Buat {{ $selectedType?->name ?? 'Dokumen' }}</span>
+@endsection
+
 @section('content')
 <div class="card">
     <div class="card-header"><h2 class="card-title">Buat Dokumen Baru &mdash; Audit {{ ucfirst(str_replace('_', ' ', $auditType)) }}</h2></div>
@@ -26,7 +34,7 @@
                 <template x-if="selectedType != pkaTypeId && selectedType != slideEntryTypeId && selectedType != kertasKerjaAuditTypeId && selectedType != lhaTypeId && selectedType != stgTypeId">
                     <div class="md:col-span-2 form-group">
                         <label class="form-label">Judul Dokumen <span class="text-red-500">*</span></label>
-                        <input type="text" name="title" class="form-input" value="{{ old('title') }}" placeholder="Contoh: Surat Tugas Audit â€” PT XYZ">
+                        <input type="text" name="title" class="form-input" value="{{ old('title') }}" placeholder="Contoh: Surat Tugas Audit — PT XYZ">
                         @error('title')<p class="form-error">{{ $message }}</p>@enderror
                     </div>
                 </template>
@@ -110,7 +118,7 @@
                                 </div>
                                 <div class="form-group md:col-span-2">
                                     <label class="form-label">Deskripsi Pembuka</label>
-                                    <textarea name="deskripsi_pembuka" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="4" readonly>Dalam rangka melakukan audit rutin di lingkungan Perusahaan sesuai Program Kerja Pengawasan Tahunan (PKPT) Terintegrasi {{ date('Y') }} yang dilaksanakan oleh Tim SPI PT PEB, maka dengan ini kami menugaskan kepada :</textarea>
+                                    <textarea name="deskripsi_pembuka" class="form-textarea w-full bg-surface-100 text-charcoal border-surface-200 cursor-not-allowed" rows="4" readonly>Dalam rangka melakukan audit rutin di lingkungan Perusahaan sesuai Program Kerja Pengawasan Tahunan (PKPT) Terintegrasi {{ date('Y') }} yang dilaksanakan oleh Tim SPI PT PEB, maka dengan ini kami menugaskan kepada :</textarea>
                                     @error('deskripsi_pembuka')<p class="form-error">{{ $message }}</p>@enderror
                                 </div>
                             </div>
@@ -222,7 +230,7 @@
                             <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="form-group md:col-span-2">
                                     <label class="form-label">Deskripsi Penutup</label>
-                                    <textarea name="deskripsi_penutup" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="3" readonly>Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.</textarea>
+                                    <textarea name="deskripsi_penutup" class="form-textarea w-full bg-surface-100 text-charcoal border-surface-200 cursor-not-allowed" rows="3" readonly>Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.</textarea>
                                     @error('deskripsi_penutup')<p class="form-error">{{ $message }}</p>@enderror
                                 </div>
                                 <div class="form-group">
@@ -248,7 +256,7 @@
                 <div class="md:col-span-2 border-t border-surface-200 pt-6 mt-4">
                     <x-file-upload 
                         name="attachments" 
-                        label="Upload File Surat Tugas / Berkas Pendukung"
+                        label="Unggah File Surat Tugas / Berkas Pendukung"
                         subtitle="Jika ada scan bertanda tangan basah atau lampiran pendukung, unggah di sini (bisa pilih lebih dari 1)"
                         :required="false"
                         :multiple="true"

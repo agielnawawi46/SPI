@@ -88,7 +88,7 @@
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
     .card-header {
-        @apply px-6 py-4 border-b border-surface-100 flex items-center justify-between bg-white;
+        @apply px-6 py-4 border-b border-surface-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white;
     }
     .card-title {
         @apply text-base font-semibold text-charcoal;
@@ -129,7 +129,7 @@
         @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-400 shadow-sm;
     }
     .btn-success {
-        @apply btn bg-green-600 text-white hover:bg-green-700 focus:ring-green-400 shadow-sm;
+        @apply btn bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-400 shadow-sm;
     }
     .btn-outline {
         @apply btn border border-primary-300 text-primary-600 hover:bg-primary-50 focus:ring-primary-300;
@@ -152,7 +152,7 @@
         @apply block text-sm font-medium text-charcoal mb-1.5;
     }
     .form-input {
-        @apply w-full px-3.5 py-2.5 text-sm text-charcoal bg-white border border-gray-200 rounded-lg
+        @apply w-full px-3.5 py-2.5 text-sm text-charcoal bg-white border border-surface-200 rounded-lg
                placeholder-charcoal-muted
                transition-all duration-150
                focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20;
@@ -163,6 +163,12 @@
     .form-textarea {
         @apply form-input resize-none;
     }
+    .form-input:disabled, .form-input[readonly], .form-select:disabled, .form-textarea:disabled, .form-textarea[readonly] {
+        @apply bg-surface-100 text-charcoal-muted cursor-not-allowed border-surface-200 select-none;
+    }
+    .form-actions {
+        @apply flex flex-col sm:flex-row items-center justify-end gap-3 pt-6 mt-6 border-t border-surface-200;
+    }
     .form-error {
         @apply text-xs text-red-600 mt-1.5 flex items-center gap-1;
     }
@@ -170,20 +176,31 @@
         @apply text-xs text-charcoal-muted mt-1.5;
     }
 
+    /* --- Monitoring Matrix Table --- */
+    .matrix-table {
+        @apply w-full text-xs text-left text-charcoal border-collapse border border-surface-200 bg-white;
+    }
+    .matrix-table th {
+        @apply bg-surface-100 border border-surface-200 p-2.5 font-semibold text-charcoal text-center align-middle;
+    }
+    .matrix-table td {
+        @apply border border-surface-200 p-2 align-top;
+    }
+
     /* --- Badges / Status Pills --- */
     .badge {
         @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
     }
-    .badge-draft      { @apply badge bg-gray-100 text-gray-500; }
-    .badge-pending    { @apply badge bg-amber-100 text-amber-700; }
-    .badge-approved   { @apply badge bg-emerald-100 text-emerald-700; }
-    .badge-rejected   { @apply badge bg-red-100 text-red-700; }
-    .badge-overdue    { @apply badge bg-red-100 text-red-700; }
-    .badge-in-progress { @apply badge bg-blue-100 text-blue-700; }
-    .badge-open       { @apply badge bg-orange-100 text-orange-700; }
-    .badge-completed  { @apply badge bg-emerald-100 text-emerald-700; }
-    .badge-primary    { @apply badge bg-primary-100 text-primary-700; }
-    .badge-warning    { @apply badge bg-amber-100 text-amber-700; }
+    .badge-draft      { @apply badge bg-surface-100 text-charcoal-muted border border-surface-200; }
+    .badge-pending    { @apply badge bg-amber-50 text-amber-700 border border-amber-200; }
+    .badge-approved   { @apply badge bg-emerald-50 text-emerald-700 border border-emerald-200; }
+    .badge-rejected   { @apply badge bg-red-50 text-red-700 border border-red-200; }
+    .badge-overdue    { @apply badge bg-rose-50 text-rose-700 border border-rose-200; }
+    .badge-in-progress { @apply badge bg-blue-50 text-blue-700 border border-blue-200; }
+    .badge-open       { @apply badge bg-orange-50 text-orange-700 border border-orange-200; }
+    .badge-completed  { @apply badge bg-emerald-50 text-emerald-700 border border-emerald-200; }
+    .badge-primary    { @apply badge bg-primary-50 text-primary-700 border border-primary-200; }
+    .badge-warning    { @apply badge bg-amber-50 text-amber-700 border border-amber-200; }
 
     /* --- Tables --- */
     .table-wrapper {
@@ -207,16 +224,16 @@
 
     /* --- Breadcrumb --- */
     .breadcrumb {
-        @apply flex items-center gap-1.5 text-sm text-charcoal-muted mb-4;
+        @apply flex items-center flex-wrap gap-1.5 text-sm text-charcoal-muted mb-5;
     }
-    .breadcrumb-item {
-        @apply hover:text-primary-500 transition-colors;
+    .breadcrumb-item, .breadcrumb-link {
+        @apply hover:text-primary-600 font-medium transition-colors;
     }
     .breadcrumb-separator {
-        @apply text-charcoal-muted/50;
+        @apply text-charcoal-muted/50 select-none;
     }
     .breadcrumb-current {
-        @apply text-charcoal font-medium;
+        @apply text-charcoal font-semibold;
     }
 
     /* --- Alerts / Flash Messages --- */
@@ -296,7 +313,7 @@
     }
     .approval-step-icon.done    { @apply bg-emerald-500 border-emerald-500 text-white; }
     .approval-step-icon.current { @apply bg-amber-500 border-amber-500 text-white; }
-    .approval-step-icon.pending { @apply bg-white border-gray-300 text-gray-400; }
+    .approval-step-icon.pending { @apply bg-white border-surface-300 text-charcoal-muted; }
     .approval-step-icon.rejected { @apply bg-red-500 border-red-500 text-white; }
     .approval-step-content {
         @apply flex-1 pb-4;

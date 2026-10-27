@@ -11,13 +11,13 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header flex flex-col items-start text-left gap-3">
+    <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="card-title">Daftar Pengguna Sistem</h2>
             <p class="text-xs text-charcoal-muted mt-1">Kelola data user, role, dan hak akses aplikasi.</p>
         </div>
         <div class="flex flex-wrap gap-2">
-            <a href="{{ route('admin.users.import') }}" class="btn-outline btn-sm">
+            <a href="{{ route('admin.users.import') }}" class="btn-secondary btn-sm">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                 Import CSV
             </a>
@@ -39,7 +39,7 @@
             </div>
             <button type="submit" class="btn-secondary h-9 px-3">Cari</button>
             @if(request('search'))
-                <a href="{{ route('admin.users.index') }}" class="btn-outline h-9 px-3 text-red-600 hover:bg-red-50 hover:border-red-200">Reset</a>
+                <a href="{{ route('admin.users.index') }}" class="btn-secondary h-9 px-3 text-red-600 hover:text-red-700 hover:bg-red-50 border-transparent">Reset</a>
             @endif
         </form>
     </div>
@@ -94,18 +94,20 @@
                         @endif
                     </td>
                     <td class="text-right whitespace-nowrap">
-                        <a href="{{ route('admin.users.edit', $user) }}" class="btn-icon btn-secondary" title="Edit">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                        </a>
-                        @if($user->id !== auth()->id() && $user->email !== 'it.infra@peb.co.id')
-                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn-icon btn-outline text-red-600 hover:bg-red-50 hover:border-red-200" title="Hapus">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            </button>
-                        </form>
-                        @endif
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{{ route('admin.users.edit', $user) }}" class="btn-icon bg-amber-500 text-white hover:bg-amber-400 hover:opacity-80 shadow-sm transition-all" title="Edit">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </a>
+                            @if($user->id !== auth()->id() && $user->email !== 'it.infra@peb.co.id')
+                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-80 shadow-sm transition-all" title="Hapus">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </form>
+                            @endif
+                        </div>
                     </td>
                 </tr>
                 @empty
@@ -171,12 +173,12 @@
                 </div>
             </div>
             <div class="bg-surface-50 px-4 py-3 flex items-center justify-end border-t border-surface-200 gap-2">
-                <a href="{{ route('admin.users.edit', $user) }}" class="btn-outline btn-sm bg-white">Edit</a>
+                <a href="{{ route('admin.users.edit', $user) }}" class="btn-secondary btn-sm">Edit</a>
                 @if($user->id !== auth()->id() && $user->email !== 'it.infra@peb.co.id')
                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn-outline btn-sm bg-white text-red-600 hover:bg-red-50 hover:border-red-200">
+                    <button type="submit" class="btn-secondary btn-sm text-red-600 hover:text-red-700 hover:bg-red-50 border-surface-200">
                         Hapus
                     </button>
                 </form>

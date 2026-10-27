@@ -374,12 +374,12 @@
      ============================================ --}}
 @unless($isKomisaris)
 <div class="card">
-    <div class="card-header flex flex-col items-start text-left gap-3">
+    <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="card-title">Tindak Lanjut Mendekati Jatuh Tempo</h2>
         </div>
         <div>
-            <a href="{{ route($isAuditee ? 'auditee.index' : 'other-activities.tl.index') }}" class="btn-outline btn-sm">Lihat Semua</a>
+            <a href="{{ route($isAuditee ? 'auditee.index' : 'other-activities.tl.index') }}" class="btn-secondary btn-sm">Lihat Semua</a>
         </div>
     </div>
 
@@ -426,7 +426,7 @@
                             <span class="{{ $tl->status_color }}">{{ $tl->status_label }}</span>
                         </td>
                         <td class="text-right">
-                            <a href="{{ route('auditee.show', $tl) }}" class="btn-outline btn-sm">Detail</a>
+                            <a href="{{ route('auditee.show', $tl) }}" class="btn-secondary btn-sm">Detail</a>
                         </td>
                     </tr>
                     @endforeach
@@ -465,7 +465,7 @@
                     </div>
                 </div>
                 <div class="bg-surface-50 px-4 py-3 flex items-center justify-end border-t border-surface-200">
-                    <a href="{{ route('auditee.show', $tl) }}" class="btn-outline btn-sm bg-white">Lihat Detail</a>
+                    <a href="{{ route('auditee.show', $tl) }}" class="btn-secondary btn-sm">Lihat Detail</a>
                 </div>
             </div>
             @endforeach

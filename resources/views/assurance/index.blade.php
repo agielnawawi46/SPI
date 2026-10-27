@@ -20,9 +20,19 @@
 @section('title', $pageTitle)
 @section('page_title', $pageTitle)
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('assurance.index', ['audit_type' => $auditType]) }}" class="breadcrumb-link">Assurance ({{ $auditType === 'terjadwal' ? 'Terjadwal' : 'Tidak Terjadwal' }})</a>
+    @if($documentType)
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">{{ $documentType->name }}</span>
+    @endif
+@endsection
+
 @section('content')
 <div class="card" x-data="{ showModal: false, selectedDoc: '' }">
-    <div class="card-header flex flex-col items-start text-left gap-3">
+    <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="card-title">Daftar {{ $pageTitle }}</h2>
             <p class="text-xs text-charcoal-muted mt-1">{{ $subtitle }}</p>

@@ -2,6 +2,12 @@
 @section('title', 'Tindak Lanjut')
 @section('page_title', 'Tindak Lanjut Rekomendasi')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Tindak Lanjut Rekomendasi</span>
+@endsection
+
 @section('content')
 <div class="space-y-6">
     <div class="page-header">
@@ -60,10 +66,10 @@
     </div>
 
     <div class="card">
-        <div class="card-header flex flex-col items-start text-left gap-3">
+        <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h2 class="card-title">Daftar Tindak Lanjut</h2>
-                <p class="text-xs text-charcoal-muted mt-1">Silakan upload bukti penyelesaian untuk setiap rekomendasi.</p>
+                <p class="text-xs text-charcoal-muted mt-1">Silakan unggah bukti penyelesaian untuk setiap rekomendasi.</p>
             </div>
         </div>
 

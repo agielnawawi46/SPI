@@ -108,7 +108,6 @@
             Dashboard
         </a>
 
-        @unless(auth()->user()->isKomisaris())
         @can('pkpt.view')
         {{-- Penyusunan PKPT --}}
         <div x-data="{ open: {{ request()->routeIs('pkpt*') ? 'true' : 'false' }} }">
@@ -247,7 +246,7 @@
                 @endcan
             </div>
         </div>
-        @endcanany
+        @endcan
 
         @can('report.view')
         {{-- Laporan Kinerja --}}
@@ -256,7 +255,6 @@
             Laporan Kinerja
         </a>
         @endcan
-        @endunless
 
         @role('admin')
         {{-- Pengaturan Sistem --}}
@@ -305,7 +303,7 @@
         <h1 class="page-title text-base font-semibold truncate">@yield('page_title', 'Dashboard')</h1>
     </div>
 
-    {{-- Right Side: Notifications + User Menu --}}
+    {{-- Right Side: Notifications + Logout --}}
     <div class="flex items-center justify-end gap-3 flex-shrink-0">
 
         {{-- Notification Bell --}}
@@ -335,9 +333,9 @@
         </div>
 
         {{-- Logout Button --}}
-        <form action="{{ route('logout') }}" method="POST" class="ml-1 border-l border-surface-200 pl-4">
+        <form action="{{ route('logout') }}" method="POST" class="ml-1 border-l border-surface-200 pl-3">
             @csrf
-            <button type="submit" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" title="Keluar dari Aplikasi">
+            <button type="submit" class="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" title="Keluar dari Aplikasi">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                 <span class="hidden sm:inline">Keluar</span>
             </button>
@@ -350,6 +348,13 @@
      MAIN CONTENT
      ============================================ --}}
 <main class="main-content">
+
+    {{-- Breadcrumbs Navigation --}}
+    @hasSection('breadcrumbs')
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            @yield('breadcrumbs')
+        </nav>
+    @endif
 
     {{-- Flash Messages --}}
     @if (session('success'))

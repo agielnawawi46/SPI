@@ -2,6 +2,16 @@
 @section('title', 'Edit Dokumen Advisory')
 @section('page_title', 'Edit Dokumen Advisory')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('advisory.index', ['type' => $document->documentType?->slug]) }}" class="breadcrumb-link">Advisory</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('advisory.show', $document) }}" class="breadcrumb-link">{{ $document->title }}</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Edit</span>
+@endsection
+
 @section('content')
 <div class="card">
     <div class="card-header">

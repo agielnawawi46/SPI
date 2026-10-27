@@ -3,97 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Dokumen | SPI PEB</title>
+    <title>Verifikasi Keaslian Dokumen — SPI PT Pelayanan Energi Batam</title>
     <link rel="icon" type="image/png" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
     <link rel="shortcut icon" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { 
-            background-color: #f9fafb; 
-            font-family: 'Inter', sans-serif; 
-            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-    </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 py-10">
-    <div class="max-w-3xl w-full bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden border border-gray-100 flex flex-col md:flex-row relative">
+<body class="min-h-screen bg-surface-50 flex items-center justify-center p-4 py-10">
+    <div class="max-w-3xl w-full bg-white rounded-3xl shadow-card-lg overflow-hidden border border-surface-200 flex flex-col md:flex-row relative">
         
         {{-- Left Side: Status & Details --}}
-        <div class="w-full md:w-1/2 p-8 text-center relative border-b md:border-b-0 md:border-r border-gray-100 border-dashed">
-            {{-- Decorative top blur --}}
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-green-400 rounded-b-full"></div>
+        <div class="w-full md:w-1/2 p-8 text-center relative border-b md:border-b-0 md:border-r border-surface-200">
+            {{-- Decorative top accent --}}
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-36 h-1.5 bg-emerald-500 rounded-b-full"></div>
 
-            {{-- Logo/Header Area --}}
-            <div class="mb-8 mt-2">
-                <p class="text-[10px] font-extrabold tracking-[0.2em] text-gray-400 uppercase">Sistem Pengendalian Internal</p>
+            {{-- Header / Brand --}}
+            <div class="flex items-center justify-center gap-2 mb-6 mt-1">
+                <img src="{{ asset('pln.png') }}" alt="PLN / PEB" class="h-6 w-auto">
+                <span class="text-xs font-bold tracking-wider text-charcoal-muted uppercase">Satuan Pengawasan Internal</span>
             </div>
 
             {{-- Verification Status --}}
-            <div class="flex justify-center mb-5">
-                <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center relative">
-                    <div class="absolute inset-0 rounded-full border border-green-100 animate-ping opacity-20"></div>
-                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-500 shadow-sm">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+            <div class="flex justify-center mb-4">
+                <div class="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center relative">
+                    <div class="absolute inset-0 rounded-full border border-emerald-200 animate-ping opacity-25"></div>
+                    <div class="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-md">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                     </div>
                 </div>
             </div>
-            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Dokumen Valid</h1>
-            <p class="text-sm text-gray-500 mt-2 font-medium">Telah diverifikasi dan disetujui secara resmi.</p>
+            <h1 class="text-2xl font-extrabold text-charcoal tracking-tight">Dokumen Sah & Valid</h1>
+            <p class="text-xs text-charcoal-muted mt-1.5 font-medium">Dokumen ini resmi diterbitkan & disahkan oleh SPI PT Pelayanan Energi Batam.</p>
 
-            <hr class="my-8 border-gray-100 border-dashed">
+            <hr class="my-6 border-surface-200">
 
             {{-- Document Details --}}
-            <div class="space-y-5 text-left">
+            <div class="space-y-4 text-left">
                 <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Nomor Surat</p>
-                    <p class="text-gray-900 font-semibold text-lg">{{ $document->title }}</p>
+                    <p class="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider mb-1">Judul / Nomor Dokumen</p>
+                    <p class="text-charcoal font-bold text-base leading-snug">{{ $document->title }}</p>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Kategori</p>
-                        <p class="text-gray-900 font-medium capitalize">{{ str_replace('_', ' ', $document->audit_type) }}</p>
+                        <p class="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider mb-1">Kategori Audit</p>
+                        <p class="text-charcoal font-semibold capitalize text-sm">{{ str_replace('_', ' ', $document->audit_type) }}</p>
                     </div>
                     <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Jenis</p>
-                        <p class="text-gray-900 font-medium capitalize">{{ $document->documentType?->name ?? '-' }}</p>
+                        <p class="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider mb-1">Jenis Dokumen</p>
+                        <p class="text-charcoal font-semibold capitalize text-sm">{{ $document->documentType?->name ?? '-' }}</p>
                     </div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider mb-1">Tanggal Pengesahan</p>
+                    <p class="text-charcoal font-semibold text-sm">{{ $document->approved_at ? $document->approved_at->format('d F Y, H:i') . ' WIB' : ($document->updated_at ? $document->updated_at->format('d F Y, H:i') . ' WIB' : '-') }}</p>
                 </div>
             </div>
         </div>
 
         {{-- Right Side: Approval Signatures --}}
-        <div class="w-full md:w-1/2 p-8 flex flex-col">
+        <div class="w-full md:w-1/2 p-8 flex flex-col justify-between bg-surface-50/50">
             <div class="text-left flex-1">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-5">Otorisasi Oleh</p>
+                <div class="flex items-center justify-between mb-5">
+                    <p class="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider">Riwayat Otorisasi Pejabat</p>
+                    <span class="badge badge-approved text-[10px]">Terverifikasi Digital</span>
+                </div>
                 
-                <div class="relative space-y-6">
-                    {{-- Timeline Connector Line --}}
-                    <div class="absolute left-5 top-5 bottom-5 w-[2px] bg-gray-100 -translate-x-1/2 z-0"></div>
-
-                    @foreach($document->approvals->where('action', 'approve')->sortBy('created_at') as $approval)
-                    <div class="relative z-10 flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-green-500 shadow-sm border border-gray-100 flex-shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                <div class="relative space-y-5">
+                    @forelse($document->approvals->where('action', 'approve')->sortBy('created_at') as $approval)
+                    <div class="relative z-10 flex items-start gap-3.5 p-3 rounded-xl bg-white border border-surface-200 shadow-2xs">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-2xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                         </div>
-                        <div class="bg-white py-0.5">
-                            <p class="text-sm font-bold text-gray-900">{{ $approval->approver?->name ?? 'Sistem' }}</p>
-                            <p class="text-[11px] text-gray-500">{{ $approval->approval_role === 'kspi' ? 'KSPI' : ucwords(str_replace('-', ' ', $approval->approval_role)) }} <span class="mx-1">•</span> {{ $approval->acted_at ? $approval->acted_at->format('d F Y, H:i') : '-' }}</p>
-                        </div>
-                        <div class="ml-auto text-green-500 bg-white pl-2">
-                            <svg class="w-5 h-5 opacity-50" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-bold text-charcoal truncate">{{ $approval->approver?->name ?? 'Pejabat Berwenang' }}</p>
+                            <p class="text-[11px] text-charcoal-muted mt-0.5">
+                                {{ $approval->approval_role === 'kspi' ? 'Kepala Satuan Pengawasan Internal (KSPI)' : ucwords(str_replace('-', ' ', $approval->approval_role)) }}
+                            </p>
+                            <p class="text-[10px] text-charcoal-muted/80 mt-1 font-mono">
+                                {{ $approval->acted_at ? $approval->acted_at->format('d/m/Y H:i:s') : '-' }} WIB
+                            </p>
                         </div>
                     </div>
-                    @endforeach
+                    @empty
+                    <div class="p-4 rounded-xl bg-white border border-surface-200 text-center">
+                        <p class="text-xs text-charcoal-muted">Disahkan secara resmi oleh Satuan Pengawasan Internal.</p>
+                    </div>
+                    @endforelse
                 </div>
             </div>
 
-            <div class="mt-10 pt-6 border-t border-gray-50 text-center md:text-left">
-                <p class="text-[10px] font-medium text-gray-400">© {{ date('Y') }} SPI PEB. Sistem Verifikasi Dokumen Digital.</p>
+            <div class="mt-8 pt-4 border-t border-surface-200 text-center md:text-left">
+                <p class="text-[10px] text-charcoal-muted">
+                    &copy; {{ date('Y') }} PT Pelayanan Energi Batam &bull; Sertifikat Keaslian Dokumen Elektronik SPI.
+                </p>
             </div>
         </div>
 
     </div>
 </body>
 </html>
+

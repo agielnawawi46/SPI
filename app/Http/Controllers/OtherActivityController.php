@@ -233,7 +233,7 @@ class OtherActivityController extends Controller
 
     public function pendampingIndex(Request $request)
     {
-        abort_if(!Auth::user()->hasRole(['admin', 'auditor', 'kspi']), 403, 'Anda tidak memiliki hak akses ke halaman ini.');
+        abort_if(!Auth::user()->hasRole(['admin', 'auditor', 'kspi', 'direktur', 'komisaris']), 403, 'Anda tidak memiliki hak akses ke halaman ini.');
 
         $typeSlug = $request->get('type');
         $search = $request->get('search');

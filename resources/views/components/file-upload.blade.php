@@ -1,7 +1,7 @@
 @props([
     'name' => 'attachments',
     'id' => null,
-    'label' => 'Upload Berkas / Lampiran',
+    'label' => 'Unggah Berkas / Lampiran',
     'subtitle' => 'Pilih satu atau beberapa berkas dokumen',
     'multiple' => true,
     'required' => false,

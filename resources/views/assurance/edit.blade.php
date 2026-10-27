@@ -2,6 +2,16 @@
 @section('title', 'Edit ' . $document->title)
 @section('page_title', 'Edit Dokumen')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('assurance.index', ['audit_type' => $document->audit_type, 'type' => $document->documentType?->slug]) }}" class="breadcrumb-link">Assurance ({{ ucfirst(str_replace('_', ' ', $document->audit_type)) }})</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('assurance.show', $document) }}" class="breadcrumb-link">{{ $document->title }}</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Edit</span>
+@endsection
+
 @section('content')
 <div class="card">
     <div class="card-header">
@@ -66,7 +76,7 @@
                             </div>
                             <div class="form-group md:col-span-2">
                                 <label class="form-label">Deskripsi Pembuka</label>
-                                <textarea name="deskripsi_pembuka" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="6" readonly>{{ old('deskripsi_pembuka', $document->deskripsi_pembuka ?: 'Dalam rangka melakukan audit rutin di lingkungan Perusahaan sesuai Program Kerja Pengawasan Tahunan (PKPT) Terintegrasi ' . date('Y') . ' yang dilaksanakan oleh Tim SPI PT PEB, maka dengan ini kami menugaskan kepada :') }}</textarea>
+                                <textarea name="deskripsi_pembuka" class="form-textarea w-full bg-surface-100 text-charcoal border-surface-200 cursor-not-allowed" rows="6" readonly>{{ old('deskripsi_pembuka', $document->deskripsi_pembuka ?: 'Dalam rangka melakukan audit rutin di lingkungan Perusahaan sesuai Program Kerja Pengawasan Tahunan (PKPT) Terintegrasi ' . date('Y') . ' yang dilaksanakan oleh Tim SPI PT PEB, maka dengan ini kami menugaskan kepada :') }}</textarea>
                                 @error('deskripsi_pembuka')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                         </div>
@@ -178,7 +188,7 @@
                             <!-- DESKRIPSI PENUTUP -->
                             <div class="form-group md:col-span-2">
                                 <label class="form-label">Deskripsi Penutup</label>
-                                <textarea name="deskripsi_penutup" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="5" readonly>{{ old('deskripsi_penutup', $document->deskripsi_penutup ?: 'Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.') }}</textarea>
+                                <textarea name="deskripsi_penutup" class="form-textarea w-full bg-surface-100 text-charcoal border-surface-200 cursor-not-allowed" rows="5" readonly>{{ old('deskripsi_penutup', $document->deskripsi_penutup ?: 'Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.') }}</textarea>
                                 @error('deskripsi_penutup')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
 
@@ -233,6 +243,7 @@
                 @error('attachments')<p class="form-error mt-1">{{ $message }}</p>@enderror
                 @error('attachment')<p class="form-error mt-1">{{ $message }}</p>@enderror
             </div>
+        </div>
         </div>
 
         <div class="px-6 py-4 bg-surface-50 border-t border-surface-100 flex items-center justify-end gap-3 mt-6">

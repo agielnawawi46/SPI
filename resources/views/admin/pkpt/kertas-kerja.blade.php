@@ -15,7 +15,7 @@
 <div class="space-y-6">
 
     <div class="card">
-        <div class="card-header bg-primary-50 border-b border-primary-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="card-header bg-primary-50/70 border-b border-primary-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h2 class="card-title text-primary-800">Kertas Kerja &bull; {{ $pkpt->title }}</h2>
                 <div class="flex flex-wrap items-center gap-3 text-xs text-primary-700 mt-1.5">
@@ -26,7 +26,7 @@
                     <span>&bull;</span>
                     <span class="flex items-center gap-1">
                         Status: 
-                        <span class="badge {{ $document && $document->status === 'draft' ? 'badge-draft' : 'badge-approved' }}">
+                        <span class="badge {{ $document && $document->status === 'draft' ? 'badge-draft' : 'badge-completed' }}">
                             {{ $document && $document->status === 'draft' ? 'Draft' : 'Closed' }}
                         </span>
                     </span>
@@ -300,7 +300,7 @@
                                                required>
                                         <button type="submit" class="btn-primary text-xs py-2 px-3.5 h-[38px] flex-shrink-0 flex items-center gap-1.5 shadow-sm font-medium">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                            Unggah
+                                            Unggah Dokumen
                                         </button>
                                     </div>
                                     <p class="text-[10.5px] text-charcoal-muted mt-1.5">Format: PDF, DOC, DOCX, XLS, XLSX. (Bisa pilih beberapa berkas sekaligus atau pilih bertahap)</p>

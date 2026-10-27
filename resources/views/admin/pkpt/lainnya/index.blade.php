@@ -12,7 +12,7 @@
 @section('content')
 
 <div class="card">
-    <div class="card-header flex flex-col items-start text-left gap-3">
+    <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="card-title">Daftar Auditee & Waktu Pelaksanaan</h2>
             <p class="text-xs text-charcoal-muted mt-1">Kelola rincian objek audit, auditee, dan jadwal pelaksanaan dari seluruh dokumen PKPT.</p>

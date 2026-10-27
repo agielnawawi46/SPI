@@ -11,7 +11,7 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header flex flex-col items-start text-left gap-3">
+    <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="card-title">Log Aktivitas Sistem</h2>
             <p class="text-xs text-charcoal-muted mt-1">Catatan rekaman setiap aktivitas user di dalam sistem.</p>
@@ -39,7 +39,7 @@
 
             <button type="submit" class="btn-secondary h-9 px-4">Filter</button>
             @if(request()->anyFilled(['search', 'action', 'date']))
-                <a href="{{ route('admin.audit-trail') }}" class="btn-outline h-9 px-4 text-red-600 hover:bg-red-50 hover:border-red-200">Reset</a>
+                <a href="{{ route('admin.audit-trail') }}" class="btn-secondary h-9 px-4 text-red-600 hover:text-red-700 hover:bg-red-50 border-transparent">Reset</a>
             @endif
         </form>
     </div>

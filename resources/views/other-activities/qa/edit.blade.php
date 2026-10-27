@@ -2,6 +2,16 @@
 @section('title', 'Edit ' . $document->title)
 @section('page_title', 'Edit Dokumen QA')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('other-activities.qa.index', ['type' => $document->documentType?->slug]) }}" class="breadcrumb-link">Quality Assurance</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('other-activities.qa.show', $document) }}" class="breadcrumb-link">{{ $document->title }}</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Edit</span>
+@endsection
+
 @section('content')
 <div class="card">
     <div class="card-header">
@@ -68,7 +78,7 @@
                             </div>
                             <div class="form-group md:col-span-2">
                                 <label class="form-label">Deskripsi Pembuka</label>
-                                <textarea name="deskripsi_pembuka" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="4" readonly>Dalam rangka melaksanakan quality assurance di lingkungan Perusahaan sesuai kriteria yang berlaku, maka dengan ini ditugaskan kepada :</textarea>
+                                <textarea name="deskripsi_pembuka" class="form-textarea w-full bg-surface-100 text-charcoal border-surface-200 cursor-not-allowed" rows="4" readonly>Dalam rangka melaksanakan quality assurance di lingkungan Perusahaan sesuai kriteria yang berlaku, maka dengan ini ditugaskan kepada :</textarea>
                                 @error('deskripsi_pembuka')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                         </div>
@@ -174,7 +184,7 @@
                             {{-- DESKRIPSI PENUTUP --}}
                             <div class="form-group md:col-span-2">
                                 <label class="form-label">Deskripsi Penutup</label>
-                                <textarea name="deskripsi_penutup" class="form-textarea w-full bg-gray-100 cursor-not-allowed" rows="5" readonly>Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.</textarea>
+                                <textarea name="deskripsi_penutup" class="form-textarea w-full bg-surface-100 text-charcoal border-surface-200 cursor-not-allowed" rows="5" readonly>Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.</textarea>
                                 @error('deskripsi_penutup')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
 

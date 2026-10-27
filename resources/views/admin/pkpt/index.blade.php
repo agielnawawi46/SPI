@@ -3,9 +3,15 @@
 @section('title', 'Program Kerja Pengawasan Tahunan (PKPT)')
 @section('page_title', 'Program Kerja Pengawasan Tahunan (PKPT)')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">PKPT</span>
+@endsection
+
 @section('content')
 <div class="card">
-    <div class="card-header flex flex-col items-start text-left gap-3">
+    <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="card-title">Daftar PKPT</h2>
             <p class="text-xs text-charcoal-muted mt-1">Kelola Program Kerja Pengawasan Tahunan (PKPT) di sini.</p>

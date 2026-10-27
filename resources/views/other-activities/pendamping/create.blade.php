@@ -2,6 +2,14 @@
 @section('title', 'Buat Dokumen Pendamping')
 @section('page_title', 'Buat Dokumen Pendamping Eksternal')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('other-activities.pendamping.index') }}" class="breadcrumb-link">Pendampingan Eksternal</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Buat Dokumen</span>
+@endsection
+
 @section('content')
 <div class="card">
     <div class="card-header"><h2 class="card-title">Buat Dokumen Pendamping</h2></div>
@@ -17,7 +25,7 @@
         
         <div class="card-body space-y-6">
             @if ($errors->any())
-                <div class="alert alert-danger bg-red-50 text-red-600 p-4 rounded-xl border border-red-200">
+                <div class="alert alert-error">
                     <ul class="list-disc pl-5">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>

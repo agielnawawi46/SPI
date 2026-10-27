@@ -18,11 +18,12 @@
     <div class="card">
         <div class="card-header flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div>
-                <h2 class="card-title">{{ $pkpt->title }}</h2>
-                <p class="text-sm text-charcoal-muted mt-1 mb-2">
-                    Tahun Periode: <strong>{{ $pkpt->period_year }}</strong> &bull; 
-                    Dibuat oleh <strong>{{ $pkpt->creator->name ?? '-' }}</strong> pada {{ $pkpt->created_at->format('d F Y') }}
-                </p>
+                <h2 class="card-title text-xl font-bold text-charcoal">{{ $pkpt->title }}</h2>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-charcoal-muted mt-2">
+                    <span>Tahun Periode: <strong class="text-charcoal">{{ $pkpt->period_year }}</strong></span>
+                    <span class="text-surface-300">•</span>
+                    <span>Dibuat oleh <strong class="text-charcoal">{{ $pkpt->creator->name ?? '-' }}</strong> pada {{ $pkpt->created_at->format('d F Y') }}</span>
+                </div>
             </div>
             
             <div class="flex flex-col sm:flex-row items-center gap-3 flex-shrink-0">
@@ -30,20 +31,20 @@
                     {{ $pkpt->status_label }}
                 </span>
                 
-                <div class="flex gap-2">
+                <div class="flex items-center gap-2">
                     @can('pkpt.edit')
-                    <a href="{{ route('pkpt.edit', $pkpt) }}" class="btn-primary text-sm">
+                    <a href="{{ route('pkpt.edit', $pkpt) }}" class="btn-secondary text-sm flex items-center shadow-sm">
                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         Edit
                     </a>
                     @endcan
                     @can('pkpt.delete')
-                    <button type="button" x-data @click="$dispatch('open-modal', 'delete-pkpt-{{ $pkpt->id }}')" class="btn-danger text-sm">
+                    <button type="button" x-data @click="$dispatch('open-modal', 'delete-pkpt-{{ $pkpt->id }}')" class="btn-secondary text-red-600 border-red-200 hover:bg-red-50 text-sm flex items-center shadow-sm">
                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         Hapus
                     </button>
                     @endcan
-                    <a href="{{ route('pkpt.index') }}" class="btn-secondary text-sm">
+                    <a href="{{ route('pkpt.index') }}" class="btn-secondary text-sm flex items-center shadow-sm">
                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                         Kembali
                     </a>
@@ -52,46 +53,51 @@
         </div>
     </div>
 
-    {{-- Dokumen PKPT Card --}}
-    <div class="card">
-        <div class="card-header bg-primary-50 border-b border-primary-100">
-            <h3 class="card-title text-primary-800">Dokumen PKPT Utama</h3>
-            <p class="text-sm text-primary-600 mt-1">Dokumen resmi pengesahan PKPT</p>
+    {{-- Dokumen PKPT Utama --}}
+    <div class="card shadow-sm">
+        <div class="card-header bg-surface-50 border-b border-surface-200 py-3.5 px-5 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-charcoal flex items-center gap-2">
+                <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Dokumen Resmi PKPT Utama
+            </h3>
+            <a href="{{ route('pkpt.kertas-kerja', $pkpt) }}" class="btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5 shadow-sm">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                Kelola Kertas Kerja (6 Berkas)
+            </a>
         </div>
-        <div class="card-body">
+        <div class="card-body p-5">
             @if($pkpt->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($pkpt->file_path))
-                <div class="p-4 border border-green-200 bg-green-50 rounded-lg shadow-sm">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h4 class="font-semibold text-charcoal">Dokumen Utama</h4>
-                            <p class="text-xs text-charcoal-muted">File PDF PKPT yang disahkan</p>
+                @php
+                    $fileSizeFormatted = $pkpt->file_size ? number_format($pkpt->file_size / 1024, 1) . ' KB' : null;
+                @endphp
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-surface-200 rounded-xl bg-white hover:border-surface-300 transition-all">
+                    <div class="flex items-center gap-3.5 overflow-hidden">
+                        <div class="p-3 bg-red-50 text-red-600 rounded-xl flex-shrink-0 shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                         </div>
-                        <span class="badge bg-green-100 text-green-700 border-green-200">Terunggah</span>
+                        <div class="truncate">
+                            <h4 class="text-sm font-bold text-charcoal truncate" title="{{ $pkpt->file_name }}">{{ $pkpt->file_name }}</h4>
+                            <p class="text-xs text-charcoal-muted mt-1">
+                                {{ $fileSizeFormatted ? $fileSizeFormatted . ' • ' : '' }}Dokumen PDF Resmi yang Disahkan
+                            </p>
+                        </div>
                     </div>
-                    
-                    <div class="p-3 bg-white border border-green-100 rounded-md flex items-center justify-between">
-                        <div class="flex items-center gap-2 overflow-hidden">
-                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            <span class="text-sm font-medium text-charcoal truncate" title="{{ $pkpt->file_name }}">{{ $pkpt->file_name }}</span>
-                        </div>
-                        <a href="{{ route('pkpt.view-file', $pkpt) }}" target="_blank" class="text-primary-600 hover:text-primary-800 text-sm font-medium ml-4 flex-shrink-0 flex items-center gap-1">
+                    <div class="flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
+                        <a href="{{ route('pkpt.view-file', $pkpt) }}" target="_blank" class="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             Lihat Dokumen
+                        </a>
+                        <a href="{{ asset('storage/' . $pkpt->file_path) }}" download class="btn-secondary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Unduh
                         </a>
                     </div>
                 </div>
             @else
-                <div class="p-4 border border-surface-200 bg-white rounded-lg shadow-sm">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h4 class="font-semibold text-charcoal">Dokumen Utama</h4>
-                            <p class="text-xs text-charcoal-muted">File PDF PKPT yang disahkan</p>
-                        </div>
-                        <span class="badge bg-gray-100 text-gray-600 border-gray-200">Belum ada</span>
-                    </div>
-                    <div class="py-4 text-center bg-surface-50 rounded-lg border border-surface-100">
-                        <p class="text-sm text-charcoal-muted">File PDF untuk PKPT ini belum diunggah atau tidak tersedia.</p>
-                    </div>
+                <div class="py-8 text-center bg-surface-50 rounded-xl border border-dashed border-surface-200">
+                    <svg class="w-10 h-10 text-charcoal-muted/40 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <p class="text-sm font-medium text-charcoal">File PDF PKPT belum diunggah</p>
+                    <p class="text-xs text-charcoal-muted mt-1">Gunakan tombol edit di atas untuk mengunggah dokumen PDF resmi PKPT.</p>
                 </div>
             @endif
         </div>
@@ -110,7 +116,7 @@
     
     <div class="modal-box max-w-md" @click.stop x-transition>
         <div class="modal-header">
-            <h3 class="card-title text-red-600">Konfirmasi Hapus</h3>
+            <h3 class="card-title text-red-600">Konfirmasi Hapus PKPT</h3>
             <button @click="show = false" class="text-charcoal-muted hover:text-charcoal"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
         <div class="modal-body">
@@ -129,3 +135,4 @@
 @endcan
 
 @endsection
+

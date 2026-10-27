@@ -2,6 +2,14 @@
 @section('title', 'Isi Kertas Kerja Pendamping')
 @section('page_title', 'Isi Kertas Kerja Pendamping')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('other-activities.pendamping.index', ['type' => $document->documentType?->slug]) }}" class="breadcrumb-link">Pendampingan Eksternal</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Edit: {{ $document->title }}</span>
+@endsection
+
 @section('content')
 <div class="card">
     <div class="card-header">

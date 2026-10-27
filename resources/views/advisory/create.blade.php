@@ -2,6 +2,14 @@
 @section('title', 'Buat Dokumen Advisory')
 @section('page_title', 'Buat Dokumen Advisory')
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('advisory.index', ['type' => $selectedType?->slug]) }}" class="breadcrumb-link">Advisory</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Buat {{ $selectedType?->name ?? 'Dokumen' }}</span>
+@endsection
+
 @section('content')
 <div class="card">
     <div class="card-header"><h2 class="card-title">Buat Dokumen Baru — {{ $selectedType?->name ?? 'Layanan Advisory' }}</h2></div>

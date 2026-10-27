@@ -1,10 +1,18 @@
 @extends('layouts.app')
-@section('title', 'Upload Dokumen QA')
-@section('page_title', 'Upload Dokumen QA')
+@section('title', 'Unggah Dokumen QA')
+@section('page_title', 'Unggah Dokumen QA')
+
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('other-activities.qa.index', ['type' => $selectedType?->slug]) }}" class="breadcrumb-link">Quality Assurance</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">Unggah {{ $selectedType?->name ?? 'Dokumen' }}</span>
+@endsection
 
 @section('content')
 <div class="card">
-    <div class="card-header"><h2 class="card-title">Upload Dokumen &mdash; {{ $selectedType?->name ?? 'Dokumen QA' }}</h2></div>
+    <div class="card-header"><h2 class="card-title">Unggah Dokumen &mdash; {{ $selectedType?->name ?? 'Dokumen QA' }}</h2></div>
     <form action="{{ route('other-activities.qa.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="document_type_id" value="{{ $selectedType?->id }}">
@@ -26,7 +34,7 @@
         </div>
         <div class="px-6 py-4 bg-surface-50 border-t border-surface-100 flex items-center justify-end gap-3">
             <a href="{{ route('other-activities.qa.index') }}" class="btn-secondary">Batal</a>
-            <button type="submit" class="btn-primary">Upload Dokumen</button>
+            <button type="submit" class="btn-primary">Unggah Dokumen</button>
         </div>
     </form>
 </div>

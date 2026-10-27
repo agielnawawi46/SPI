@@ -183,11 +183,11 @@
                             @foreach($document->approvals->sortBy('created_at') as $approval)
                             <div class="relative flex-1 text-center group px-1">
                                 @if(!$loop->last)
-                                <div class="absolute top-3.5 left-[50%] w-full h-0.5 {{ $approval->action === 'approve' ? 'bg-green-400' : 'bg-surface-200' }} z-0 mt-[1px]"></div>
+                                <div class="absolute top-3.5 left-[50%] w-full h-0.5 {{ $approval->action === 'approve' ? 'bg-emerald-400' : 'bg-surface-200' }} z-0 mt-[1px]"></div>
                                 @endif
 
                                 <div class="relative z-10 mx-auto w-7 h-7 flex items-center justify-center rounded-full border-2 border-white shadow-sm {{ 
-                                    $approval->action === 'approve' ? 'bg-green-100 text-green-600' : 
+                                    $approval->action === 'approve' ? 'bg-emerald-100 text-emerald-600' : 
                                     ($approval->action === 'reject' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600') 
                                 }}">
                                     @if($approval->action === 'approve')
@@ -204,7 +204,7 @@
                                         Level {{ $approval->approval_level }} &mdash; <span class="capitalize">{{ $approval->approval_role }}</span>
                                     </h4>
                                     <p class="text-[10px] font-bold mt-1 leading-none {{ 
-                                        $approval->action === 'approve' ? 'text-green-600' : 
+                                        $approval->action === 'approve' ? 'text-emerald-600' : 
                                         ($approval->action === 'reject' ? 'text-red-600' : 'text-amber-600') 
                                     }}">
                                         {{ $approval->action === 'approve' ? 'Disetujui' : ($approval->action === 'reject' ? 'Revisi' : 'Menunggu') }}
@@ -222,15 +222,15 @@
 
                 {{-- QR Code Resmi saat Approved --}}
                 @if($document->status === 'approved' && $document->qr_code_path)
-                <div class="card bg-gradient-to-br from-green-50 to-green-100 border border-green-200 lg:col-span-1 h-full shadow-sm">
+                <div class="card bg-gradient-to-br from-emerald-50 to-emerald-100/60 border border-emerald-200 lg:col-span-1 h-full shadow-sm">
                     <div class="card-body p-4 md:p-5 flex flex-row justify-center items-center gap-4 h-full">
                         <div class="bg-white p-2 rounded-2xl shadow-sm flex-shrink-0">
                             <img src="{{ asset('storage/' . $document->qr_code_path) }}" alt="QR Code" class="w-20 h-20 md:w-24 md:h-24 object-contain">
                         </div>
                         <div class="text-left">
-                            <h3 class="font-bold text-green-800 text-sm md:text-base">Dokumen Resmi Digital</h3>
-                            <p class="text-[11px] text-green-700 mt-1 font-medium">Tgl: {{ $document->approved_at?->format('d M Y') }}</p>
-                            <a href="{{ route('document.verify', $document->uuid) }}" target="_blank" class="mt-3 text-[10px] font-bold text-green-700 bg-white hover:bg-green-50 py-1.5 px-3 rounded-full shadow-sm transition-colors border border-green-200 inline-flex items-center gap-1 uppercase tracking-wider">
+                            <h3 class="font-bold text-emerald-800 text-sm md:text-base">Dokumen Resmi Digital</h3>
+                            <p class="text-[11px] text-emerald-700 mt-1 font-medium">Tgl: {{ $document->approved_at?->format('d M Y') }}</p>
+                            <a href="{{ route('document.verify', $document->uuid) }}" target="_blank" class="mt-3 text-[10px] font-bold text-emerald-700 bg-white hover:bg-emerald-50 py-1.5 px-3 rounded-full shadow-sm transition-colors border border-emerald-200 inline-flex items-center gap-1 uppercase tracking-wider">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                 Verifikasi
                             </a>
@@ -402,13 +402,13 @@
                                 </div>
                             @endif
                         @elseif($document->isApproved())
-                            <div class="bg-green-50 p-4 rounded-lg border border-green-200 flex items-center gap-3">
-                                <div class="p-2 bg-green-100 text-green-700 rounded-full flex-shrink-0">
+                            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center gap-3">
+                                <div class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl flex-shrink-0">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                 </div>
                                 <div>
-                                    <p class="font-semibold text-green-800 text-sm">Telah Disahkan</p>
-                                    <p class="text-xs text-green-700 mt-0.5">{{ $document->approvals->where('action', 'approve')->last()->approver->name ?? '-' }} • {{ $document->approved_at ? $document->approved_at->format('d/m/Y H:i') : '-' }}</p>
+                                    <p class="font-semibold text-emerald-900 text-sm">Telah Disahkan</p>
+                                    <p class="text-xs text-emerald-700 mt-0.5">{{ $document->approvals->where('action', 'approve')->last()->approver->name ?? '-' }} &bull; {{ $document->approved_at ? $document->approved_at->format('d/m/Y H:i') : '-' }}</p>
                                 </div>
                             </div>
                         @endif

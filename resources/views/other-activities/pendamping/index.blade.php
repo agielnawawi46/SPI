@@ -15,9 +15,19 @@
 @section('title', $pageTitle)
 @section('page_title', $pageTitle)
 
+@section('breadcrumbs')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <a href="{{ route('other-activities.pendamping.index') }}" class="breadcrumb-link">Pendampingan Eksternal</a>
+    @if(isset($typeSlug))
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">{{ $cardTitle }}</span>
+    @endif
+@endsection
+
 @section('content')
 <div class="card" x-data="{ showModal: false, selectedDoc: '' }">
-    <div class="card-header flex flex-col items-start text-left gap-3">
+    <div class="card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="card-title">Daftar {{ $cardTitle }}</h2>
             <p class="text-xs text-charcoal-muted mt-1">{{ $subtitle }}</p>
@@ -49,11 +59,11 @@
                     <thead>
                         <tr>
                             <th class="w-16 text-center">No</th>
-                            @if(isset($typeSlug) && $typeSlug === 'bak')
-                                <th>No / Judul BAK</th>
-                                <th>Tanggal BAK</th>
-                            @elseif(isset($typeSlug) && $typeSlug === 'lap-konsultasi')
-                                <th>No / Judul Laporan</th>
+                            @if(isset($typeSlug) && $typeSlug === 'lha-eksternal')
+                                <th>No / Judul LHA Eksternal</th>
+                                <th>Tanggal Terbit</th>
+                            @elseif(isset($typeSlug) && $typeSlug === 'lap-pendamping')
+                                <th>No / Judul Laporan Pendamping</th>
                                 <th>Tanggal Laporan</th>
                             @else
                                 <th>Judul Dokumen</th>
