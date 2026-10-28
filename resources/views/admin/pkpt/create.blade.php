@@ -43,14 +43,16 @@
             </div>
 
             <x-file-upload 
-                name="pkpt_file"
+                name="attachments"
                 label="Unggah Dokumen PKPT Utama"
-                badge="Wajib PDF"
-                :multiple="false"
-                accept=".pdf"
-                hint="Format: PDF (Ukuran bebas / tanpa batas). File ini akan melalui proses review sebelum disetujui."
+                subtitle="Pilih satu atau beberapa berkas dokumen PKPT"
+                badge="Multi-File"
+                :multiple="true"
+                accept=".pdf,.doc,.docx,.xls,.xlsx"
+                hint="Format: PDF, Word (DOC/DOCX), Excel (XLS/XLSX) (Ukuran bebas / tanpa batas). Anda dapat memilih beberapa berkas sekaligus atau bertahap."
                 :required="true"
             />
+            @error('attachments') <p class="form-error"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ $message }}</p> @enderror
             
             <div class="alert alert-info border-l-4">
                 <div class="flex-shrink-0">

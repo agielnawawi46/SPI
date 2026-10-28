@@ -8,15 +8,15 @@
         
         <!-- Header -->
         <div style="border-bottom: 2px solid #edf2f7; padding-bottom: 20px; margin-bottom: 20px;">
-            <h2 style="color: #2b6cb0; margin: 0; font-size: 24px;">Sistem Informasi SPI</h2>
-            <p style="color: #718096; margin: 5px 0 0 0; font-size: 14px;">PT Pelayanan Energi Batam</p>
+            <h2 style="color: #2b6cb0; margin: 0; font-size: 24px;">SIMAK</h2>
+            <p style="color: #718096; margin: 5px 0 0 0; font-size: 14px;">Sistem Informasi Manajemen Audit & Kepatuhan — PT Pelayanan Energi Batam</p>
         </div>
         
         <!-- Salutation -->
         <p style="font-size: 16px; color: #2d3748; margin-bottom: 15px;">Yth. Bapak/Ibu <strong>{{ $recipientName ?? 'Pengguna' }}</strong>,</p>
         
         <p style="font-size: 15px; color: #4a5568; margin-bottom: 25px;">
-            Berikut adalah pemberitahuan terbaru dari Sistem Informasi SPI:
+            Berikut adalah pemberitahuan terbaru dari SIMAK (Sistem Informasi Manajemen Audit & Kepatuhan):
         </p>
         
         <!-- Message Content box -->
@@ -39,7 +39,7 @@
         <!-- Footer -->
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #edf2f7; font-size: 14px; color: #718096;">
             <p style="margin: 0 0 5px 0;">Hormat kami,</p>
-            <p style="margin: 0; font-weight: bold; color: #4a5568;">Administrator SPI</p>
+            <p style="margin: 0; font-weight: bold; color: #4a5568;">Administrator SIMAK</p>
             <p style="margin: 5px 0 0 0; font-size: 12px;">Email ini dihasilkan secara otomatis oleh sistem, mohon untuk tidak membalas email ini.</p>
         </div>
     </div>

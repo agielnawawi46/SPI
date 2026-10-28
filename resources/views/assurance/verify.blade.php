@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Keaslian Dokumen — SPI PT Pelayanan Energi Batam</title>
+    <title>Verifikasi Keaslian Dokumen — SIMAK PT Pelayanan Energi Batam</title>
     <link rel="icon" type="image/png" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
     <link rel="shortcut icon" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -18,8 +18,8 @@
 
             {{-- Header / Brand --}}
             <div class="flex items-center justify-center gap-2 mb-6 mt-1">
-                <img src="{{ asset('pln.png') }}" alt="PLN / PEB" class="h-6 w-auto">
-                <span class="text-xs font-bold tracking-wider text-charcoal-muted uppercase">Satuan Pengawasan Internal</span>
+                <img src="{{ asset('pln.png') }}" alt="PLN / PEB" class="h-7 w-auto object-contain">
+                <span class="text-xs font-bold tracking-wider text-charcoal-muted uppercase">SIMAK • PT Pelayanan Energi Batam</span>
             </div>
 
             {{-- Verification Status --}}
@@ -32,7 +32,7 @@
                 </div>
             </div>
             <h1 class="text-2xl font-extrabold text-charcoal tracking-tight">Dokumen Sah & Valid</h1>
-            <p class="text-xs text-charcoal-muted mt-1.5 font-medium">Dokumen ini resmi diterbitkan & disahkan oleh SPI PT Pelayanan Energi Batam.</p>
+            <p class="text-xs text-charcoal-muted mt-1.5 font-medium">Dokumen ini resmi diterbitkan & disahkan melalui SIMAK PT Pelayanan Energi Batam.</p>
 
             <hr class="my-6 border-surface-200">
 
@@ -93,7 +93,7 @@
 
             <div class="mt-8 pt-4 border-t border-surface-200 text-center md:text-left">
                 <p class="text-[10px] text-charcoal-muted">
-                    &copy; {{ date('Y') }} PT Pelayanan Energi Batam &bull; Sertifikat Keaslian Dokumen Elektronik SPI.
+                    &copy; {{ date('Y') }} PT Pelayanan Energi Batam &bull; Sertifikat Keaslian Dokumen Elektronik SIMAK.
                 </p>
             </div>
         </div>

@@ -43,7 +43,9 @@ Route::middleware(['auth', 'check.active', 'audit.trail'])->group(function () {
         Route::get('/{pkpt}', [\App\Http\Controllers\Admin\PkptController::class, 'show'])->name('show')->middleware('permission:pkpt.view');
         Route::get('/{pkpt}/edit', [\App\Http\Controllers\Admin\PkptController::class, 'edit'])->name('edit')->middleware('permission:pkpt.edit');
         Route::put('/{pkpt}', [\App\Http\Controllers\Admin\PkptController::class, 'update'])->name('update')->middleware('permission:pkpt.edit');
-        Route::get('/{pkpt}/view-file', [\App\Http\Controllers\Admin\PkptController::class, 'viewPkptFile'])->name('view-file')->middleware('permission:pkpt.view');
+        Route::get('/{pkpt}/view-file/{attachment?}', [\App\Http\Controllers\Admin\PkptController::class, 'viewPkptFile'])->name('view-file')->middleware('permission:pkpt.view');
+        Route::get('/{pkpt}/download/{attachment?}', [\App\Http\Controllers\Admin\PkptController::class, 'downloadPkptFile'])->name('download')->middleware('permission:pkpt.view');
+        Route::delete('/{pkpt}/attachments/{attachment}', [\App\Http\Controllers\Admin\PkptController::class, 'destroyAttachment'])->name('destroy-attachment')->middleware('permission:pkpt.edit');
         Route::delete('/{pkpt}', [\App\Http\Controllers\Admin\PkptController::class, 'destroy'])->name('destroy')->middleware('permission:pkpt.delete');
         
         // Kertas Kerja PKPT (6 File)

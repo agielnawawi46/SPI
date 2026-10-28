@@ -86,10 +86,10 @@
                         $hasFiles = count($files) > 0;
                     @endphp
 
-                    <div class="border rounded-2xl transition-all duration-200 overflow-hidden flex flex-col justify-between {{ $hasFiles ? 'border-emerald-200 bg-white shadow-sm hover:shadow-md' : 'border-surface-200 bg-white shadow-sm' }}">
+                    <div class="border rounded-2xl transition-all duration-200 overflow-hidden flex flex-col justify-between {{ $hasFiles ? 'border-emerald-500 bg-white shadow-sm hover:shadow-md ring-1 ring-emerald-500/20' : 'border-surface-200 bg-white shadow-sm' }}">
                         
                         {{-- Card Header --}}
-                        <div class="p-4 sm:p-5 border-b {{ $hasFiles ? 'border-emerald-100 bg-emerald-50/40' : 'border-surface-100 bg-surface-50/50' }}">
+                        <div class="p-4 sm:p-5 border-b {{ $hasFiles ? 'border-emerald-200 bg-emerald-50/50' : 'border-surface-100 bg-surface-50/50' }}">
                             <div class="flex justify-between items-start gap-3">
                                 <div class="flex items-start gap-3">
                                     <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl text-xs font-bold flex-shrink-0 {{ $hasFiles ? 'bg-emerald-100 text-emerald-800' : 'bg-surface-200 text-charcoal' }}">
@@ -103,7 +103,7 @@
 
                                 <div class="flex-shrink-0">
                                     @if($hasFiles)
-                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-400 shadow-2xs">
                                             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                                             {{ count($files) }} Berkas Terunggah
                                         </span>
@@ -143,7 +143,7 @@
                                                 };
                                             @endphp
 
-                                            <div class="p-2.5 bg-surface-50/70 hover:bg-surface-100/80 border border-surface-200 rounded-xl flex items-center justify-between gap-3 transition-colors">
+                                            <div class="p-2.5 bg-emerald-50/20 hover:bg-emerald-50/40 border border-emerald-400 rounded-xl flex items-center justify-between gap-3 transition-colors shadow-2xs">
                                                 <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                                     {{-- File Type Icon --}}
                                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border {{ $iconStyle }}">
@@ -162,6 +162,10 @@
                                                             {{ $att->file_name }}
                                                         </p>
                                                         <div class="flex items-center gap-1.5 text-[10.5px] text-charcoal-muted mt-0.5">
+                                                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-400/80">
+                                                                <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                                Terunggah
+                                                            </span>
                                                             <span class="font-medium uppercase px-1 py-0.2 rounded border {{ $badgeStyle }}">{{ $ext }}</span>
                                                             @if($att->file_size)
                                                                 <span>&bull; {{ $att->file_size_formatted }}</span>
@@ -171,14 +175,14 @@
                                                     </div>
                                                 </div>
 
-                                                {{-- Action Buttons --}}
+                                                {{-- Action Buttons (Image 2 Icon Style) --}}
                                                 <div class="flex items-center gap-1.5 flex-shrink-0">
                                                     {{-- View / Preview --}}
                                                     <a href="{{ Storage::url($att->pdf_path ?: $att->file_path) }}" 
                                                        target="_blank" 
                                                        title="Lihat Berkas" 
-                                                       class="text-primary-600 hover:text-primary-800 bg-white hover:bg-primary-50 border border-surface-200 hover:border-primary-200 rounded-lg p-1.5 transition-colors shadow-2xs">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                       class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-90 shadow-sm transition-all">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                                     </a>
                                                     
                                                     {{-- Download --}}
@@ -186,8 +190,8 @@
                                                        download 
                                                        target="_blank" 
                                                        title="Unduh Berkas" 
-                                                       class="text-charcoal hover:text-charcoal-dark bg-white hover:bg-surface-100 border border-surface-200 rounded-lg p-1.5 transition-colors shadow-2xs">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                                       class="btn-icon bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                                     </a>
                                                     
                                                     {{-- Delete (Draft Only) --}}
@@ -200,8 +204,8 @@
                                                         @method('DELETE')
                                                         <button type="submit" 
                                                                 title="Hapus Berkas" 
-                                                                class="text-red-600 hover:text-red-800 bg-white hover:bg-red-50 border border-surface-200 hover:border-red-200 rounded-lg p-1.5 transition-colors shadow-2xs">
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                                class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-90 shadow-sm transition-all">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                         </button>
                                                     </form>
                                                     @endif
@@ -217,6 +221,7 @@
                         @if($document && $document->status === 'draft')
                             <div class="p-4 sm:p-5 border-t border-surface-100 bg-surface-50/60" x-data="{
                                 selectedFiles: [],
+                                isDragging: false,
                                 getDt() {
                                     if (!this.$el._dt) this.$el._dt = new DataTransfer();
                                     return this.$el._dt;
@@ -224,15 +229,26 @@
                                 setDt(newDt) {
                                     this.$el._dt = newDt;
                                 },
-                                handleFiles(e) {
+                                addFiles(newFiles) {
                                     const dt = this.getDt();
-                                    const files = Array.from(e.target.files || []);
+                                    const files = Array.from(newFiles || []);
                                     for (let f of files) {
                                         const exists = Array.from(dt.files).some(x => x.name === f.name && x.size === f.size && x.lastModified === f.lastModified);
                                         if (!exists) dt.items.add(f);
                                     }
-                                    e.target.files = dt.files;
+                                    if (this.$refs.fileInput) {
+                                        this.$refs.fileInput.files = dt.files;
+                                    }
                                     this.syncList();
+                                },
+                                handleFiles(e) {
+                                    this.addFiles(e.target.files);
+                                },
+                                handleDrop(e) {
+                                    this.isDragging = false;
+                                    if (e.dataTransfer && e.dataTransfer.files) {
+                                        this.addFiles(e.dataTransfer.files);
+                                    }
                                 },
                                 removeFile(idx) {
                                     const dt = this.getDt();
@@ -249,6 +265,13 @@
                                     }
                                     this.syncList();
                                 },
+                                clearFiles() {
+                                    this.setDt(new DataTransfer());
+                                    if (this.$refs.fileInput) {
+                                        this.$refs.fileInput.value = '';
+                                    }
+                                    this.syncList();
+                                },
                                 syncList() {
                                     const dt = this.getDt();
                                     this.selectedFiles = Array.from(dt.files).map(f => ({
@@ -260,7 +283,7 @@
                                 <form action="{{ route('pkpt.store-kertas-kerja', $pkpt) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" name="category" value="{{ $key }}">
-                                    <div class="flex items-center justify-between mb-1.5">
+                                    <div class="flex items-center justify-between mb-2">
                                         <label class="text-xs font-semibold text-charcoal flex items-center gap-1.5">
                                             <svg class="w-3.5 h-3.5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                                             Tambah Berkas {{ $key }}
@@ -271,39 +294,88 @@
                                     </div>
                                     
                                     {{-- Selected files list preview --}}
-                                    <div x-show="selectedFiles.length > 0" class="mb-2 space-y-1">
-                                        <div class="flex items-center justify-between text-[11px] font-semibold text-emerald-800 pb-0.5">
-                                            <span x-text="selectedFiles.length + ' Berkas Siap Diunggah:'"></span>
-                                            <button type="button" @click="$refs.fileInput.click()" class="text-primary-600 hover:text-primary-800 font-medium hover:underline flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                                                Tambah berkas lain
-                                            </button>
-                                        </div>
-                                        <template x-for="(f, i) in selectedFiles" :key="i">
-                                            <div class="flex items-center justify-between p-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs">
-                                                <span class="truncate flex-1 font-medium text-emerald-900" x-text="f.name + ' (' + f.size + ')'"></span>
-                                                <button type="button" @click="removeFile(i)" class="text-red-500 hover:text-red-700 ml-2 p-0.5" title="Hapus">
-                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    <div x-show="selectedFiles.length > 0" class="mb-3 space-y-1.5 bg-emerald-50/60 p-3 rounded-xl border border-emerald-400">
+                                        <div class="flex items-center justify-between text-xs font-semibold text-emerald-800 pb-1 border-b border-emerald-300">
+                                            <span class="flex items-center gap-1.5">
+                                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                <span x-text="selectedFiles.length + ' Berkas Siap Diunggah:'"></span>
+                                            </span>
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" @click="$refs.fileInput.click()" class="text-primary-600 hover:text-primary-800 font-medium hover:underline flex items-center gap-1 text-[11px]">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                                    Tambah lagi
+                                                </button>
+                                                <span class="text-emerald-300">|</span>
+                                                <button type="button" @click="clearFiles()" class="text-red-600 hover:text-red-700 font-medium hover:underline text-[11px]">
+                                                    Batal
                                                 </button>
                                             </div>
-                                        </template>
+                                        </div>
+                                        <div class="space-y-1 max-h-36 overflow-y-auto pr-1">
+                                            <template x-for="(f, i) in selectedFiles" :key="i">
+                                                <div class="flex items-center justify-between p-1.5 bg-white border border-emerald-400 rounded-lg text-xs shadow-2xs">
+                                                    <span class="truncate flex-1 font-medium text-emerald-900" x-text="f.name + ' (' + f.size + ')'"></span>
+                                                    <button type="button" @click="removeFile(i)" class="text-red-500 hover:text-red-700 ml-2 p-0.5 rounded hover:bg-red-50" title="Hapus">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </div>
 
-                                    <div class="flex items-center gap-2">
+                                    {{-- Modern Taller Dropzone --}}
+                                    <div class="relative border-2 border-dashed rounded-xl p-5 text-center transition-all duration-200 group flex flex-col items-center justify-center min-h-[130px] cursor-pointer mb-3"
+                                         :class="isDragging 
+                                             ? 'border-primary-500 bg-primary-50/80 ring-4 ring-primary-100 shadow-sm' 
+                                             : 'border-surface-300 hover:border-primary-400 bg-white hover:bg-surface-50/60'">
+                                        
                                         <input type="file" 
                                                x-ref="fileInput"
                                                name="attachments[]" 
                                                multiple
                                                @change="handleFiles($event)"
-                                               class="form-input flex-1 text-xs bg-white h-[38px] cursor-pointer file:mr-2.5 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" 
+                                               @dragenter.prevent="isDragging = true"
+                                               @dragover.prevent="isDragging = true"
+                                               @dragleave.prevent="isDragging = false"
+                                               @drop.prevent="handleDrop($event)"
+                                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                                                accept=".pdf,.doc,.docx,.xls,.xlsx" 
-                                               required>
-                                        <button type="submit" class="btn-primary text-xs py-2 px-3.5 h-[38px] flex-shrink-0 flex items-center gap-1.5 shadow-sm font-medium">
+                                               :required="selectedFiles.length === 0"
+                                               title="Klik atau seret & lepas berkas ke sini">
+
+                                        <div :class="isDragging ? 'bg-primary-600 text-white scale-110 shadow-sm' : 'bg-primary-50 text-primary-600 group-hover:scale-105 group-hover:bg-primary-100'"
+                                             class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-all duration-200 border border-primary-200/60 pointer-events-none">
+                                            <template x-if="!isDragging">
+                                                <svg class="w-5 h-5 transform transition-transform group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                            </template>
+                                            <template x-if="isDragging">
+                                                <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                                            </template>
+                                        </div>
+
+                                        <div class="pointer-events-none space-y-0.5">
+                                            <template x-if="isDragging">
+                                                <p class="text-xs font-bold text-primary-700 animate-pulse">Lepaskan berkas di sini untuk menambahkan...</p>
+                                            </template>
+                                            <template x-if="!isDragging">
+                                                <p class="text-xs font-medium text-charcoal">
+                                                    <span class="text-primary-600 font-semibold underline decoration-primary-300">Pilih berkas</span> atau seret & lepas berkas ke sini
+                                                </p>
+                                            </template>
+                                            <p class="text-[11px] text-charcoal-muted">PDF, DOC, DOCX, XLS, XLSX (bisa beberapa berkas sekaligus)</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between gap-2">
+                                        <p class="text-[10.5px] text-charcoal-muted">Pastikan format & nama dokumen sesuai.</p>
+                                        <button type="submit" 
+                                                :disabled="selectedFiles.length === 0"
+                                                :class="selectedFiles.length === 0 ? 'opacity-60 cursor-not-allowed bg-surface-300 text-charcoal-muted' : 'btn-primary'"
+                                                class="text-xs py-2 px-4 h-[36px] flex-shrink-0 flex items-center gap-1.5 shadow-sm font-semibold rounded-lg transition-all">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                            Unggah Dokumen
+                                            <span x-text="selectedFiles.length > 0 ? 'Unggah ' + selectedFiles.length + ' Dokumen' : 'Unggah Dokumen'"></span>
                                         </button>
                                     </div>
-                                    <p class="text-[10.5px] text-charcoal-muted mt-1.5">Format: PDF, DOC, DOCX, XLS, XLSX. (Bisa pilih beberapa berkas sekaligus atau pilih bertahap)</p>
                                 </form>
                             </div>
                         @endif

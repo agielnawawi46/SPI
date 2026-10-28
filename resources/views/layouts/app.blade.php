@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dashboard') — SPI PT Pelayanan Energi Batam</title>
-    <meta name="description" content="@yield('meta_description', 'Sistem Informasi Intranet Satuan Pengawasan Internal PT Pelayanan Energi Batam')">
+    <title>@yield('title', 'Dashboard') — SIMAK (Sistem Informasi Manajemen Audit & Kepatuhan)</title>
+    <meta name="description" content="@yield('meta_description', 'SIMAK - Sistem Informasi Manajemen Audit & Kepatuhan PT Pelayanan Energi Batam')">
     <link rel="icon" type="image/png" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
     <link rel="shortcut icon" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -88,15 +88,17 @@
 <aside class="sidebar" id="app-sidebar" :class="{'mobile-open': sidebarOpen}">
     {{-- Logo --}}
     <div class="sidebar-logo">
-        <div class="flex-shrink-0 w-9 h-9 bg-primary-500 rounded-lg flex items-center justify-center">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-            </svg>
-        </div>
-        <div>
-            <p class="sidebar-logo-text text-sm">SPI Intranet</p>
-            <p class="text-charcoal-muted text-xs">PT Pelayanan Energi Batam</p>
-        </div>
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 w-full group overflow-hidden" title="SIMAK — Sistem Informasi Manajemen Audit & Kepatuhan">
+            <img src="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}" 
+                 alt="Logo SIMAK PLN" 
+                 class="flex-shrink-0 w-10 h-10 object-contain drop-shadow-2xs transition-transform duration-200 group-hover:scale-105">
+            <div class="min-w-0 flex-1">
+                <p class="sidebar-logo-text text-base font-black tracking-tight text-charcoal leading-none">SIMAK</p>
+                <p class="text-charcoal-muted text-[10px] leading-tight font-medium mt-1 line-clamp-2">
+                    Sistem Informasi Manajemen Audit & Kepatuhan
+                </p>
+            </div>
+        </a>
     </div>
 
     {{-- Nav Menu --}}
@@ -300,7 +302,13 @@
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         
-        <h1 class="page-title text-base font-semibold truncate">@yield('page_title', 'Dashboard')</h1>
+        @hasSection('breadcrumbs')
+            <nav class="flex items-center flex-wrap gap-1.5 text-xs sm:text-sm text-charcoal-muted truncate [&_.breadcrumb-item]:text-charcoal-muted [&_.breadcrumb-link]:text-charcoal-muted [&_.breadcrumb-link]:hover:text-primary-600 [&_.breadcrumb-link]:font-medium [&_.breadcrumb-link]:transition-colors [&_.breadcrumb-separator]:text-charcoal-muted/40 [&_.breadcrumb-separator]:select-none [&_.breadcrumb-current]:text-charcoal [&_.breadcrumb-current]:font-bold [&_.breadcrumb-current]:text-sm sm:[&_.breadcrumb-current]:text-base" aria-label="Breadcrumb">
+                @yield('breadcrumbs')
+            </nav>
+        @else
+            <h1 class="page-title text-base sm:text-lg font-bold text-charcoal truncate">@yield('page_title', 'Dashboard')</h1>
+        @endif
     </div>
 
     {{-- Right Side: Notifications + Logout --}}
@@ -349,13 +357,6 @@
      ============================================ --}}
 <main class="main-content">
 
-    {{-- Breadcrumbs Navigation --}}
-    @hasSection('breadcrumbs')
-        <nav class="breadcrumb" aria-label="Breadcrumb">
-            @yield('breadcrumbs')
-        </nav>
-    @endif
-
     {{-- Flash Messages --}}
     @if (session('success'))
         <div x-data="flashMessage()" x-show="show" x-transition class="alert alert-success mb-5">
@@ -393,7 +394,7 @@
         </p>
 
         <p class="text-xs text-charcoal-muted text-center md:text-right flex items-center justify-center gap-1.5">
-            Internal SPI System
+            SIMAK &bull; Sistem Informasi Manajemen Audit & Kepatuhan
         </p>
 
     </div>
@@ -421,7 +422,7 @@
             </div>
             <div>
                 <p class="text-sm font-bold text-charcoal">Informasi</p>
-                <p class="text-xs text-charcoal-muted">SPI PT Pelayanan Energi Batam</p>
+                <p class="text-xs text-charcoal-muted">SIMAK &bull; PT Pelayanan Energi Batam</p>
             </div>
         </div>
 
@@ -439,6 +440,54 @@
                     class="px-5 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors shadow-sm">
                 OK
             </button>
+        </div>
+    </div>
+</div>
+
+{{-- ============================================
+     CUSTOM UPLOAD LOADING OVERLAY
+     ============================================ --}}
+<div id="custom-upload-overlay"
+     style="display:none; position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center; padding:1rem; opacity:0; transition: opacity 0.25s ease;"
+     class="bg-charcoal/60 backdrop-blur-sm">
+
+    <div id="custom-upload-box"
+         style="transform: scale(0.95); opacity: 0; transition: transform 0.25s ease, opacity 0.25s ease;"
+         class="bg-white rounded-3xl shadow-2xl w-full max-w-sm mx-auto p-6 sm:p-7 text-center border border-surface-200 flex flex-col items-center">
+
+        {{-- Animated Icon Illustration --}}
+        <div class="relative w-20 h-20 mb-4 flex items-center justify-center">
+            {{-- Spinning Primary Ring --}}
+            <div class="absolute inset-0 rounded-full border-4 border-primary-100 border-t-primary-500 animate-spin"></div>
+            {{-- Counter-rotating Dashed Emerald Ring --}}
+            <div class="absolute inset-1.5 rounded-full border-2 border-dashed border-emerald-300 animate-spin" style="animation-duration: 3s; animation-direction: reverse;"></div>
+            {{-- Inner Icon with bouncing arrow --}}
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center text-primary-600 shadow-inner">
+                <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+            </div>
+        </div>
+
+        {{-- Heading & Subtitle --}}
+        <h3 id="upload-loading-title" class="text-base sm:text-lg font-bold text-charcoal tracking-tight mb-1">
+            Sedang Mengunggah Dokumen...
+        </h3>
+        <p id="upload-loading-subtitle" class="text-xs text-charcoal-muted leading-relaxed mb-4">
+            Mohon tunggu sebentar, berkas sedang dikirim dan diproses oleh sistem.
+        </p>
+
+        {{-- Animated Indeterminate Progress Bar --}}
+        <div class="w-full bg-surface-100 rounded-full h-2 overflow-hidden mb-4 relative">
+            <div class="animate-upload-shimmer bg-gradient-to-r from-primary-500 via-teal-400 to-emerald-500 h-full rounded-full"></div>
+        </div>
+
+        {{-- Caution note --}}
+        <div class="flex items-center gap-1.5 text-[11px] text-amber-700 bg-amber-50 border border-amber-200/80 px-3 py-1.5 rounded-xl font-medium w-full justify-center">
+            <svg class="w-3.5 h-3.5 flex-shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Harap jangan menutup atau memuat ulang halaman</span>
         </div>
     </div>
 </div>
@@ -463,7 +512,7 @@
             </div>
             <div>
                 <p class="text-sm font-bold text-charcoal">Konfirmasi Tindakan</p>
-                <p class="text-xs text-charcoal-muted">SPI PT Pelayanan Energi Batam</p>
+                <p class="text-xs text-charcoal-muted">SIMAK &bull; PT Pelayanan Energi Batam</p>
             </div>
         </div>
 
@@ -602,6 +651,99 @@
         window.alert = showAlert;
     })();
 
+    // ============================================
+    // UPLOAD LOADING OVERLAY CONTROLLER
+    // ============================================
+    (function () {
+        const uploadOverlay = document.getElementById('custom-upload-overlay');
+        const uploadBox     = document.getElementById('custom-upload-box');
+        const uploadTitle   = document.getElementById('upload-loading-title');
+        const uploadSub     = document.getElementById('upload-loading-subtitle');
+
+        function showUploadLoading(title, subtitle) {
+            if (!uploadOverlay || !uploadBox) return;
+            if (title && uploadTitle) uploadTitle.textContent = title;
+            if (subtitle && uploadSub) uploadSub.textContent = subtitle;
+
+            uploadOverlay.style.display = 'flex';
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    uploadOverlay.style.opacity = '1';
+                    uploadBox.style.transform = 'scale(1)';
+                    uploadBox.style.opacity   = '1';
+                });
+            });
+        }
+
+        function hideUploadLoading() {
+            if (!uploadOverlay || !uploadBox) return;
+            uploadOverlay.style.opacity = '0';
+            uploadBox.style.transform = 'scale(0.95)';
+            uploadBox.style.opacity   = '0';
+            setTimeout(() => { 
+                uploadOverlay.style.display = 'none'; 
+            }, 250);
+        }
+
+        window.showUploadLoading = showUploadLoading;
+        window.hideUploadLoading = hideUploadLoading;
+
+        // Reset if restored via browser BFCache (back/forward)
+        window.addEventListener('pageshow', function () {
+            hideUploadLoading();
+        });
+
+        // Helper: check if form is submitting files
+        function isFormUploading(form) {
+            if (!form) return false;
+            
+            // Exclude DELETE or GET
+            const methodInput = form.querySelector('input[name="_method"]');
+            const method = ((methodInput ? methodInput.value : form.method) || 'POST').toUpperCase();
+            if (method === 'DELETE' || method === 'GET') return false;
+
+            const isMultipart = form.getAttribute('enctype') === 'multipart/form-data';
+            const fileInputs = form.querySelectorAll('input[type="file"]');
+            if (fileInputs.length === 0 && !isMultipart) return false;
+
+            let hasFiles = false;
+            fileInputs.forEach(inp => {
+                if (inp.files && inp.files.length > 0) hasFiles = true;
+            });
+
+            return hasFiles || (isMultipart && fileInputs.length > 0 && typeof form.checkValidity === 'function' && form.checkValidity());
+        }
+
+        function disableSubmit(form) {
+            const btn = form.querySelector('button[type="submit"], input[type="submit"]');
+            if (btn && !btn.disabled) {
+                btn.disabled = true;
+                btn.classList.add('opacity-75', 'cursor-not-allowed');
+                const svg = btn.querySelector('svg');
+                if (svg) svg.classList.add('animate-spin');
+            }
+        }
+
+        window._isFormUploading = isFormUploading;
+        window._disableSubmit = disableSubmit;
+
+        // Auto trigger on standard form submission
+        document.addEventListener('submit', function (e) {
+            const form = e.target;
+            if (!form || form.tagName !== 'FORM' || form._confirmHandled) return;
+
+            if (isFormUploading(form)) {
+                if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+                    return; // HTML5 validation failed
+                }
+                const customTitle = form.getAttribute('data-loading-title');
+                const customSub = form.getAttribute('data-loading-subtitle');
+                disableSubmit(form);
+                showUploadLoading(customTitle, customSub);
+            }
+        });
+    })();
+
     // Intercept all form submissions that use onsubmit="return confirm(...)"
     document.addEventListener('submit', function (e) {
         const form = e.target;
@@ -618,6 +760,10 @@
             _resolve = (confirmed) => {
                 if (confirmed) {
                     form._confirmHandled = true;
+                    if (window._isFormUploading && window._isFormUploading(form)) {
+                        if (window._disableSubmit) window._disableSubmit(form);
+                        if (window.showUploadLoading) window.showUploadLoading();
+                    }
                     form.submit();
                 }
             };
@@ -642,6 +788,10 @@
                     const form = el.closest('form') || el.form;
                     if (form) {
                         form._confirmHandled = true;
+                        if (window._isFormUploading && window._isFormUploading(form)) {
+                            if (window._disableSubmit) window._disableSubmit(form);
+                            if (window.showUploadLoading) window.showUploadLoading();
+                        }
                         form.submit();
                     } else {
                         el.click();

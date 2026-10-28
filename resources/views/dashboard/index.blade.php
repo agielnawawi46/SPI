@@ -68,24 +68,32 @@
         @endif
     </div>
 
-    {{-- Realisasi PKPT — hidden for auditee --}}
+    {{-- Realisasi PKPT — Berbeda warna untuk membedakan dari kelompok card Tindak Lanjut --}}
     @unless($isAuditee)
-    <div class="stat-card">
-        <div class="flex items-start justify-between">
+    <div class="stat-card !bg-gradient-to-br !from-primary-600 !via-primary-700 !to-primary-800 !border-primary-600/50 text-white shadow-md shadow-primary-900/15 relative overflow-hidden group">
+        {{-- Decorative ambient glow --}}
+        <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+
+        <div class="flex items-start justify-between relative z-10">
             <div class="pr-3">
-                <p class="text-xs font-semibold uppercase tracking-wide text-charcoal-muted line-clamp-2">Realisasi PKPT {{ $pkptStats['year'] }}</p>
-                <p class="stat-card-value text-primary-600">{{ $pkptStats['realization_pct'] }}%</p>
+                <div class="flex items-center gap-1.5 mb-1.5">
+                    <span class="text-[9.5px] font-bold uppercase tracking-wider bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-xs">
+                        Program PKPT
+                    </span>
+                </div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 line-clamp-2">Realisasi PKPT {{ $pkptStats['year'] }}</p>
+                <p class="stat-card-value !text-white !mt-1 text-3xl font-black tracking-tight">{{ $pkptStats['realization_pct'] }}%</p>
             </div>
-            <div class="stat-card-icon bg-primary-50 flex-shrink-0">
-                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <div class="stat-card-icon !bg-white/20 !text-white backdrop-blur-xs flex-shrink-0 border border-white/25 shadow-sm">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
             </div>
         </div>
-        <div class="mt-3">
-            <div class="flex justify-between text-xs text-charcoal-muted mb-1">
-                <span>{{ $pkptStats['completed'] }} / {{ $pkptStats['total_items'] }} item</span>
+        <div class="mt-3.5 relative z-10">
+            <div class="flex justify-between text-xs text-primary-100 font-medium mb-1.5">
+                <span>{{ $pkptStats['completed'] }} / {{ $pkptStats['total_items'] }} item selesai</span>
             </div>
-            <div class="w-full bg-surface-100 rounded-full h-1.5">
-                <div class="bg-primary-500 h-1.5 rounded-full transition-all duration-700" style="width: {{ $pkptStats['realization_pct'] }}%"></div>
+            <div class="w-full bg-black/25 rounded-full h-1.5 overflow-hidden">
+                <div class="bg-amber-300 h-1.5 rounded-full transition-all duration-700 shadow-2xs" style="width: {{ $pkptStats['realization_pct'] }}%"></div>
             </div>
         </div>
     </div>

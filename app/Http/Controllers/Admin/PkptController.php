@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pkpt;
+use App\Models\Document;
+use App\Models\DocumentType;
 use App\Models\DocumentAttachment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,12 +14,63 @@ use Illuminate\Support\Facades\Storage;
 class PkptController extends Controller
 {
     // ==========================================
+    // PKPT Utama Helper
+    // ==========================================
+
+    protected function getOrCreatePkptDocument(Pkpt $pkpt): Document
+    {
+        $docType = DocumentType::firstOrCreate(
+            ['slug' => 'pkpt'],
+            [
+                'name' => 'PKPT',
+                'module' => 'pkpt',
+                'sort_order' => 1,
+                'requires_approval' => false,
+                'is_active' => true,
+            ]
+        );
+
+        $document = Document::firstOrCreate(
+            [
+                'pkpt_id' => $pkpt->id,
+                'document_type_id' => $docType->id,
+            ],
+            [
+                'uuid' => (string) \Illuminate\Support\Str::uuid(),
+                'title' => 'Dokumen PKPT: ' . $pkpt->title,
+                'created_by' => $pkpt->created_by ?? Auth::id() ?? 1,
+                'status' => 'approved',
+                'content' => '',
+            ]
+        );
+
+        // Migrate legacy single file into document_attachments if none exist yet
+        if ($pkpt->file_path && $document->attachments()->count() === 0 && Storage::disk('public')->exists($pkpt->file_path)) {
+            $document->attachments()->create([
+                'uploaded_by' => $pkpt->created_by ?? Auth::id() ?? 1,
+                'file_name'   => $pkpt->file_name ?? basename($pkpt->file_path),
+                'file_path'   => $pkpt->file_path,
+                'file_type'   => $pkpt->file_type ?? 'application/pdf',
+                'file_size'   => $pkpt->file_size ?? 0,
+                'description' => 'Dokumen PKPT',
+            ]);
+        }
+
+        return $document;
+    }
+
+    // ==========================================
     // PKPT Utama
     // ==========================================
 
     public function index(Request $request)
     {
-        $query = Pkpt::with('creator');
+        $pkptDocType = DocumentType::where('slug', 'pkpt')->first();
+        $query = Pkpt::with(['creator', 'documents' => function($q) use ($pkptDocType) {
+            if ($pkptDocType) {
+                $q->where('document_type_id', $pkptDocType->id)->with('attachments');
+            }
+        }]);
 
         if ($request->has('search')) {
             $search = $request->search;
@@ -37,75 +90,166 @@ class PkptController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title'       => 'required|string|max:255',
-            'period_year' => 'required|digits:4|integer',
-            'pkpt_file'   => 'required|file|mimes:pdf', // Wajib PDF
+            'title'         => 'required|string|max:255',
+            'period_year'   => 'required|digits:4|integer',
+            'attachments'   => 'nullable|array',
+            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx',
+            'pkpt_file'     => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx',
         ]);
+
+        $rawFiles = $request->file('attachments') ?? $request->file('pkpt_file');
+        if (empty($rawFiles)) {
+            return back()->withErrors(['attachments' => 'Wajib mengunggah minimal satu berkas dokumen PKPT.'])->withInput();
+        }
 
         $pkpt = new Pkpt($request->only('title', 'period_year'));
         $pkpt->created_by = Auth::id();
         $pkpt->status = 'approved';
-        
-        if ($request->hasFile('pkpt_file')) {
-            $file = $request->file('pkpt_file');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('pkpt_files', $fileName, 'public');
-            
-            $pkpt->file_name = $file->getClientOriginalName();
-            $pkpt->file_path = $filePath;
-            $pkpt->file_type = $file->getClientMimeType();
-            $pkpt->file_size = $file->getSize();
-        }
-        
         $pkpt->save();
+
+        $document = $this->getOrCreatePkptDocument($pkpt);
+
+        $files = is_array($rawFiles) ? $rawFiles : [$rawFiles];
+        foreach ($files as $file) {
+            if (!$file || !$file->isValid()) continue;
+            $originalName = $file->getClientOriginalName();
+            $uniqueId = uniqid();
+            $fileName = time() . '_' . $uniqueId . '_' . $originalName;
+            $filePath = $file->storeAs('pkpt_files', $fileName, 'public');
+
+            $document->attachments()->create([
+                'uploaded_by' => Auth::id() ?? 1,
+                'file_name'   => $originalName,
+                'file_path'   => $filePath,
+                'file_type'   => $file->getClientMimeType(),
+                'file_size'   => $file->getSize(),
+                'description' => 'Dokumen PKPT',
+            ]);
+        }
+
+        $latestAtt = $document->attachments()->latest()->first();
+        if ($latestAtt) {
+            $pkpt->file_name = $latestAtt->file_name;
+            $pkpt->file_path = $latestAtt->file_path;
+            $pkpt->file_size = $latestAtt->file_size;
+            $pkpt->file_type = $latestAtt->file_type;
+            $pkpt->save();
+        }
 
         return redirect()->route('pkpt.show', $pkpt)->with('success', 'Dokumen PKPT berhasil diunggah.');
     }
 
     public function edit(Pkpt $pkpt)
     {
-        return view('admin.pkpt.edit', compact('pkpt'));
+        $document = $this->getOrCreatePkptDocument($pkpt);
+        $document->load('attachments.uploader');
+        $attachments = $document->attachments;
+
+        return view('admin.pkpt.edit', compact('pkpt', 'document', 'attachments'));
     }
 
     public function update(Request $request, Pkpt $pkpt)
     {
         $request->validate([
-            'title'       => 'required|string|max:255',
-            'period_year' => 'required|digits:4|integer',
-            'pkpt_file'   => 'nullable|file|mimes:pdf', // PDF optional for update
+            'title'         => 'required|string|max:255',
+            'period_year'   => 'required|digits:4|integer',
+            'attachments'   => 'nullable|array',
+            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx',
+            'pkpt_file'     => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx',
         ]);
 
         $pkpt->title = $request->title;
         $pkpt->period_year = $request->period_year;
+        $pkpt->save();
 
-        if ($request->hasFile('pkpt_file')) {
-            // Hapus file lama jika ada
-            if ($pkpt->file_path && Storage::disk('public')->exists($pkpt->file_path)) {
-                Storage::disk('public')->delete($pkpt->file_path);
+        $document = $this->getOrCreatePkptDocument($pkpt);
+
+        $rawFiles = $request->file('attachments') ?? $request->file('pkpt_file');
+        if ($rawFiles) {
+            $files = is_array($rawFiles) ? $rawFiles : [$rawFiles];
+            foreach ($files as $file) {
+                if (!$file || !$file->isValid()) continue;
+                $originalName = $file->getClientOriginalName();
+                $uniqueId = uniqid();
+                $fileName = time() . '_' . $uniqueId . '_' . $originalName;
+                $filePath = $file->storeAs('pkpt_files', $fileName, 'public');
+
+                $document->attachments()->create([
+                    'uploaded_by' => Auth::id() ?? 1,
+                    'file_name'   => $originalName,
+                    'file_path'   => $filePath,
+                    'file_type'   => $file->getClientMimeType(),
+                    'file_size'   => $file->getSize(),
+                    'description' => 'Dokumen PKPT',
+                ]);
             }
 
-            $file = $request->file('pkpt_file');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('pkpt_files', $fileName, 'public');
-            
-            $pkpt->file_name = $file->getClientOriginalName();
-            $pkpt->file_path = $filePath;
-            $pkpt->file_type = $file->getClientMimeType();
-            $pkpt->file_size = $file->getSize();
+            $latestAtt = $document->attachments()->latest()->first();
+            if ($latestAtt) {
+                $pkpt->file_name = $latestAtt->file_name;
+                $pkpt->file_path = $latestAtt->file_path;
+                $pkpt->file_size = $latestAtt->file_size;
+                $pkpt->file_type = $latestAtt->file_type;
+                $pkpt->save();
+            }
         }
-        
-        $pkpt->save();
 
         return redirect()->route('pkpt.show', $pkpt)->with('success', 'PKPT berhasil diperbarui.');
     }
 
     public function show(Pkpt $pkpt)
     {
-        return view('admin.pkpt.show', compact('pkpt'));
+        $document = $this->getOrCreatePkptDocument($pkpt);
+        $document->load('attachments.uploader');
+        $attachments = $document->attachments;
+
+        return view('admin.pkpt.show', compact('pkpt', 'document', 'attachments'));
+    }
+
+    public function destroyAttachment(Pkpt $pkpt, DocumentAttachment $attachment)
+    {
+        $document = $this->getOrCreatePkptDocument($pkpt);
+        if ($attachment->document_id !== $document->id) {
+            abort(404);
+        }
+
+        if ($attachment->file_path && Storage::disk('public')->exists($attachment->file_path)) {
+            Storage::disk('public')->delete($attachment->file_path);
+        }
+        if ($attachment->pdf_path && Storage::disk('public')->exists($attachment->pdf_path)) {
+            Storage::disk('public')->delete($attachment->pdf_path);
+        }
+
+        $attachment->delete();
+
+        $latestAtt = $document->attachments()->latest()->first();
+        if ($latestAtt) {
+            $pkpt->file_name = $latestAtt->file_name;
+            $pkpt->file_path = $latestAtt->file_path;
+            $pkpt->file_size = $latestAtt->file_size;
+            $pkpt->file_type = $latestAtt->file_type;
+        } else {
+            $pkpt->file_name = null;
+            $pkpt->file_path = null;
+            $pkpt->file_size = 0;
+            $pkpt->file_type = null;
+        }
+        $pkpt->save();
+
+        return redirect()->back()->with('success', 'Berkas berhasil dihapus.');
     }
 
     public function destroy(Pkpt $pkpt)
     {
+        $document = $this->getOrCreatePkptDocument($pkpt);
+        foreach ($document->attachments as $att) {
+            if ($att->file_path && Storage::disk('public')->exists($att->file_path)) {
+                Storage::disk('public')->delete($att->file_path);
+            }
+        }
+        $document->attachments()->delete();
+        $document->delete();
+
         if ($pkpt->file_path && Storage::disk('public')->exists($pkpt->file_path)) {
             Storage::disk('public')->delete($pkpt->file_path);
         }
@@ -114,17 +258,115 @@ class PkptController extends Controller
         return redirect()->route('pkpt.index')->with('success', 'PKPT berhasil dihapus.');
     }
 
-    public function viewPkptFile(Pkpt $pkpt)
+    public function viewPkptFile(Pkpt $pkpt, ?DocumentAttachment $attachment = null)
     {
-        if (!$pkpt->file_path || !Storage::disk('public')->exists($pkpt->file_path)) {
-            return redirect()->back()->with('error', 'File tidak ditemukan.');
+        if ($attachment) {
+            $filePath = $attachment->file_path;
+            $fileName = $attachment->file_name;
+            $mimeType = $attachment->file_type ?? 'application/pdf';
+        } else {
+            $document = $this->getOrCreatePkptDocument($pkpt);
+            $attachments = $document->attachments()->get();
+
+            // Jika ada lebih dari 1 file, arahkan ke halaman show agar pengguna bisa memilih file
+            if ($attachments->count() > 1) {
+                return redirect()->route('pkpt.show', $pkpt);
+            }
+
+            if ($attachments->count() === 1) {
+                $filePath = $attachments->first()->file_path;
+                $fileName = $attachments->first()->file_name;
+                $mimeType = $attachments->first()->file_type ?? 'application/pdf';
+            } else {
+                $filePath = $pkpt->file_path;
+                $fileName = $pkpt->file_name;
+                $mimeType = $pkpt->file_type ?? 'application/pdf';
+            }
+        }
+
+        if (!$filePath || !Storage::disk('public')->exists($filePath)) {
+            return redirect()->route('pkpt.show', $pkpt)->with('error', 'File tidak ditemukan.');
         }
 
         return Storage::disk('public')->response(
-            $pkpt->file_path, 
-            $pkpt->file_name,
-            ['Content-Disposition' => 'inline; filename="'.$pkpt->file_name.'"']
+            $filePath, 
+            $fileName,
+            ['Content-Disposition' => 'inline; filename="'.$fileName.'"']
         );
+    }
+
+    public function downloadPkptFile(Pkpt $pkpt, ?DocumentAttachment $attachment = null)
+    {
+        // 1. Jika unduh berkas spesifik
+        if ($attachment) {
+            if (!$attachment->file_path || !Storage::disk('public')->exists($attachment->file_path)) {
+                return redirect()->back()->with('error', 'File tidak ditemukan.');
+            }
+            return Storage::disk('public')->download(
+                $attachment->file_path, 
+                $attachment->file_name
+            );
+        }
+
+        // 2. Ambil berkas-berkas PKPT ini
+        $document = $this->getOrCreatePkptDocument($pkpt);
+        $attachments = $document->attachments()->get();
+
+        // Jika tidak ada attachments, fallback ke pkpt->file_path
+        if ($attachments->isEmpty()) {
+            if ($pkpt->file_path && Storage::disk('public')->exists($pkpt->file_path)) {
+                return Storage::disk('public')->download($pkpt->file_path, $pkpt->file_name);
+            }
+            return redirect()->back()->with('error', 'Belum ada berkas untuk diunduh.');
+        }
+
+        // Jika hanya 1 berkas: langsung unduh file tersebut
+        if ($attachments->count() === 1) {
+            $single = $attachments->first();
+            if ($single->file_path && Storage::disk('public')->exists($single->file_path)) {
+                return Storage::disk('public')->download($single->file_path, $single->file_name);
+            }
+            return redirect()->back()->with('error', 'File tidak ditemukan.');
+        }
+
+        // Jika lebih dari 1 berkas: kompres ke dalam file ZIP
+        $cleanTitle = \Illuminate\Support\Str::slug($pkpt->title) ?: 'PKPT';
+        $zipFileName = 'PKPT_' . $pkpt->period_year . '_' . $cleanTitle . '_Semua_Dokumen.zip';
+        $tempDir = storage_path('app/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        $zipPath = $tempDir . '/' . uniqid('zip_') . '.zip';
+
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+            $usedNames = [];
+            $addedCount = 0;
+
+            foreach ($attachments as $att) {
+                if ($att->file_path && Storage::disk('public')->exists($att->file_path)) {
+                    $realPath = storage_path('app/public/' . $att->file_path);
+                    if (file_exists($realPath)) {
+                        $name = $att->file_name;
+                        if (in_array($name, $usedNames)) {
+                            $ext = pathinfo($name, PATHINFO_EXTENSION);
+                            $base = pathinfo($name, PATHINFO_FILENAME);
+                            $name = $base . '_' . ($addedCount + 1) . ($ext ? '.' . $ext : '');
+                        }
+                        $usedNames[] = $name;
+                        $zip->addFile($realPath, $name);
+                        $addedCount++;
+                    }
+                }
+            }
+            $zip->close();
+
+            if ($addedCount > 0 && file_exists($zipPath)) {
+                return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
+            }
+        }
+
+        return redirect()->back()->with('error', 'Gagal membuat arsip berkas zip.');
     }
 
 

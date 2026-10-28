@@ -9,6 +9,8 @@
     'hint' => 'Format didukung: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG.',
     'existingFiles' => null,
     'badge' => null,
+    'deleteRoute' => null,
+    'deleteRouteParams' => [],
 ])
 
 @php
@@ -24,9 +26,11 @@
     }
 @endphp
 
-<div class="border border-surface-200 rounded-2xl bg-white shadow-sm overflow-hidden" 
+<div class="border rounded-2xl bg-white shadow-sm overflow-hidden transition-all duration-200" 
+     :class="(selectedFiles.length > 0 || @json($filesList->isNotEmpty())) ? 'border-emerald-500 ring-1 ring-emerald-500/20' : 'border-surface-200'" 
      x-data="{
         selectedFiles: [],
+        isDragging: false,
         getDt() {
             if (!this.$el._dt) this.$el._dt = new DataTransfer();
             return this.$el._dt;
@@ -34,29 +38,38 @@
         setDt(newDt) {
             this.$el._dt = newDt;
         },
-        handleFileChange(event) {
-            const input = event.target;
-            const newFiles = Array.from(input.files || []);
-            const dt = this.getDt();
+        addFiles(files) {
+            const fileList = Array.from(files || []);
+            if (fileList.length === 0) return;
 
+            const dt = this.getDt();
             if (@json($multiple)) {
-                for (const file of newFiles) {
+                for (const file of fileList) {
                     const exists = Array.from(dt.files).some(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified);
                     if (!exists) {
                         dt.items.add(file);
                     }
                 }
-                input.files = dt.files;
             } else {
                 const singleDt = new DataTransfer();
-                if (newFiles.length > 0) {
-                    singleDt.items.add(newFiles[0]);
-                }
+                singleDt.items.add(fileList[0]);
                 this.setDt(singleDt);
-                input.files = singleDt.files;
             }
 
+            const input = document.getElementById('{{ $inputId }}');
+            if (input) {
+                input.files = this.getDt().files;
+            }
             this.syncSelectedFiles();
+        },
+        handleFileChange(event) {
+            this.addFiles(event.target.files);
+        },
+        handleDrop(event) {
+            this.isDragging = false;
+            if (event.dataTransfer && event.dataTransfer.files) {
+                this.addFiles(event.dataTransfer.files);
+            }
         },
         removeFile(index) {
             const dt = this.getDt();
@@ -104,10 +117,10 @@
      }">
     
     {{-- Header --}}
-    <div class="p-4 sm:p-5 border-b border-surface-100 bg-surface-50/60">
+    <div class="p-4 sm:p-5 border-b {{ $filesList->isNotEmpty() ? 'border-emerald-200 bg-emerald-50/30' : 'border-surface-100 bg-surface-50/60' }}">
         <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center flex-shrink-0 border border-primary-100">
+                <div class="w-8 h-8 rounded-xl {{ $filesList->isNotEmpty() ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-primary-50 text-primary-600 border border-primary-100' }} flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                     </svg>
@@ -126,6 +139,12 @@
             </div>
 
             <div class="flex items-center gap-2">
+                @if($filesList->isNotEmpty())
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-400 shadow-2xs">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        {{ $filesList->count() }} Berkas Terlampir
+                    </span>
+                @endif
                 @if($multiple)
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary-50 text-primary-700 border border-primary-200">
                         Bisa multi-file
@@ -170,7 +189,7 @@
                         $downloadUrl = is_object($item) ? Storage::url($item->file_path) : Storage::url($item);
                     @endphp
 
-                    <div class="p-2.5 bg-surface-50/70 hover:bg-surface-100/70 border border-surface-200 rounded-xl flex items-center justify-between gap-3 transition-colors">
+                    <div class="p-2.5 bg-emerald-50/20 hover:bg-emerald-50/40 border border-emerald-400 rounded-xl flex items-center justify-between gap-3 transition-colors shadow-2xs">
                         <div class="flex items-center gap-2.5 min-w-0 flex-1">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border {{ $iconStyle }}">
                                 @if($ext === 'pdf')
@@ -188,6 +207,10 @@
                                     {{ $fileName }}
                                 </p>
                                 <div class="flex items-center gap-1.5 text-[10.5px] text-charcoal-muted mt-0.5">
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-400/80">
+                                        <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        Terunggah
+                                    </span>
                                     <span class="font-medium uppercase px-1 py-0.2 rounded border {{ $badgeStyle }}">{{ $ext }}</span>
                                     @if(is_object($item) && isset($item->file_size_formatted))
                                         <span>&bull; {{ $item->file_size_formatted }}</span>
@@ -197,25 +220,28 @@
                         </div>
 
                         <div class="flex items-center gap-1.5 flex-shrink-0">
-                            <a href="{{ $fileUrl }}" target="_blank" title="Lihat Berkas" class="text-primary-600 hover:text-primary-800 bg-white hover:bg-primary-50 border border-surface-200 rounded-lg p-1.5 transition-colors shadow-2xs">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <a href="{{ $fileUrl }}" target="_blank" title="Lihat Berkas" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-90 shadow-sm transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
-                            <a href="{{ $downloadUrl }}" download target="_blank" title="Unduh Berkas" class="text-charcoal hover:text-charcoal-dark bg-white hover:bg-surface-100 border border-surface-200 rounded-lg p-1.5 transition-colors shadow-2xs">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            <a href="{{ $downloadUrl }}" download target="_blank" title="Unduh Berkas" class="btn-icon bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                             </a>
-                            @if(is_object($item) && isset($item->id) && isset($item->document_id))
-                            <form action="{{ route('documents.destroy-attachment', [$item->document_id, $item->id]) }}" 
-                                  method="POST" 
-                                  class="inline-block m-0 p-0 leading-none" 
-                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus berkas ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        title="Hapus Berkas" 
-                                        class="text-red-600 hover:text-red-800 bg-white hover:bg-red-50 border border-surface-200 hover:border-red-200 rounded-lg p-1.5 transition-colors shadow-2xs">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                </button>
-                            </form>
+                            @php
+                                $deleteUrl = null;
+                                if ($deleteRoute && is_object($item) && isset($item->id)) {
+                                    $routeParams = array_merge($deleteRouteParams, ['attachment' => $item->id]);
+                                    $deleteUrl = route($deleteRoute, $routeParams);
+                                } elseif (is_object($item) && isset($item->id) && isset($item->document_id)) {
+                                    $deleteUrl = route('documents.destroy-attachment', [$item->document_id, $item->id]);
+                                }
+                            @endphp
+                            @if($deleteUrl)
+                            <button type="button" 
+                                    onclick="if(confirm('Apakah Anda yakin ingin menghapus berkas \'{{ addslashes($fileName) }}\'?')) { const f = document.createElement('form'); f.method = 'POST'; f.action = '{{ $deleteUrl }}'; const t = document.createElement('input'); t.type = 'hidden'; t.name = '_token'; t.value = '{{ csrf_token() }}'; const m = document.createElement('input'); m.type = 'hidden'; m.name = '_method'; m.value = 'DELETE'; f.appendChild(t); f.appendChild(m); document.body.appendChild(f); f.submit(); }"
+                                    title="Hapus Berkas" 
+                                    class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-90 shadow-sm transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
                             @endif
                         </div>
                     </div>
@@ -225,7 +251,7 @@
     @endif
 
     {{-- Live Preview of Selected Files (Alpine.js) --}}
-    <div x-show="selectedFiles.length > 0" x-cloak class="p-4 sm:p-5 border-b border-surface-100 bg-emerald-50/30">
+    <div x-show="selectedFiles.length > 0" x-cloak class="p-4 sm:p-5 border-b border-emerald-300 bg-emerald-50/40">
         <div class="flex items-center justify-between text-xs font-semibold text-emerald-800 mb-2">
             <span class="flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -246,9 +272,9 @@
         </div>
         <div class="space-y-1.5 max-h-52 overflow-y-auto pr-1">
             <template x-for="(f, i) in selectedFiles" :key="i">
-                <div class="p-2 bg-white border border-emerald-200 rounded-lg flex items-center justify-between text-xs shadow-2xs gap-2">
+                <div class="p-2 bg-white border border-emerald-400 rounded-lg flex items-center justify-between text-xs shadow-2xs gap-2">
                     <div class="flex items-center gap-2 truncate flex-1 min-w-0">
-                        <span class="font-bold uppercase text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200" x-text="f.ext"></span>
+                        <span class="font-bold uppercase text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-400" x-text="f.ext"></span>
                         <span class="font-medium text-charcoal truncate" x-text="f.name"></span>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
@@ -265,21 +291,64 @@
         </div>
     </div>
 
-    {{-- Upload Input Bar --}}
-    <div class="p-4 sm:p-5 bg-surface-50/50">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-2.5">
+    {{-- Upload Dropzone Area --}}
+    <div class="p-4 sm:p-6 bg-surface-50/40">
+        <div class="relative border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center transition-all duration-200 group flex flex-col items-center justify-center min-h-[160px] cursor-pointer"
+             :class="isDragging 
+                 ? 'border-primary-500 bg-primary-50/80 ring-4 ring-primary-100 shadow-sm' 
+                 : 'border-surface-300 hover:border-primary-400 bg-white hover:bg-surface-50/70'">
+
+            {{-- Transparent Native File Input Overlay --}}
             <input type="file" 
                    name="{{ $inputName }}" 
                    id="{{ $inputId }}"
+                   x-ref="fileInput"
                    @if($multiple) multiple @endif
                    @if($required && $filesList->isEmpty()) required @endif
                    accept="{{ $accept }}"
                    @change="handleFileChange($event)"
-                   class="form-input flex-1 text-xs bg-white h-[42px] cursor-pointer file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 shadow-2xs transition-all">
+                   @dragenter.prevent="isDragging = true"
+                   @dragover.prevent="isDragging = true"
+                   @dragleave.prevent="isDragging = false"
+                   @drop.prevent="handleDrop($event)"
+                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                   title="Klik atau seret & lepas berkas ke sini">
+
+            {{-- Upload Icon --}}
+            <div :class="isDragging ? 'bg-primary-600 text-white scale-110 shadow-md ring-4 ring-primary-200' : 'bg-primary-50 text-primary-600 group-hover:scale-105 group-hover:bg-primary-100 group-hover:text-primary-700'"
+                 class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center mb-3 transition-all duration-200 border border-primary-200/60 shadow-2xs pointer-events-none">
+                <template x-if="!isDragging">
+                    <svg class="w-6 h-6 sm:w-7 sm:h-7 transform transition-transform group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                </template>
+                <template x-if="isDragging">
+                    <svg class="w-6 h-6 sm:w-7 sm:h-7 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                    </svg>
+                </template>
+            </div>
+
+            {{-- Text Instructions --}}
+            <div class="space-y-1.5 max-w-md pointer-events-none">
+                <template x-if="isDragging">
+                    <p class="text-sm sm:text-base font-bold text-primary-700 animate-pulse">
+                        Lepaskan berkas di sini untuk menambahkan berkas...
+                    </p>
+                </template>
+                <template x-if="!isDragging">
+                    <p class="text-sm sm:text-base text-charcoal font-semibold">
+                        <span class="text-primary-600 group-hover:text-primary-700 underline decoration-primary-300 underline-offset-2">Klik untuk memilih berkas</span> 
+                        atau seret & lepas berkas ke sini
+                    </p>
+                </template>
+                <p class="text-xs text-charcoal-muted">
+                    {{ $hint }}
+                    @if($multiple && !str_contains($hint, 'sekaligus') && !str_contains($hint, 'bertahap'))
+                        <span class="font-medium text-primary-700">(Bisa memilih beberapa berkas sekaligus atau bertahap).</span>
+                    @endif
+                </p>
+            </div>
         </div>
-        <p class="text-[11px] text-charcoal-muted mt-2 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            {{ $hint }} @if($multiple) (Bisa memilih beberapa berkas sekaligus atau memilih bertahap). @endif
-        </p>
     </div>
 </div>

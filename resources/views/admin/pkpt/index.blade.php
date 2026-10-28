@@ -54,9 +54,22 @@
             </thead>
             <tbody>
                 @forelse($pkpts as $index => $pkpt)
+                @php
+                    $fileCount = $pkpt->file_count;
+                @endphp
                 <tr>
                     <td class="text-center text-charcoal-muted">{{ $pkpts->firstItem() + $index }}</td>
-                    <td class="font-medium text-charcoal">{{ $pkpt->title }}</td>
+                    <td class="font-medium text-charcoal">
+                        <div class="flex flex-col items-start gap-1">
+                            <span class="text-charcoal font-semibold text-sm">{{ $pkpt->title }}</span>
+                            @if($fileCount > 1)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-primary-50 text-primary-700 border border-primary-200/80 shadow-2xs">
+                                    <svg class="w-3 h-3 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                    {{ $fileCount }} Berkas
+                                </span>
+                            @endif
+                        </div>
+                    </td>
                     <td>{{ $pkpt->period_year }}</td>
                     <td>
                         <span class="badge {{ match($pkpt->status) { 'draft' => 'badge-draft', 'pending_kspi', 'pending_direktur' => 'badge-pending', 'approved' => 'badge-approved', 'rejected' => 'badge-rejected', default => 'badge-draft' } }}">
@@ -67,9 +80,27 @@
                     <td class="text-charcoal-muted">{{ $pkpt->created_at->format('d/m/Y') }}</td>
                     <td class="text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <a href="{{ route('pkpt.show', $pkpt) }}" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-80 shadow-sm transition-all" title="Lihat Detail">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            </a>
+                            @if($fileCount === 1)
+                                <a href="{{ route('pkpt.view-file', $pkpt) }}" target="_blank" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-80 shadow-sm transition-all" title="Lihat Berkas (1 Dokumen)">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </a>
+                                <a href="{{ route('pkpt.download', $pkpt) }}" class="btn-icon bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-80 shadow-sm transition-all" title="Unduh Berkas">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                </a>
+                            @elseif($fileCount > 1)
+                                <a href="{{ route('pkpt.show', $pkpt) }}" class="btn-icon relative bg-primary-600 text-white hover:bg-primary-500 hover:opacity-90 shadow-sm transition-all" title="Lihat Detail ({{ $fileCount }} Berkas)">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    <span class="absolute -top-1 -right-1 px-1 min-w-[15px] h-[15px] text-[9.5px] font-bold bg-amber-400 text-charcoal rounded-full flex items-center justify-center border border-white leading-none shadow-2xs">{{ $fileCount }}</span>
+                                </a>
+                                <a href="{{ route('pkpt.download', $pkpt) }}" class="btn-icon relative bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all" title="Unduh Semua ({{ $fileCount }} Berkas .ZIP)">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    <span class="absolute -top-1 -right-1 px-1 min-w-[15px] h-[15px] text-[9.5px] font-bold bg-amber-400 text-charcoal rounded-full flex items-center justify-center border border-white leading-none shadow-2xs">ZIP</span>
+                                </a>
+                            @else
+                                <a href="{{ route('pkpt.show', $pkpt) }}" class="btn-icon bg-surface-200 text-charcoal-muted hover:bg-surface-300 shadow-sm transition-all" title="Lihat Detail (Belum ada berkas)">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </a>
+                            @endif
                             
                             @can('pkpt.edit')
                             <a href="{{ route('pkpt.edit', $pkpt) }}" class="btn-icon bg-amber-500 text-white hover:bg-amber-400 hover:opacity-80 shadow-sm transition-all" title="Edit">
@@ -108,14 +139,25 @@
     {{-- Mobile Card View --}}
     <div class="md:hidden space-y-4">
         @forelse($pkpts as $index => $pkpt)
+        @php
+            $fileCount = $pkpt->file_count;
+        @endphp
         <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
             <div class="p-4">
                 <div class="flex justify-between items-start gap-4 mb-3">
-                    <h3 class="font-semibold text-charcoal text-base leading-snug break-words line-clamp-2">
-                        <a href="{{ route('pkpt.show', $pkpt) }}" class="hover:text-primary-600 transition-colors">
-                            {{ $pkpt->title }}
-                        </a>
-                    </h3>
+                    <div class="flex flex-col items-start gap-1">
+                        <h3 class="font-semibold text-charcoal text-base leading-snug break-words line-clamp-2">
+                            <a href="{{ route('pkpt.show', $pkpt) }}" class="hover:text-primary-600 transition-colors">
+                                {{ $pkpt->title }}
+                            </a>
+                        </h3>
+                        @if($fileCount > 1)
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-primary-50 text-primary-700 border border-primary-200/80 shadow-2xs">
+                                <svg class="w-3 h-3 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                {{ $fileCount }} Berkas
+                            </span>
+                        @endif
+                    </div>
                     <span class="flex-shrink-0 badge {{ match($pkpt->status) { 'draft' => 'badge-draft', 'pending_kspi', 'pending_direktur' => 'badge-pending', 'approved' => 'badge-approved', 'rejected' => 'badge-rejected', default => 'badge-draft' } }}">
                         {{ $pkpt->status_label }}
                     </span>
@@ -137,10 +179,28 @@
                 </div>
             </div>
             
-            <div class="bg-surface-50 px-4 py-3 flex items-center justify-end gap-3 border-t border-surface-200">
-                <a href="{{ route('pkpt.show', $pkpt) }}" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-80 shadow-sm transition-all" title="Lihat Detail">
+            <div class="bg-surface-50 px-4 py-3 flex items-center justify-end gap-2 border-t border-surface-200">
+                @if($fileCount === 1)
+                <a href="{{ route('pkpt.view-file', $pkpt) }}" target="_blank" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-80 shadow-sm transition-all" title="Lihat Berkas (1 Dokumen)">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                 </a>
+                <a href="{{ route('pkpt.download', $pkpt) }}" class="btn-icon bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-80 shadow-sm transition-all" title="Unduh Berkas">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                </a>
+                @elseif($fileCount > 1)
+                <a href="{{ route('pkpt.show', $pkpt) }}" class="btn-icon relative bg-primary-600 text-white hover:bg-primary-500 hover:opacity-90 shadow-sm transition-all" title="Lihat Detail ({{ $fileCount }} Berkas)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    <span class="absolute -top-1 -right-1 px-1 min-w-[15px] h-[15px] text-[9.5px] font-bold bg-amber-400 text-charcoal rounded-full flex items-center justify-center border border-white leading-none shadow-2xs">{{ $fileCount }}</span>
+                </a>
+                <a href="{{ route('pkpt.download', $pkpt) }}" class="btn-icon relative bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all" title="Unduh Semua ({{ $fileCount }} Berkas .ZIP)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span class="absolute -top-1 -right-1 px-1 min-w-[15px] h-[15px] text-[9.5px] font-bold bg-amber-400 text-charcoal rounded-full flex items-center justify-center border border-white leading-none shadow-2xs">ZIP</span>
+                </a>
+                @else
+                <a href="{{ route('pkpt.show', $pkpt) }}" class="btn-icon bg-surface-200 text-charcoal-muted hover:bg-surface-300 shadow-sm transition-all" title="Lihat Detail (Belum ada berkas)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </a>
+                @endif
                 
                 @can('pkpt.edit')
                 <a href="{{ route('pkpt.edit', $pkpt) }}" class="btn-icon bg-amber-500 text-white hover:bg-amber-400 hover:opacity-80 shadow-sm transition-all" title="Edit">

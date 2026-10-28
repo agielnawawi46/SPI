@@ -81,26 +81,30 @@
             <span class="badge badge-approved">Terunggah</span>
         </div>
         <div class="card-body p-5">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-surface-200 rounded-xl bg-white hover:border-surface-300 transition-all">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-emerald-400 rounded-xl bg-emerald-50/20 hover:bg-emerald-50/40 hover:border-emerald-500 transition-all shadow-2xs">
                 <div class="flex items-center gap-3.5 overflow-hidden">
                     <div class="p-3 {{ $iconColor }} rounded-xl flex-shrink-0 shadow-sm">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                     </div>
                     <div class="truncate">
-                        <h4 class="text-sm font-bold text-charcoal truncate" title="{{ $fileName }}">{{ $fileName }}</h4>
+                        <div class="flex items-center gap-2">
+                            <h4 class="text-sm font-bold text-charcoal truncate" title="{{ $fileName }}">{{ $fileName }}</h4>
+                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-400/80">
+                                <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                Terunggah
+                            </span>
+                        </div>
                         <p class="text-xs text-charcoal-muted mt-1">
                             Dokumen lampiran terkait auditee dan jadwal objek audit ini
                         </p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
-                    <a href="{{ Storage::url($lainnya->attachment_path) }}" target="_blank" class="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm">
+                <div class="flex items-center gap-1.5 flex-shrink-0 self-end sm:self-auto">
+                    <a href="{{ Storage::url($lainnya->attachment_path) }}" target="_blank" class="btn-icon bg-primary-500 text-white hover:bg-primary-600 shadow-sm transition-all" title="Lihat Dokumen">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        Lihat Dokumen
                     </a>
-                    <a href="{{ Storage::url($lainnya->attachment_path) }}" download class="btn-secondary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm">
+                    <a href="{{ Storage::url($lainnya->attachment_path) }}" download class="btn-icon bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm transition-all" title="Unduh Dokumen">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                        Unduh
                     </a>
                 </div>
             </div>

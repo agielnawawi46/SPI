@@ -399,3 +399,16 @@
     animation: float-subtle 5s ease-in-out infinite;
 }
 
+/* ============================================
+   UPLOAD LOADING ANIMATION
+   ============================================ */
+@keyframes upload-shimmer {
+    0% { margin-left: -50%; width: 50%; }
+    50% { margin-left: 25%; width: 55%; }
+    100% { margin-left: 100%; width: 40%; }
+}
+.animate-upload-shimmer {
+    animation: upload-shimmer 1.5s infinite ease-in-out;
+}
+
+

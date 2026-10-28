@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>SPI PT Pelayanan Energi Batam</title>
-    <meta name="description" content="Sistem Informasi Intranet Satuan Pengawasan Internal PT Pelayanan Energi Batam">
+    <title>SIMAK — Sistem Informasi Manajemen Audit & Kepatuhan</title>
+    <meta name="description" content="SIMAK - Sistem Informasi Manajemen Audit & Kepatuhan PT Pelayanan Energi Batam">
     <link rel="icon" type="image/png" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
     <link rel="shortcut icon" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -47,7 +47,7 @@
                 
                 <div class="hidden md:flex items-center gap-2.5 pl-4 border-l border-surface-200 flex-shrink-0">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-primary-50 text-primary-700">
-                        Intranet SPI
+                        SIMAK
                     </span>
                 </div>
             </div>
@@ -108,14 +108,14 @@
                     {{-- Institutional Pill Badge --}}
                     <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-white/95 border border-primary-200/80 text-primary-700 shadow-sm backdrop-blur-sm mb-3 sm:mb-4 lg:mb-4.5 transition-transform hover:scale-105">
                         <span class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>
-                        <span>Satuan Pengawasan Internal • PT PEB</span>
+                        <span>SIMAK • PT Pelayanan Energi Batam</span>
                     </div>
 
                     {{-- Main Title --}}
                     <h1 class="text-3xl sm:text-5xl lg:text-5xl xl:text-[3.5rem] 2xl:text-6xl font-extrabold tracking-tight text-charcoal leading-[1.14] sm:leading-[1.10] mb-3.5 sm:mb-4.5 lg:mb-5">
-                        Sistem Informasi <br>
+                        SIMAK <br>
                         <span class="bg-gradient-to-r from-primary-600 via-primary-500 to-teal-500 bg-clip-text text-transparent">
-                            Pengawasan Internal
+                            Sistem Informasi Manajemen Audit & Kepatuhan
                         </span>
                     </h1>
 
@@ -128,7 +128,7 @@
                     <div class="lg:hidden w-full flex items-center justify-center my-3 sm:my-4 relative">
                         <div class="absolute w-52 sm:w-64 h-52 sm:h-64 bg-gradient-to-tr from-primary-300/30 via-teal-200/20 to-amber-200/15 rounded-full blur-2xl -z-10 pointer-events-none"></div>
                         <img src="{{ asset('cart.png') }}?v={{ filemtime(public_path('cart.png')) }}" 
-                             alt="Sistem Informasi Pengawasan Internal - PT Pelayanan Energi Batam" 
+                             alt="SIMAK - Sistem Informasi Manajemen Audit & Kepatuhan - PT Pelayanan Energi Batam" 
                              class="w-full max-w-[240px] sm:max-w-[320px] max-h-[190px] sm:max-h-[250px] h-auto object-contain filter drop-shadow-xl transition-all duration-300">
                     </div>
 
@@ -182,12 +182,12 @@
                     </div>
 
                     <div class="absolute -bottom-1 xl:-bottom-2 left-4 xl:left-8 z-20 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-surface-200/90 shadow-lg shadow-primary-950/10 flex items-center gap-2 pointer-events-none">
-                        <span class="text-xs font-bold text-primary-600">SPI PLN PEB</span>
+                        <span class="text-xs font-bold text-primary-600">SIMAK PLN PEB</span>
                         <span class="text-xs text-charcoal-muted">| 100% Digital</span>
                     </div>
 
                     <img src="{{ asset('cart.png') }}?v={{ filemtime(public_path('cart.png')) }}" 
-                         alt="Sistem Informasi Pengawasan Internal - PT Pelayanan Energi Batam" 
+                         alt="SIMAK - Sistem Informasi Manajemen Audit & Kepatuhan - PT Pelayanan Energi Batam" 
                          style="max-height: min(450px, calc(100vh - 180px));"
                          class="relative z-10 w-full max-w-[460px] lg:max-w-[480px] xl:max-w-[530px] h-auto object-contain filter drop-shadow-2xl transition-all duration-500 ease-out hover:scale-[1.02]">
                 </div>
@@ -216,7 +216,7 @@
 
                         <div class="mb-5 text-left">
                             <h2 class="text-xl sm:text-2xl font-extrabold text-charcoal tracking-tight">Selamat Datang</h2>
-                            <p class="text-xs sm:text-sm text-charcoal-medium mt-1">Masukkan akun kredensial SPI Anda untuk masuk.</p>
+                            <p class="text-xs sm:text-sm text-charcoal-medium mt-1">Masukkan akun kredensial SIMAK Anda untuk masuk.</p>
                         </div>
 
                         {{-- Session Error --}}
@@ -341,7 +341,7 @@
                 </p>
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span>Sistem Intranet Operasional SPI</span>
+                    <span>SIMAK &bull; Sistem Informasi Manajemen Audit & Kepatuhan</span>
                 </div>
             </div>
         </div>

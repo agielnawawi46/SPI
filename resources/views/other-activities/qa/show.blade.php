@@ -303,7 +303,7 @@
                                     default => 'bg-surface-100 text-charcoal-muted border border-surface-200'
                                 };
                             @endphp
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-surface-200 rounded-xl bg-white hover:border-surface-300 transition-all gap-3 shadow-xs">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-emerald-400 rounded-xl bg-emerald-50/20 hover:bg-emerald-50/40 hover:border-emerald-500 transition-all gap-3 shadow-xs">
                                 <div class="flex items-center gap-3.5 min-w-0">
                                     <div class="w-10 h-10 rounded-lg {{ $iconBg }} flex items-center justify-center flex-shrink-0">
                                         @if($ext === 'pdf')
@@ -317,25 +317,28 @@
                                         @endif
                                     </div>
                                     <div class="truncate">
-                                        <p class="text-sm font-semibold text-charcoal truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="text-sm font-semibold text-charcoal truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</p>
+                                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-400/80">
+                                                <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                Terunggah
+                                            </span>
+                                        </div>
                                         <p class="text-xs text-charcoal-muted mt-0.5">{{ $attachment->file_size_formatted }} &bull; Diunggah {{ $attachment->created_at->format('d/m/Y H:i') }}</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2 flex-shrink-0 self-end sm:self-center">
+                                <div class="flex items-center gap-1.5 flex-shrink-0 self-end sm:self-center">
                                     @if($attachment->pdf_path)
-                                        <a href="{{ Storage::url($attachment->pdf_path) }}" target="_blank" class="btn-primary text-xs py-1.5 px-3 flex items-center gap-1 shadow-sm">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                            Preview
+                                        <a href="{{ Storage::url($attachment->pdf_path) }}" target="_blank" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-90 shadow-sm transition-all" title="Lihat Dokumen">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
                                     @elseif(in_array($ext, ['pdf', 'png', 'jpg', 'jpeg']))
-                                        <a href="{{ Storage::url($attachment->file_path) }}" target="_blank" class="btn-primary text-xs py-1.5 px-3 flex items-center gap-1 shadow-sm">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                            Preview
+                                        <a href="{{ Storage::url($attachment->file_path) }}" target="_blank" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-90 shadow-sm transition-all" title="Lihat Dokumen">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
                                     @endif
-                                    <a href="{{ Storage::url($attachment->file_path) }}" target="_blank" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1 shadow-sm">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                        Unduh
+                                    <a href="{{ Storage::url($attachment->file_path) }}" download target="_blank" class="btn-icon bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all" title="Unduh Dokumen">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                     </a>
                                 </div>
                             </div>
