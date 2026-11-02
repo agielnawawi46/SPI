@@ -89,6 +89,8 @@ Route::middleware(['auth', 'check.active', 'audit.trail'])->group(function () {
         Route::get('/', [\App\Http\Controllers\AssuranceController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\AssuranceController::class, 'create'])->name('create')->middleware('permission:assurance.create');
         Route::post('/', [\App\Http\Controllers\AssuranceController::class, 'store'])->name('store')->middleware('permission:assurance.create');
+        Route::post('/save-header-template', [\App\Http\Controllers\AssuranceController::class, 'saveHeaderTemplate'])->name('save-header-template')->middleware('permission:assurance.create');
+        Route::post('/save-closing-template', [\App\Http\Controllers\AssuranceController::class, 'saveClosingTemplate'])->name('save-closing-template')->middleware('permission:assurance.create');
         Route::get('/{document}', [\App\Http\Controllers\AssuranceController::class, 'show'])->name('show');
         Route::get('/{document}/pdf', [\App\Http\Controllers\AssuranceController::class, 'exportPdf'])->name('pdf');
         Route::get('/{document}/edit', [\App\Http\Controllers\AssuranceController::class, 'edit'])->name('edit')->middleware('permission:assurance.edit');
@@ -135,6 +137,8 @@ Route::middleware(['auth', 'check.active', 'audit.trail'])->group(function () {
         Route::get('/qa', [\App\Http\Controllers\OtherActivityController::class, 'qaIndex'])->name('qa.index')->middleware('permission:assurance.view');
         Route::get('/qa/create', [\App\Http\Controllers\OtherActivityController::class, 'qaCreate'])->name('qa.create')->middleware('permission:assurance.create');
         Route::post('/qa', [\App\Http\Controllers\OtherActivityController::class, 'qaStore'])->name('qa.store')->middleware('permission:assurance.create');
+        Route::post('/qa/save-header-template', [\App\Http\Controllers\OtherActivityController::class, 'saveQaHeaderTemplate'])->name('qa.save-header-template')->middleware('permission:assurance.create');
+        Route::post('/qa/save-closing-template', [\App\Http\Controllers\OtherActivityController::class, 'saveQaClosingTemplate'])->name('qa.save-closing-template')->middleware('permission:assurance.create');
         Route::get('/qa/{document}', [\App\Http\Controllers\OtherActivityController::class, 'qaShow'])->name('qa.show')->middleware('permission:assurance.view');
         Route::get('/qa/{document}/pdf', [\App\Http\Controllers\OtherActivityController::class, 'qaExportPdf'])->name('qa.pdf')->middleware('permission:assurance.view');
         Route::get('/qa/{document}/edit', [\App\Http\Controllers\OtherActivityController::class, 'qaEdit'])->name('qa.edit')->middleware('permission:assurance.edit');

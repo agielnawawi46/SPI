@@ -30,41 +30,41 @@
 
     /* --- Sidebar --- */
     .sidebar {
-        @apply fixed inset-y-0 left-0 z-[100] w-64 bg-white border-r border-surface-200 flex flex-col transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0;
+        @apply fixed inset-y-0 left-0 z-[100] w-64 bg-sidebar-bg border-r border-sidebar-border flex flex-col transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0;
     }
     .sidebar.mobile-open {
         @apply translate-x-0;
     }
     .sidebar-logo {
-        @apply flex items-center gap-3 px-5 h-20 border-b border-surface-200 flex-shrink-0;
+        @apply flex items-center gap-3 px-5 h-20 border-b border-sidebar-border flex-shrink-0 bg-sidebar-bg;
     }
     .sidebar-logo-text {
         @apply text-charcoal font-bold text-sm leading-tight;
     }
     .sidebar-section-title {
-        @apply text-xs font-semibold uppercase tracking-widest text-charcoal-muted px-5 pt-5 pb-2;
+        @apply text-[11px] font-bold uppercase tracking-wider text-charcoal/70 px-5 pt-5 pb-2;
     }
     .sidebar-link {
-        @apply flex items-center gap-3 px-5 py-2.5 text-sm text-charcoal font-medium rounded-lg mx-2 transition-all duration-150 hover:bg-primary-50 hover:text-primary-600;
+        @apply flex items-center gap-3 px-4 py-2.5 text-sm text-charcoal font-medium rounded-xl mx-2 transition-all duration-150 hover:bg-white hover:text-primary-700 hover:shadow-sm;
     }
     .sidebar-link.active {
-        @apply bg-primary-50 text-primary-700 font-semibold;
+        @apply bg-white text-primary-700 font-bold shadow-sm border border-sidebar-border/50;
     }
     .sidebar-link svg {
         @apply w-[18px] h-[18px] flex-shrink-0;
     }
     .sidebar-sublink {
-        @apply flex items-center gap-2 pl-[46px] pr-5 py-2.5 mx-2 text-sm font-medium text-charcoal rounded-lg hover:text-primary-600 hover:bg-primary-50/50 transition-all duration-200 relative;
+        @apply flex items-center gap-2 pl-[42px] pr-4 py-2 mx-2 text-sm font-medium text-charcoal/90 rounded-lg hover:text-primary-700 hover:bg-white/80 transition-all duration-150 relative;
     }
     .sidebar-sublink::before {
         content: '';
-        @apply absolute left-[26px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-surface-200 transition-all duration-200;
+        @apply absolute left-[24px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-charcoal/30 transition-all duration-200;
     }
     .sidebar-sublink:hover::before {
-        @apply bg-primary-400 scale-125;
+        @apply bg-primary-500 scale-125;
     }
     .sidebar-sublink.active {
-        @apply text-primary-600 bg-primary-50/50;
+        @apply text-primary-700 font-bold bg-white shadow-sm border border-sidebar-border/40;
     }
     .sidebar-sublink.active::before {
         @apply bg-primary-600 scale-[1.75];

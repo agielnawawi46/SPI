@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\FollowUp;
+use App\Models\Setting;
 use App\Traits\HandlesDocumentAttachments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -388,6 +389,62 @@ class OtherActivityController extends Controller
         return view('other-activities.qa.index', compact('documents', 'documentType', 'typeSlug', 'documentTypes'));
     }
 
+    public function saveQaHeaderTemplate(Request $request)
+    {
+        $validated = $request->validate([
+            'header_text'       => 'nullable|string|max:255',
+            'tanggal_formulir'  => 'nullable|date',
+            'judul_dokumen'     => 'nullable|string|max:255',
+            'title'             => 'nullable|string|max:255',
+            'deskripsi_pembuka' => 'nullable|string',
+        ]);
+
+        $templateData = [
+            'header_text'       => $validated['header_text'] ?? 'FMR-003-14',
+            'tanggal_formulir'  => $validated['tanggal_formulir'] ?? date('Y-m-d'),
+            'judul_dokumen'     => $validated['judul_dokumen'] ?? 'SURAT TUGAS AUDIT QA',
+            'title'             => $validated['title'] ?? '',
+            'deskripsi_pembuka' => $validated['deskripsi_pembuka'] ?? 'Dalam rangka melaksanakan quality assurance di lingkungan Perusahaan sesuai kriteria yang berlaku, maka dengan ini ditugaskan kepada :',
+            'updated_at'        => now()->toIso8601String(),
+            'updated_by'        => Auth::user()->name,
+        ];
+
+        Setting::set('qa_stg_template', $templateData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Format penomoran dan header dokumen QA berhasil disimpan sebagai default berikutnya.',
+            'data'    => $templateData,
+        ]);
+    }
+
+    public function saveQaClosingTemplate(Request $request)
+    {
+        $validated = $request->validate([
+            'deskripsi_penutup' => 'nullable|string',
+            'tgl_stg'           => 'nullable|date',
+            'jabatan_direktur'  => 'nullable|string|max:255',
+            'nama_direktur'     => 'nullable|string|max:255',
+        ]);
+
+        $closingData = [
+            'deskripsi_penutup' => $validated['deskripsi_penutup'] ?? 'Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.',
+            'tgl_stg'           => $validated['tgl_stg'] ?? null,
+            'jabatan_direktur'  => $validated['jabatan_direktur'] ?? 'Plt. Direktur PT PEB',
+            'nama_direktur'     => $validated['nama_direktur'] ?? 'SAMSUL BAHRI',
+            'updated_at'        => now()->toIso8601String(),
+            'updated_by'        => Auth::user()->name,
+        ];
+
+        Setting::set('qa_stg_closing_template', $closingData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Format penutup & penandatangan QA berhasil disimpan sebagai default berikutnya.',
+            'data'    => $closingData,
+        ]);
+    }
+
     public function qaCreate(Request $request)
     {
         abort_if(!Auth::user()->hasRole(['admin', 'auditor', 'kspi']), 403, 'Anda tidak memiliki hak akses ke halaman ini.');
@@ -401,7 +458,33 @@ class OtherActivityController extends Controller
             return view('other-activities.qa.create-upload', compact('documentTypes', 'selectedType'));
         }
 
-        return view('other-activities.qa.create', compact('documentTypes', 'selectedType'));
+        // Load saved template or fallback to latest QA document
+        $latestQaDoc = Document::whereHas('documentType', fn($q) => $q->where('slug', 'st-qa'))
+            ->latest()
+            ->first();
+
+        $stgTemplate = Setting::get('qa_stg_template');
+        if (!$stgTemplate) {
+            $stgTemplate = [
+                'header_text'       => $latestQaDoc?->header_text ?? 'FMR-003-14',
+                'tanggal_formulir'  => $latestQaDoc?->tanggal_formulir ? \Carbon\Carbon::parse($latestQaDoc->tanggal_formulir)->format('Y-m-d') : date('Y-m-d'),
+                'judul_dokumen'     => $latestQaDoc?->judul_dokumen ?? 'SURAT TUGAS AUDIT QA',
+                'title'             => $latestQaDoc?->title ?? '',
+                'deskripsi_pembuka' => $latestQaDoc?->deskripsi_pembuka ?? 'Dalam rangka melaksanakan quality assurance di lingkungan Perusahaan sesuai kriteria yang berlaku, maka dengan ini ditugaskan kepada :',
+            ];
+        }
+
+        $stgClosingTemplate = Setting::get('qa_stg_closing_template');
+        if (!$stgClosingTemplate) {
+            $stgClosingTemplate = [
+                'deskripsi_penutup' => $latestQaDoc?->deskripsi_penutup ?? 'Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.',
+                'tgl_stg'           => $latestQaDoc?->tgl_stg ? $latestQaDoc->tgl_stg->format('Y-m-d') : date('Y-m-d'),
+                'jabatan_direktur'  => $latestQaDoc?->jabatan_direktur ?? 'Plt. Direktur PT PEB',
+                'nama_direktur'     => $latestQaDoc?->nama_direktur ?? 'SAMSUL BAHRI',
+            ];
+        }
+
+        return view('other-activities.qa.create', compact('documentTypes', 'selectedType', 'stgTemplate', 'stgClosingTemplate'));
     }
 
     public function qaStore(Request $request)
@@ -447,6 +530,8 @@ class OtherActivityController extends Controller
             'tgl_stg'          => 'nullable|date',
             'auditee'          => 'nullable|string|max:255',
             'jadwal_audit'     => 'nullable|string|max:255',
+            'jadwal_mulai'     => 'nullable|date',
+            'jadwal_selesai'   => 'nullable|date|after_or_equal:jadwal_mulai',
             'lingkup_audit'    => 'nullable|string',
             'tujuan_audit'     => 'nullable|string',
             'periode_audit'    => 'nullable|string|max:255',
@@ -463,6 +548,17 @@ class OtherActivityController extends Controller
             'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
+        $jadwalAudit = $request->jadwal_audit;
+        if ($request->filled('jadwal_mulai') && $request->filled('jadwal_selesai')) {
+            \Carbon\Carbon::setLocale('id');
+            $mulai = \Carbon\Carbon::parse($request->jadwal_mulai)->translatedFormat('d F Y');
+            $selesai = \Carbon\Carbon::parse($request->jadwal_selesai)->translatedFormat('d F Y');
+            $jadwalAudit = $mulai . ' s.d. ' . $selesai;
+        } elseif ($request->filled('jadwal_mulai')) {
+            \Carbon\Carbon::setLocale('id');
+            $jadwalAudit = \Carbon\Carbon::parse($request->jadwal_mulai)->translatedFormat('d F Y');
+        }
+
         $dataToStore = [
             'title'            => $request->title,
             'document_type_id' => $request->document_type_id,
@@ -470,7 +566,9 @@ class OtherActivityController extends Controller
             'created_by'       => Auth::id(),
             'tgl_stg'          => $request->tgl_stg,
             'auditee'          => $request->auditee,
-            'jadwal_audit'     => $request->jadwal_audit,
+            'jadwal_audit'     => $jadwalAudit,
+            'jadwal_mulai'     => $request->jadwal_mulai,
+            'jadwal_selesai'   => $request->jadwal_selesai,
             'lingkup_audit'    => $request->lingkup_audit,
             'tujuan_audit'     => $request->tujuan_audit,
             'periode_audit'    => $request->periode_audit,
@@ -530,6 +628,8 @@ class OtherActivityController extends Controller
             'tgl_stg'          => 'nullable|date',
             'auditee'          => 'nullable|string|max:255',
             'jadwal_audit'     => 'nullable|string|max:255',
+            'jadwal_mulai'     => 'nullable|date',
+            'jadwal_selesai'   => 'nullable|date|after_or_equal:jadwal_mulai',
             'lingkup_audit'    => 'nullable|string',
             'tujuan_audit'     => 'nullable|string',
             'periode_audit'    => 'nullable|string|max:255',
@@ -548,7 +648,20 @@ class OtherActivityController extends Controller
         if ($request->has('content'))           $dataToUpdate['content']           = $request->content;
         if ($request->has('tgl_stg'))           $dataToUpdate['tgl_stg']           = $request->tgl_stg;
         if ($request->has('auditee'))           $dataToUpdate['auditee']           = $request->auditee;
-        if ($request->has('jadwal_audit'))      $dataToUpdate['jadwal_audit']      = $request->jadwal_audit;
+        if ($request->has('jadwal_mulai'))     $dataToUpdate['jadwal_mulai']     = $request->jadwal_mulai;
+        if ($request->has('jadwal_selesai'))   $dataToUpdate['jadwal_selesai']   = $request->jadwal_selesai;
+
+        if ($request->filled('jadwal_mulai') && $request->filled('jadwal_selesai')) {
+            \Carbon\Carbon::setLocale('id');
+            $mulai = \Carbon\Carbon::parse($request->jadwal_mulai)->translatedFormat('d F Y');
+            $selesai = \Carbon\Carbon::parse($request->jadwal_selesai)->translatedFormat('d F Y');
+            $dataToUpdate['jadwal_audit'] = $mulai . ' s.d. ' . $selesai;
+        } elseif ($request->filled('jadwal_mulai')) {
+            \Carbon\Carbon::setLocale('id');
+            $dataToUpdate['jadwal_audit'] = \Carbon\Carbon::parse($request->jadwal_mulai)->translatedFormat('d F Y');
+        } elseif ($request->has('jadwal_audit')) {
+            $dataToUpdate['jadwal_audit']      = $request->jadwal_audit;
+        }
         if ($request->has('lingkup_audit'))     $dataToUpdate['lingkup_audit']     = $request->lingkup_audit;
         if ($request->has('tujuan_audit'))      $dataToUpdate['tujuan_audit']      = $request->tujuan_audit;
         if ($request->has('periode_audit'))     $dataToUpdate['periode_audit']     = $request->periode_audit;

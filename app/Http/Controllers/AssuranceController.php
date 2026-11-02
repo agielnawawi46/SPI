@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\DocumentType;
+use App\Models\Setting;
 use App\Traits\HandlesDocumentAttachments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,7 +68,103 @@ class AssuranceController extends Controller
             return view('assurance.create-upload', compact('documentTypes', 'auditType', 'selectedType'));
         }
 
-        return view('assurance.create', compact('documentTypes', 'auditType', 'selectedType'));
+        // Fetch saved header template if available
+        $stgTemplate = Setting::get('stg_template_' . $auditType, Setting::get('stg_template_default', []));
+
+        // If no saved setting yet, fallback to the latest created surat-tugas
+        if (empty($stgTemplate)) {
+            $latestDoc = Document::whereHas('documentType', function ($q) {
+                $q->where('slug', 'surat-tugas');
+            })->where('audit_type', $auditType)->latest()->first();
+
+            if ($latestDoc) {
+                $stgTemplate = [
+                    'header_text'       => $latestDoc->header_text,
+                    'tanggal_formulir'  => $latestDoc->tanggal_formulir ? \Carbon\Carbon::parse($latestDoc->tanggal_formulir)->format('Y-m-d') : null,
+                    'judul_dokumen'     => $latestDoc->judul_dokumen,
+                    'title'             => $latestDoc->title,
+                    'deskripsi_pembuka' => $latestDoc->deskripsi_pembuka,
+                ];
+            }
+        }
+
+        // Fetch saved closing template if available
+        $stgClosingTemplate = Setting::get('stg_closing_template_' . $auditType, Setting::get('stg_closing_template_default', []));
+
+        if (empty($stgClosingTemplate) && isset($latestDoc) && $latestDoc) {
+            $stgClosingTemplate = [
+                'deskripsi_penutup' => $latestDoc->deskripsi_penutup,
+                'tgl_stg'           => $latestDoc->tgl_stg ? \Carbon\Carbon::parse($latestDoc->tgl_stg)->format('Y-m-d') : null,
+                'jabatan_direktur'  => $latestDoc->jabatan_direktur,
+                'nama_direktur'     => $latestDoc->nama_direktur,
+            ];
+        }
+
+        return view('assurance.create', compact('documentTypes', 'auditType', 'selectedType', 'stgTemplate', 'stgClosingTemplate'));
+    }
+
+    public function saveHeaderTemplate(Request $request)
+    {
+        $validated = $request->validate([
+            'audit_type'        => 'required|in:terjadwal,tidak_terjadwal,advisory,all',
+            'header_text'       => 'nullable|string|max:255',
+            'tanggal_formulir'  => 'nullable|date',
+            'judul_dokumen'     => 'nullable|string|max:255',
+            'title'             => 'nullable|string|max:255',
+            'deskripsi_pembuka' => 'nullable|string',
+        ]);
+
+        $auditType = $validated['audit_type'];
+        $templateData = [
+            'header_text'       => $validated['header_text'] ?? 'FMR-003-14',
+            'tanggal_formulir'  => $validated['tanggal_formulir'] ?? date('Y-m-d'),
+            'judul_dokumen'     => $validated['judul_dokumen'] ?? 'SURAT TUGAS AUDIT',
+            'title'             => $validated['title'] ?? '',
+            'deskripsi_pembuka' => $validated['deskripsi_pembuka'] ?? '',
+            'updated_at'        => now()->toIso8601String(),
+            'updated_by'        => Auth::user()->name,
+        ];
+
+        // Save for this specific audit type and as default fallback
+        Setting::set('stg_template_' . $auditType, $templateData);
+        Setting::set('stg_template_default', $templateData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Format penomoran dan header dokumen berhasil disimpan sebagai default berikutnya.',
+            'data'    => $templateData,
+        ]);
+    }
+
+    public function saveClosingTemplate(Request $request)
+    {
+        $validated = $request->validate([
+            'audit_type'        => 'required|in:terjadwal,tidak_terjadwal,advisory,all',
+            'deskripsi_penutup' => 'nullable|string',
+            'tgl_stg'           => 'nullable|date',
+            'jabatan_direktur'  => 'nullable|string|max:255',
+            'nama_direktur'     => 'nullable|string|max:255',
+        ]);
+
+        $auditType = $validated['audit_type'];
+        $closingData = [
+            'deskripsi_penutup' => $validated['deskripsi_penutup'] ?? 'Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.',
+            'tgl_stg'           => $validated['tgl_stg'] ?? null,
+            'jabatan_direktur'  => $validated['jabatan_direktur'] ?? 'Plt. Direktur PT PEB',
+            'nama_direktur'     => $validated['nama_direktur'] ?? 'SAMSUL BAHRI',
+            'updated_at'        => now()->toIso8601String(),
+            'updated_by'        => Auth::user()->name,
+        ];
+
+        // Save for this specific audit type and as default fallback
+        Setting::set('stg_closing_template_' . $auditType, $closingData);
+        Setting::set('stg_closing_template_default', $closingData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Format penutup & penandatangan berhasil disimpan sebagai default berikutnya.',
+            'data'    => $closingData,
+        ]);
     }
 
     public function store(Request $request)
@@ -125,6 +222,8 @@ class AssuranceController extends Controller
             'tgl_stg'          => 'nullable|date',
             'auditee'          => 'nullable|string|max:255',
             'jadwal_audit'     => 'nullable|string|max:255',
+            'jadwal_mulai'     => 'nullable|date',
+            'jadwal_selesai'   => 'nullable|date|after_or_equal:jadwal_mulai',
             'lingkup_audit'    => 'nullable|string',
             'ketua_tim'        => 'nullable|string|max:255',
             'anggota_tim'      => 'nullable|string',
@@ -146,6 +245,17 @@ class AssuranceController extends Controller
             'attachment'       => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg',
         ]);
 
+        $jadwalAudit = $request->jadwal_audit;
+        if ($request->filled('jadwal_mulai') && $request->filled('jadwal_selesai')) {
+            \Carbon\Carbon::setLocale('id');
+            $mulai = \Carbon\Carbon::parse($request->jadwal_mulai)->translatedFormat('d F Y');
+            $selesai = \Carbon\Carbon::parse($request->jadwal_selesai)->translatedFormat('d F Y');
+            $jadwalAudit = $mulai . ' s.d. ' . $selesai;
+        } elseif ($request->filled('jadwal_mulai')) {
+            \Carbon\Carbon::setLocale('id');
+            $jadwalAudit = \Carbon\Carbon::parse($request->jadwal_mulai)->translatedFormat('d F Y');
+        }
+
         $dataToStore = [
             'title'            => $request->title,
             'document_type_id' => $request->document_type_id,
@@ -163,7 +273,9 @@ class AssuranceController extends Controller
             'tgl_distribusi_lha' => $request->tgl_distribusi_lha,
             'tgl_stg'          => $request->tgl_stg,
             'auditee'          => $request->auditee,
-            'jadwal_audit'     => $request->jadwal_audit,
+            'jadwal_audit'     => $jadwalAudit,
+            'jadwal_mulai'     => $request->jadwal_mulai,
+            'jadwal_selesai'   => $request->jadwal_selesai,
             'lingkup_audit'    => $request->lingkup_audit,
             'ketua_tim'        => $request->ketua_tim,
             'anggota_tim'      => $request->anggota_tim,
@@ -268,6 +380,8 @@ class AssuranceController extends Controller
             'tgl_stg'       => 'nullable|date',
             'auditee'       => 'nullable|string|max:255',
             'jadwal_audit'  => 'nullable|string|max:255',
+            'jadwal_mulai'  => 'nullable|date',
+            'jadwal_selesai'=> 'nullable|date|after_or_equal:jadwal_mulai',
             'lingkup_audit' => 'nullable|string',
             'ketua_tim'     => 'nullable|string|max:255',
             'anggota_tim'   => 'nullable|string',
@@ -299,7 +413,20 @@ class AssuranceController extends Controller
         if ($request->has('direview_disahkan_oleh')) $dataToUpdate['direview_disahkan_oleh'] = $request->direview_disahkan_oleh;
         if ($request->has('tgl_stg')) $dataToUpdate['tgl_stg'] = $request->tgl_stg;
         if ($request->has('auditee')) $dataToUpdate['auditee'] = $request->auditee;
-        if ($request->has('jadwal_audit')) $dataToUpdate['jadwal_audit'] = $request->jadwal_audit;
+        if ($request->has('jadwal_mulai')) $dataToUpdate['jadwal_mulai'] = $request->jadwal_mulai;
+        if ($request->has('jadwal_selesai')) $dataToUpdate['jadwal_selesai'] = $request->jadwal_selesai;
+
+        if ($request->filled('jadwal_mulai') && $request->filled('jadwal_selesai')) {
+            \Carbon\Carbon::setLocale('id');
+            $mulai = \Carbon\Carbon::parse($request->jadwal_mulai)->translatedFormat('d F Y');
+            $selesai = \Carbon\Carbon::parse($request->jadwal_selesai)->translatedFormat('d F Y');
+            $dataToUpdate['jadwal_audit'] = $mulai . ' s.d. ' . $selesai;
+        } elseif ($request->filled('jadwal_mulai')) {
+            \Carbon\Carbon::setLocale('id');
+            $dataToUpdate['jadwal_audit'] = \Carbon\Carbon::parse($request->jadwal_mulai)->translatedFormat('d F Y');
+        } elseif ($request->has('jadwal_audit')) {
+            $dataToUpdate['jadwal_audit'] = $request->jadwal_audit;
+        }
         if ($request->has('lingkup_audit')) $dataToUpdate['lingkup_audit'] = $request->lingkup_audit;
         if ($request->has('ketua_tim')) $dataToUpdate['ketua_tim'] = $request->ketua_tim;
         if ($request->has('anggota_tim')) $dataToUpdate['anggota_tim'] = $request->anggota_tim;

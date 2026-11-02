@@ -57,8 +57,54 @@
             {{-- Surat Tugas QA: Full Form --}}
             <template x-if="selectedType == stqaTypeId">
                 <div class="space-y-6">
-                    {{-- BAGIAN 1: Informasi Dokumen & Header --}}
-                    <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                    {{-- BAGIAN 1: Informasi Dokumen & Header (Daftar & Penomoran) --}}
+                    <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden"
+                         x-data="{
+                             headerText: {{ json_encode(old('header_text', $stgTemplate['header_text'] ?? 'FMR-003-14'), JSON_UNESCAPED_SLASHES) }},
+                             tanggalFormulir: {{ json_encode(old('tanggal_formulir', $stgTemplate['tanggal_formulir'] ?? date('Y-m-d')), JSON_UNESCAPED_SLASHES) }},
+                             judulDokumen: {{ json_encode(old('judul_dokumen', $stgTemplate['judul_dokumen'] ?? 'SURAT TUGAS AUDIT QA'), JSON_UNESCAPED_SLASHES) }},
+                             titleNoStq: {{ json_encode(old('title', $stgTemplate['title'] ?? ''), JSON_UNESCAPED_SLASHES) }},
+                             deskripsiPembuka: {{ json_encode(old('deskripsi_pembuka', $stgTemplate['deskripsi_pembuka'] ?? 'Dalam rangka melaksanakan quality assurance di lingkungan Perusahaan sesuai kriteria yang berlaku, maka dengan ini ditugaskan kepada :'), JSON_UNESCAPED_SLASHES) }},
+                             isSavingTemplate: false,
+                             templateSavedSuccess: false,
+                             templateMessage: '',
+                             
+                             async saveAsDefaultTemplate() {
+                                 this.isSavingTemplate = true;
+                                 this.templateSavedSuccess = false;
+                                 this.templateMessage = '';
+                                 try {
+                                     const res = await fetch('{{ route('other-activities.qa.save-header-template') }}', {
+                                         method: 'POST',
+                                         headers: {
+                                             'Content-Type': 'application/json',
+                                             'Accept': 'application/json',
+                                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                         },
+                                         body: JSON.stringify({
+                                             header_text: this.headerText,
+                                             tanggal_formulir: this.tanggalFormulir,
+                                             judul_dokumen: this.judulDokumen,
+                                             title: this.titleNoStq,
+                                             deskripsi_pembuka: this.deskripsiPembuka
+                                         })
+                                     });
+                                     const data = await res.json();
+                                     if (data.success) {
+                                         this.templateSavedSuccess = true;
+                                         this.templateMessage = data.message || 'Format penomoran berhasil disimpan sebagai default berikutnya.';
+                                         setTimeout(() => { this.templateSavedSuccess = false; }, 6000);
+                                     } else {
+                                         alert(data.message || 'Gagal menyimpan format penomoran.');
+                                     }
+                                 } catch (err) {
+                                     console.error(err);
+                                     alert('Terjadi kesalahan saat menyimpan template.');
+                                 } finally {
+                                     this.isSavingTemplate = false;
+                                 }
+                             }
+                         }">
                         <div class="bg-surface-100 px-4 py-3 border-b border-surface-200">
                             <h4 class="font-bold text-charcoal flex items-center gap-2">
                                 <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -68,28 +114,57 @@
                         <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="form-group">
                                 <label class="form-label">No. Formulir</label>
-                                <input type="text" name="header_text" class="form-input w-full" value="{{ old('header_text') }}" placeholder="Contoh: FMR-003-14">
+                                <input type="text" name="header_text" x-model="headerText" class="form-input w-full" value="{{ old('header_text', $stgTemplate['header_text'] ?? 'FMR-003-14') }}" placeholder="Contoh: FMR-003-14">
                                 @error('header_text')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Tanggal Formulir</label>
-                                <input type="date" name="tanggal_formulir" class="form-input w-full" value="{{ old('tanggal_formulir', date('Y-m-d')) }}">
+                                <input type="date" name="tanggal_formulir" x-model="tanggalFormulir" class="form-input w-full" value="{{ old('tanggal_formulir', $stgTemplate['tanggal_formulir'] ?? date('Y-m-d')) }}">
                                 @error('tanggal_formulir')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Judul Surat</label>
-                                <input type="text" name="judul_dokumen" class="form-input" value="{{ old('judul_dokumen', 'SURAT TUGAS AUDIT QA') }}" placeholder="SURAT TUGAS AUDIT QA">
+                                <input type="text" name="judul_dokumen" x-model="judulDokumen" class="form-input" value="{{ old('judul_dokumen', $stgTemplate['judul_dokumen'] ?? 'SURAT TUGAS AUDIT QA') }}" placeholder="SURAT TUGAS AUDIT QA">
                                 @error('judul_dokumen')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                             <div class="form-group">
                                 <label class="form-label">No STQ <span class="text-red-500">*</span></label>
-                                <input type="text" name="title" class="form-input" value="{{ old('title') }}" placeholder="Contoh: NO. 01.STQ/VII/SPI-PEB/2026">
+                                <input type="text" name="title" x-model="titleNoStq" class="form-input" value="{{ old('title', $stgTemplate['title'] ?? '') }}" placeholder="Contoh: NO. 01.STQ/VII/SPI-PEB/2026">
                                 @error('title')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                             <div class="form-group md:col-span-2">
                                 <label class="form-label">Deskripsi Pembuka</label>
-                                <textarea name="deskripsi_pembuka" class="form-textarea w-full bg-surface-100 text-charcoal border-surface-200 cursor-not-allowed" rows="4" readonly>Dalam rangka melaksanakan quality assurance di lingkungan Perusahaan sesuai kriteria yang berlaku, maka dengan ini ditugaskan kepada :</textarea>
+                                <textarea name="deskripsi_pembuka" x-model="deskripsiPembuka" class="form-textarea w-full" rows="4">{{ old('deskripsi_pembuka', $stgTemplate['deskripsi_pembuka'] ?? 'Dalam rangka melaksanakan quality assurance di lingkungan Perusahaan sesuai kriteria yang berlaku, maka dengan ini ditugaskan kepada :') }}</textarea>
                                 @error('deskripsi_pembuka')<p class="form-error">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+
+                        <!-- Feedback Toast & Action Bar (1 Tombol Simpan di Bawah) -->
+                        <div class="px-4 py-3 bg-surface-50 border-t border-surface-100 space-y-2">
+                            <div x-show="templateSavedSuccess" x-transition class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span x-text="templateMessage"></span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <p class="text-xs text-charcoal-muted">
+                                    <span class="font-semibold text-charcoal">Keterangan:</span> Klik <strong>"Simpan Format Penomoran"</strong> agar isian ini otomatis muncul saat pembuatan surat tugas QA berikutnya tanpa reload halaman.
+                                </p>
+                                <button type="button" 
+                                        @click="saveAsDefaultTemplate()" 
+                                        :disabled="isSavingTemplate"
+                                        class="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg shadow-2xs transition-all cursor-pointer flex-shrink-0"
+                                        :class="templateSavedSuccess ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300'">
+                                    <template x-if="!isSavingTemplate && !templateSavedSuccess">
+                                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                                    </template>
+                                    <template x-if="isSavingTemplate">
+                                        <svg class="animate-spin w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                    </template>
+                                    <template x-if="templateSavedSuccess">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </template>
+                                    <span x-text="isSavingTemplate ? 'Menyimpan format...' : (templateSavedSuccess ? 'Format Tersimpan!' : 'Simpan Format Penomoran')"></span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -112,7 +187,7 @@
                                     </button>
                                     <div class="flex items-center gap-2 mb-3">
                                         <span class="bg-primary-100 text-primary-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" x-text="index + 1"></span>
-                                        <span class="text-sm font-semibold text-charcoal">Anggota Tim</span>
+                                        <span class="text-sm font-semibold text-charcoal" x-text="index === 0 ? 'Ketua Tim' : 'Anggota Tim'"></span>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div class="form-group">
@@ -149,8 +224,29 @@
                         </div>
                     </div>
 
-                    {{-- BAGIAN 3: Rincian Penugasan --}}
-                    <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                    {{-- BAGIAN 3: Rincian Penugasan QA --}}
+                    <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden"
+                         x-data="{
+                             jadwalMulai: {{ json_encode(old('jadwal_mulai', ''), JSON_UNESCAPED_SLASHES) }},
+                             jadwalSelesai: {{ json_encode(old('jadwal_selesai', ''), JSON_UNESCAPED_SLASHES) }},
+                             formatDateIndo(dateStr) {
+                                 if (!dateStr) return '';
+                                 const parts = dateStr.split('-');
+                                 if (parts.length !== 3) return dateStr;
+                                 const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                 const day = parts[2];
+                                 const month = months[parseInt(parts[1], 10) - 1] || '';
+                                 const year = parts[0];
+                                 return `${day} ${month} ${year}`.trim();
+                             },
+                             get formattedJadwal() {
+                                 const m = this.formatDateIndo(this.jadwalMulai);
+                                 const s = this.formatDateIndo(this.jadwalSelesai);
+                                 if (m && s) return `${m} s.d. ${s}`;
+                                 if (m) return m;
+                                 return '';
+                             }
+                         }">
                         <div class="bg-surface-100 px-4 py-3 border-b border-surface-200">
                             <h4 class="font-bold text-charcoal flex items-center gap-2">
                                 <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
@@ -173,16 +269,90 @@
                                 <textarea name="tujuan_audit" class="form-textarea w-full" rows="3" placeholder="Menilai kualitas pelaksanaan audit...">{{ old('tujuan_audit') }}</textarea>
                                 @error('tujuan_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Waktu Pelaksanaan QA <span class="text-red-500">*</span></label>
-                                <input type="text" name="jadwal_audit" class="form-input w-full" value="{{ old('jadwal_audit') }}" placeholder="Contoh: 03 Agustus s.d. 11 September 2026">
-                                @error('jadwal_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
+
+                            <!-- Waktu Pelaksanaan & Sampai Dengan (2 Input Kalender) -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="form-group">
+                                    <label class="form-label">Waktu Pelaksanaan <span class="text-red-500">*</span></label>
+                                    <input type="date" 
+                                           name="jadwal_mulai" 
+                                           x-model="jadwalMulai" 
+                                           class="form-input w-full cursor-pointer" 
+                                           value="{{ old('jadwal_mulai') }}">
+                                    @error('jadwal_mulai')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Sampai Dengan <span class="text-red-500">*</span></label>
+                                    <input type="date" 
+                                           name="jadwal_selesai" 
+                                           x-model="jadwalSelesai" 
+                                           :min="jadwalMulai" 
+                                           class="form-input w-full cursor-pointer" 
+                                           value="{{ old('jadwal_selesai') }}">
+                                    @error('jadwal_selesai')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
+                                </div>
                             </div>
+
+                            <!-- Preview Format Waktu Pelaksanaan di Dokumen QA -->
+                            <div x-show="jadwalMulai || jadwalSelesai" x-transition class="bg-primary-50/70 border border-primary-200/80 rounded-lg p-3 text-xs text-primary-900 flex items-center gap-2.5">
+                                <svg class="w-4 h-4 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <div>
+                                    <span class="text-charcoal-light">Format Waktu Pelaksanaan di Dokumen:</span>
+                                    <span class="font-bold text-primary-800 ml-1" x-text="formattedJadwal || '-'"></span>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="jadwal_audit" :value="formattedJadwal">
+                            @error('jadwal_audit')<p class="form-error text-xs mt-1">{{ $message }}</p>@enderror
                         </div>
                     </div>
 
                     {{-- BAGIAN 4: Penandatangan & Penutup --}}
-                    <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                    <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden"
+                         x-data="{
+                             deskripsiPenutup: {{ json_encode(old('deskripsi_penutup', $stgClosingTemplate['deskripsi_penutup'] ?? 'Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.'), JSON_UNESCAPED_SLASHES) }},
+                             tglStg: {{ json_encode(old('tgl_stg', $stgClosingTemplate['tgl_stg'] ?? date('Y-m-d')), JSON_UNESCAPED_SLASHES) }},
+                             jabatanDirektur: {{ json_encode(old('jabatan_direktur', $stgClosingTemplate['jabatan_direktur'] ?? 'Plt. Direktur PT PEB'), JSON_UNESCAPED_SLASHES) }},
+                             namaDirektur: {{ json_encode(old('nama_direktur', $stgClosingTemplate['nama_direktur'] ?? 'SAMSUL BAHRI'), JSON_UNESCAPED_SLASHES) }},
+                             isSavingClosing: false,
+                             closingSavedSuccess: false,
+                             closingMessage: '',
+                             
+                             async saveClosingDefault() {
+                                 this.isSavingClosing = true;
+                                 this.closingSavedSuccess = false;
+                                 this.closingMessage = '';
+                                 try {
+                                     const res = await fetch('{{ route('other-activities.qa.save-closing-template') }}', {
+                                         method: 'POST',
+                                         headers: {
+                                             'Content-Type': 'application/json',
+                                             'Accept': 'application/json',
+                                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                         },
+                                         body: JSON.stringify({
+                                             deskripsi_penutup: this.deskripsiPenutup,
+                                             tgl_stg: this.tglStg,
+                                             jabatan_direktur: this.jabatanDirektur,
+                                             nama_direktur: this.namaDirektur
+                                         })
+                                     });
+                                     const data = await res.json();
+                                     if (data.success) {
+                                         this.closingSavedSuccess = true;
+                                         this.closingMessage = data.message || 'Format penutup & penandatangan berhasil disimpan sebagai default berikutnya.';
+                                         setTimeout(() => { this.closingSavedSuccess = false; }, 6000);
+                                     } else {
+                                         alert(data.message || 'Gagal menyimpan format penutup.');
+                                     }
+                                 } catch (err) {
+                                     console.error(err);
+                                     alert('Terjadi kesalahan saat menyimpan template.');
+                                 } finally {
+                                     this.isSavingClosing = false;
+                                 }
+                             }
+                         }">
                         <div class="bg-surface-100 px-4 py-3 border-b border-surface-200">
                             <h4 class="font-bold text-charcoal flex items-center gap-2">
                                 <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
@@ -192,23 +362,52 @@
                         <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="form-group md:col-span-2">
                                 <label class="form-label">Deskripsi Penutup</label>
-                                <textarea name="deskripsi_penutup" class="form-textarea w-full bg-surface-100 text-charcoal border-surface-200 cursor-not-allowed" rows="3" readonly>Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.</textarea>
+                                <textarea name="deskripsi_penutup" x-model="deskripsiPenutup" class="form-textarea w-full" rows="3">{{ old('deskripsi_penutup', $stgClosingTemplate['deskripsi_penutup'] ?? 'Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.') }}</textarea>
                                 @error('deskripsi_penutup')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Tgl Surat</label>
-                                <input type="date" name="tgl_stg" class="form-input" value="{{ old('tgl_stg') }}">
+                                <input type="date" name="tgl_stg" x-model="tglStg" class="form-input" value="{{ old('tgl_stg', $stgClosingTemplate['tgl_stg'] ?? date('Y-m-d')) }}">
                                 @error('tgl_stg')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Jabatan Direktur</label>
-                                <input type="text" name="jabatan_direktur" class="form-input" value="{{ old('jabatan_direktur', 'Plt. Direktur PT PEB') }}">
+                                <input type="text" name="jabatan_direktur" x-model="jabatanDirektur" class="form-input" value="{{ old('jabatan_direktur', $stgClosingTemplate['jabatan_direktur'] ?? 'Plt. Direktur PT PEB') }}">
                                 @error('jabatan_direktur')<p class="form-error">{{ $message }}</p>@enderror
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Nama Direktur</label>
-                                <input type="text" name="nama_direktur" class="form-input" value="{{ old('nama_direktur', 'SAMSUL BAHRI') }}">
+                                <input type="text" name="nama_direktur" x-model="namaDirektur" class="form-input" value="{{ old('nama_direktur', $stgClosingTemplate['nama_direktur'] ?? 'SAMSUL BAHRI') }}">
                                 @error('nama_direktur')<p class="form-error">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+
+                        <!-- Feedback Toast & Action Bar (1 Tombol Simpan di Bawah) -->
+                        <div class="px-4 py-3 bg-surface-50 border-t border-surface-100 space-y-2">
+                            <div x-show="closingSavedSuccess" x-transition class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span x-text="closingMessage"></span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <p class="text-xs text-charcoal-muted">
+                                    <span class="font-semibold text-charcoal">Keterangan:</span> Klik <strong>"Simpan Format Penutup & Penandatangan"</strong> agar isian ini otomatis muncul saat pembuatan surat tugas QA berikutnya tanpa reload halaman.
+                                </p>
+                                <button type="button" 
+                                        @click="saveClosingDefault()" 
+                                        :disabled="isSavingClosing"
+                                        class="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg shadow-2xs transition-all cursor-pointer flex-shrink-0"
+                                        :class="closingSavedSuccess ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300'">
+                                    <template x-if="!isSavingClosing && !closingSavedSuccess">
+                                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                                    </template>
+                                    <template x-if="isSavingClosing">
+                                        <svg class="animate-spin w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                    </template>
+                                    <template x-if="closingSavedSuccess">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </template>
+                                    <span x-text="isSavingClosing ? 'Menyimpan format...' : (closingSavedSuccess ? 'Format Penutup Tersimpan!' : 'Simpan Format Penutup & Penandatangan')"></span>
+                                </button>
                             </div>
                         </div>
                     </div>

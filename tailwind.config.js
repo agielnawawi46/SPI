@@ -29,6 +29,10 @@ export default {
                     200: '#d8dce5',
                     300: '#c4cad4',  // border & subtle dividers
                 },
+                sidebar: {
+                    bg:     '#b2bccb',  // deep soft slate-gray
+                    border: '#9ba8b9',  // distinct border tone
+                },
                 charcoal: {
                     DEFAULT: '#333333',
                     light:   '#363636',

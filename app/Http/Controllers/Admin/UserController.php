@@ -32,10 +32,46 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
+    protected function getStructuredDepartments()
+    {
+        return Department::with(['parent.parent'])
+            ->where('is_active', true)
+            ->get()
+            ->map(function ($dept) {
+                $groupLabel = 'Lainnya';
+                if ($dept->level === 'manager') {
+                    $groupLabel = 'Tingkat Manager / Bidang Utama';
+                } elseif ($dept->level === 'asman') {
+                    $groupLabel = $dept->parent ? $dept->parent->name : 'Unit Khusus (Langsung Direktur)';
+                } elseif ($dept->level === 'staff') {
+                    if ($dept->parent && $dept->parent->parent) {
+                        $groupLabel = $dept->parent->parent->name . ' ➔ ' . $dept->parent->name;
+                    } elseif ($dept->parent) {
+                        $groupLabel = $dept->parent->name;
+                    } else {
+                        $groupLabel = 'Unit Staff';
+                    }
+                } elseif ($dept->level === 'kspi' || $dept->level === 'auditor') {
+                    $groupLabel = 'Satuan Pengawasan Intern (SPI)';
+                }
+
+                return [
+                    'id'             => $dept->id,
+                    'name'           => $dept->name,
+                    'code'           => $dept->code,
+                    'level'          => $dept->level,
+                    'parent_id'      => $dept->parent_id,
+                    'parent_name'    => $dept->parent?->name ?? '',
+                    'hierarchy_path' => $dept->hierarchy_path,
+                    'group_label'    => $groupLabel,
+                ];
+            });
+    }
+
     public function create()
     {
         $roles = Role::all();
-        $departments = Department::where('is_active', true)->get();
+        $departments = $this->getStructuredDepartments();
         return view('admin.users.create', compact('roles', 'departments'));
     }
 
@@ -59,21 +95,25 @@ class UserController extends Controller
             $code = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $customDeptName), 0, 4));
             if (empty($code)) $code = 'CUST';
             
+            $roleLevel = in_array($request->role, ['manager', 'asman', 'staff']) ? $request->role : 'staff';
             $newDept = Department::firstOrCreate(
                 ['name' => $customDeptName],
-                ['code' => $code, 'description' => $customDeptName, 'is_active' => true]
+                ['code' => $code, 'description' => $customDeptName, 'level' => $roleLevel, 'is_active' => true]
             );
             $validated['department_id'] = $newDept->id;
         }
 
         DB::transaction(function () use ($validated) {
+            $role = $validated['role'];
+            $departmentId = in_array($role, ['direktur', 'komisaris']) ? null : ($validated['department_id'] ?? null);
+
             $user = User::create([
                 'name'          => $validated['name'],
                 'email'         => $validated['email'],
                 'password'      => Hash::make($validated['password']),
-                'nip'           => $validated['nip'],
-                'position'      => $validated['position'],
-                'department_id' => $validated['department_id'],
+                'nip'           => $validated['nip'] ?? null,
+                'position'      => $validated['position'] ?? null,
+                'department_id' => $departmentId,
                 'is_active'     => $validated['is_active'] ?? true,
             ]);
 
@@ -86,7 +126,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
-        $departments = Department::where('is_active', true)->get();
+        $departments = $this->getStructuredDepartments();
         return view('admin.users.edit', compact('user', 'roles', 'departments'));
     }
 
@@ -110,9 +150,10 @@ class UserController extends Controller
             $code = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $customDeptName), 0, 4));
             if (empty($code)) $code = 'CUST';
             
+            $roleLevel = in_array($request->role, ['manager', 'asman', 'staff']) ? $request->role : 'staff';
             $newDept = Department::firstOrCreate(
                 ['name' => $customDeptName],
-                ['code' => $code, 'description' => $customDeptName, 'is_active' => true]
+                ['code' => $code, 'description' => $customDeptName, 'level' => $roleLevel, 'is_active' => true]
             );
             $validated['department_id'] = $newDept->id;
         }
@@ -128,12 +169,15 @@ class UserController extends Controller
         }
 
         DB::transaction(function () use ($request, $validated, $user) {
+            $role = $validated['role'];
+            $departmentId = in_array($role, ['direktur', 'komisaris']) ? null : ($validated['department_id'] ?? null);
+
             $updateData = [
                 'name'          => $validated['name'],
                 'email'         => $validated['email'],
-                'nip'           => $validated['nip'],
-                'position'      => $validated['position'],
-                'department_id' => $validated['department_id'],
+                'nip'           => $validated['nip'] ?? null,
+                'position'      => $validated['position'] ?? null,
+                'department_id' => $departmentId,
                 'is_active'     => $request->has('is_active'),
             ];
 
@@ -164,7 +208,19 @@ class UserController extends Controller
 
     public function importForm()
     {
-        return view('admin.users.import');
+        $departments = Department::with('parent')
+            ->where('is_active', true)
+            ->orderByRaw("CASE 
+                WHEN level = 'manager' THEN 1 
+                WHEN level = 'asman' THEN 2 
+                WHEN level = 'staff' THEN 3 
+                WHEN level IN ('kspi', 'auditor') THEN 4 
+                ELSE 5 
+            END")
+            ->orderBy('code')
+            ->get();
+
+        return view('admin.users.import', compact('departments'));
     }
 
     public function import(Request $request)
@@ -196,10 +252,29 @@ class UserController extends Controller
                     // Map Department code to ID
                     $departmentId = null;
                     if (!empty($row['department_code'])) {
-                        $dept = Department::where('code', trim($row['department_code']))->first();
+                        $code = strtoupper(trim($row['department_code']));
+                        $dept = Department::where('code', $code)->first();
                         if ($dept) {
                             $departmentId = $dept->id;
+                        } else {
+                            throw new \Exception("Kode bidang '{$code}' tidak ditemukan di sistem.");
                         }
+                    }
+
+                    // Assign role
+                    $roleName = strtolower(trim($row['role']));
+                    if (!Role::where('name', $roleName)->exists()) {
+                        throw new \Exception("Role '$roleName' tidak valid.");
+                    }
+
+                    // Validate department requirement for auditee roles
+                    if (in_array($roleName, ['manager', 'asman', 'staff']) && !$departmentId) {
+                        throw new \Exception("Role '$roleName' wajib menyertakan department_code yang valid.");
+                    }
+
+                    // Direktur and Komisaris stand alone without department
+                    if (in_array($roleName, ['direktur', 'komisaris'])) {
+                        $departmentId = null;
                     }
 
                     // Create or update user by email
@@ -215,13 +290,7 @@ class UserController extends Controller
                         ]
                     );
 
-                    // Assign role
-                    $roleName = trim($row['role']);
-                    if (Role::where('name', $roleName)->exists()) {
-                        $user->syncRoles([$roleName]);
-                    } else {
-                        throw new \Exception("Role '$roleName' tidak valid.");
-                    }
+                    $user->syncRoles([$roleName]);
 
                     $successCount++;
                 } catch (\Exception $e) {
@@ -250,13 +319,20 @@ class UserController extends Controller
             'Content-Disposition' => 'attachment; filename="template_import_user.csv"',
         ];
 
-        $columns = ['name', 'email', 'password', 'role', 'nip', 'position', 'department_code'];
-        $exampleRow = ['John Doe', 'john.doe@example.com', 'password123', 'staff', '12345678', 'Staf IT', 'HC'];
+        $columns = ['name', 'email', 'password', 'role', 'nip', 'department_code'];
+        $exampleRows = [
+            ['Ahmad Fauzi', 'ahmad.manager@peb.co.id', 'Password123!', 'manager', '198001012005011001', 'KEU'],
+            ['Budi Setiawan', 'budi.asman@peb.co.id', 'Password123!', 'asman', '198502022010021002', 'AM_KMR'],
+            ['Citra Dewi', 'citra.staff@peb.co.id', 'Password123!', 'staff', '199203032018032003', 'ST_KPK'],
+            ['Doni Pratama', 'doni.auditor@peb.co.id', 'Password123!', 'auditor', '199004042015041004', 'ST_AUDIT'],
+        ];
 
-        $callback = function() use ($columns, $exampleRow) {
+        $callback = function() use ($columns, $exampleRows) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
-            fputcsv($file, $exampleRow);
+            foreach ($exampleRows as $row) {
+                fputcsv($file, $row);
+            }
             fclose($file);
         };
 

@@ -43,6 +43,8 @@ class Document extends Model
         'auditee',
         'auditee_id',
         'jadwal_audit',
+        'jadwal_mulai',
+        'jadwal_selesai',
         'lingkup_audit',
         'ketua_tim',
         'anggota_tim',
@@ -83,6 +85,8 @@ class Document extends Model
             'tgl_lha' => 'date',
             'tgl_distribusi_lha' => 'date',
             'tgl_stg' => 'date',
+            'jadwal_mulai' => 'date',
+            'jadwal_selesai' => 'date',
             'tim_audit' => 'array',
         ];
     }

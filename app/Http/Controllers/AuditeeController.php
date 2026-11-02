@@ -13,13 +13,16 @@ class AuditeeController extends Controller
     {
         $user = Auth::user();
 
-        // Auditee sees follow-ups for their own department OR explicitly assigned to them
-        $query = FollowUp::with(['document.documentType'])->withCount('evidences')
+        // Auditee sees follow-ups for their own department OR any child/parent department OR explicitly assigned to them
+        $query = FollowUp::with(['document.documentType', 'auditeeDepartment'])->withCount('evidences')
             ->when($user->hasRole(['manager', 'asman', 'staff']), function ($q) use ($user) {
                 $deptId = $user->department_id;
                 abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen. Hubungi administrator.');
-                $q->where(function($q2) use ($deptId, $user) {
-                    $q2->where('auditee_department_id', $deptId)
+                $dept = $user->department;
+                $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$deptId];
+
+                $q->where(function($q2) use ($allowedIds, $user) {
+                    $q2->whereIn('auditee_department_id', $allowedIds)
                        ->orWhere('assigned_to', $user->id);
                 });
             });
@@ -46,11 +49,13 @@ class AuditeeController extends Controller
     {
         $user = Auth::user();
 
-        // Access control: Auditee only sees their department's follow-ups or explicitly assigned to them
+        // Access control: Auditee sees their department's follow-ups (including hierarchy) or explicitly assigned to them
         if ($user->hasRole(['manager', 'asman', 'staff'])) {
             $deptId = $user->department_id;
             abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen. Hubungi administrator.');
-            abort_if($followUp->auditee_department_id != $deptId && $followUp->assigned_to != $user->id, 403);
+            $dept = $user->department;
+            $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$deptId];
+            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && $followUp->assigned_to != $user->id, 403);
         }
 
         $followUp->load(['document.documentType', 'evidences.uploader', 'approvals.approver']);
@@ -81,7 +86,9 @@ class AuditeeController extends Controller
         if ($user->hasRole(['manager', 'asman', 'staff'])) {
             $deptId = $user->department_id;
             abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen. Hubungi administrator.');
-            abort_if($followUp->auditee_department_id != $deptId && $followUp->assigned_to != $user->id, 403, 'Anda tidak memiliki akses ke tindak lanjut ini.');
+            $dept = $user->department;
+            $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$deptId];
+            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && $followUp->assigned_to != $user->id, 403, 'Anda tidak memiliki akses ke tindak lanjut ini.');
         }
 
         $request->validate([
@@ -134,8 +141,11 @@ class AuditeeController extends Controller
             abort(403);
         }
         if ($user->hasRole(['manager', 'asman', 'staff'])) {
-            $deptId = $user->department_id ?? 1;
-            abort_if($followUp->auditee_department_id != $deptId && $followUp->assigned_to != $user->id, 403);
+            $deptId = $user->department_id;
+            abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen.');
+            $dept = $user->department;
+            $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$deptId];
+            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && $followUp->assigned_to != $user->id, 403);
         }
 
         if ($followUp->evidences()->count() === 0) {
@@ -146,9 +156,10 @@ class AuditeeController extends Controller
             'approval_status' => 'pending_asman'
         ]);
 
-        // Notify Asman & Manager
+        // Notify Asman & Manager in the department hierarchy
+        $parentDeptIds = $followUp->auditeeDepartment ? $followUp->auditeeDepartment->getAllParentIds() : [$followUp->auditee_department_id];
         $targetUsers = \App\Models\User::role(['asman', 'manager'])
-            ->where('department_id', $followUp->auditee_department_id)
+            ->whereIn('department_id', $parentDeptIds)
             ->get();
         
         foreach($targetUsers as $target) {
@@ -175,8 +186,11 @@ class AuditeeController extends Controller
 
         $followUp = $evidence->followUp;
         if ($user->hasRole(['manager', 'asman', 'staff'])) {
-            $deptId = $user->department_id ?? 1;
-            abort_if($followUp->auditee_department_id != $deptId && $followUp->assigned_to != $user->id, 403);
+            $deptId = $user->department_id;
+            abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen.');
+            $dept = $user->department;
+            $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$deptId];
+            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && $followUp->assigned_to != $user->id, 403);
         }
         if (!in_array($followUp->approval_status, ['pending', 'rejected'])) {
             return redirect()->back()->withErrors('Anda tidak dapat menghapus bukti karena status saat ini tidak mengizinkan perubahan.');
@@ -218,7 +232,8 @@ class AuditeeController extends Controller
             ]);
 
             if ($nextStatus === 'pending_manager') {
-                $managers = \App\Models\User::role('manager')->where('department_id', $followUp->auditee_department_id)->get();
+                $parentDeptIds = $followUp->auditeeDepartment ? $followUp->auditeeDepartment->getAllParentIds() : [$followUp->auditee_department_id];
+                $managers = \App\Models\User::role('manager')->whereIn('department_id', $parentDeptIds)->get();
                 foreach($managers as $m) {
                     \App\Models\SpiNotification::create([
                         'user_id'         => $m->id,
@@ -319,10 +334,11 @@ class AuditeeController extends Controller
                 'acted_at'        => now(),
             ]);
 
+            $parentDeptIds = $followUp->auditeeDepartment ? $followUp->auditeeDepartment->getAllParentIds() : [$followUp->auditee_department_id];
             $auditees = \App\Models\User::where('id', $followUp->assigned_to)
-                ->orWhere(function($q) use ($followUp) {
+                ->orWhere(function($q) use ($parentDeptIds) {
                     $q->whereHas('roles', fn($r) => $r->whereIn('name', ['manager', 'asman']))
-                      ->where('department_id', $followUp->auditee_department_id);
+                      ->whereIn('department_id', $parentDeptIds);
                 })->get();
             $auditors = \App\Models\User::role('auditor')->get();
             $allToNotify = $auditees->merge($auditors)->unique('id');
@@ -379,10 +395,11 @@ class AuditeeController extends Controller
             'acted_at'        => now(),
         ]);
 
+        $parentDeptIds = $followUp->auditeeDepartment ? $followUp->auditeeDepartment->getAllParentIds() : [$followUp->auditee_department_id];
         $auditees = \App\Models\User::where('id', $followUp->assigned_to)
-            ->orWhere(function($q) use ($followUp) {
+            ->orWhere(function($q) use ($parentDeptIds) {
                 $q->whereHas('roles', fn($r) => $r->whereIn('name', ['manager', 'asman', 'staff']))
-                  ->where('department_id', $followUp->auditee_department_id);
+                  ->whereIn('department_id', $parentDeptIds);
             })->get();
             
         foreach($auditees as $u) {

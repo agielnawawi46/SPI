@@ -91,10 +91,10 @@
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 w-full group overflow-hidden" title="SIMAK — Sistem Informasi Manajemen Audit & Kepatuhan">
             <img src="{{ asset('s2.png') }}?v={{ filemtime(public_path('s2.png')) }}" 
                  alt="Logo SIMAK" 
-                 class="flex-shrink-0 w-10 h-10 object-contain drop-shadow-2xs transition-transform duration-200 group-hover:scale-105">
+                 class="flex-shrink-0 w-10 h-10 object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105">
             <div class="min-w-0 flex-1">
                 <p class="sidebar-logo-text text-base font-black tracking-tight text-charcoal leading-none">SIMAK</p>
-                <p class="text-charcoal-muted text-[10px] leading-tight font-medium mt-1 line-clamp-2">
+                <p class="text-charcoal/70 text-[10px] leading-tight font-semibold mt-1 line-clamp-2">
                     Sistem Informasi Manajemen Audit & Kepatuhan
                 </p>
             </div>
@@ -146,11 +146,11 @@
                         <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </div>
                     <div x-show="subOpen" x-collapse class="pl-4 mt-1 space-y-1">
-                        <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'surat-tugas']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'surat-tugas' && $currentAuditType == 'terjadwal' ? 'active text-primary-300' : '' }}">Surat Tugas Audit</a>
-                        <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'program-kerja']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'program-kerja' && $currentAuditType == 'terjadwal' ? 'active text-primary-300' : '' }}">Program Kerja Audit</a>
-                        <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'slide-entry']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'slide-entry' && $currentAuditType == 'terjadwal' ? 'active text-primary-300' : '' }}">Slide Entry Meeting</a>
-                        <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'kertas-kerja-audit']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'kertas-kerja-audit' && $currentAuditType == 'terjadwal' ? 'active text-primary-300' : '' }}">Kertas Kerja Audit</a>
-                        <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'lha']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lha' && $currentAuditType == 'terjadwal' ? 'active text-primary-300' : '' }}">Laporan Hasil Audit</a>
+                        <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'surat-tugas']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'surat-tugas' && $currentAuditType == 'terjadwal' ? 'active' : '' }}">Surat Tugas Audit</a>
+                        <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'program-kerja']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'program-kerja' && $currentAuditType == 'terjadwal' ? 'active' : '' }}">Program Kerja Audit</a>
+                        <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'slide-entry']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'slide-entry' && $currentAuditType == 'terjadwal' ? 'active' : '' }}">Slide Entry Meeting</a>
+                        <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'kertas-kerja-audit']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'kertas-kerja-audit' && $currentAuditType == 'terjadwal' ? 'active' : '' }}">Kertas Kerja Audit</a>
+                        <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'lha']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lha' && $currentAuditType == 'terjadwal' ? 'active' : '' }}">Laporan Hasil Audit</a>
                     </div>
                 </div>
 
@@ -161,11 +161,11 @@
                         <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </div>
                     <div x-show="subOpen" x-collapse class="pl-4 mt-1 space-y-1">
-                        <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'surat-tugas']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'surat-tugas' && $currentAuditType == 'tidak_terjadwal' ? 'active text-primary-300' : '' }}">Surat Tugas Audit</a>
-                        <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'program-kerja']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'program-kerja' && $currentAuditType == 'tidak_terjadwal' ? 'active text-primary-300' : '' }}">Program Kerja Audit</a>
-                        <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'slide-entry']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'slide-entry' && $currentAuditType == 'tidak_terjadwal' ? 'active text-primary-300' : '' }}">Slide Entry Meeting</a>
-                        <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'kertas-kerja-audit']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'kertas-kerja-audit' && $currentAuditType == 'tidak_terjadwal' ? 'active text-primary-300' : '' }}">Kertas Kerja Audit</a>
-                        <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'lha']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lha' && $currentAuditType == 'tidak_terjadwal' ? 'active text-primary-300' : '' }}">Laporan Hasil Audit</a>
+                        <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'surat-tugas']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'surat-tugas' && $currentAuditType == 'tidak_terjadwal' ? 'active' : '' }}">Surat Tugas Audit</a>
+                        <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'program-kerja']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'program-kerja' && $currentAuditType == 'tidak_terjadwal' ? 'active' : '' }}">Program Kerja Audit</a>
+                        <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'slide-entry']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'slide-entry' && $currentAuditType == 'tidak_terjadwal' ? 'active' : '' }}">Slide Entry Meeting</a>
+                        <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'kertas-kerja-audit']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'kertas-kerja-audit' && $currentAuditType == 'tidak_terjadwal' ? 'active' : '' }}">Kertas Kerja Audit</a>
+                        <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'lha']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lha' && $currentAuditType == 'tidak_terjadwal' ? 'active' : '' }}">Laporan Hasil Audit</a>
                     </div>
                 </div>
             </div>
@@ -227,8 +227,8 @@
                         <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </div>
                     <div x-show="subOpen" x-collapse class="pl-4 mt-1 space-y-1">
-                        <a href="{{ route('other-activities.pendamping.index', ['type' => 'lha-eksternal']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lha-eksternal' ? 'active text-primary-300' : '' }}">LHA Auditor Eksternal</a>
-                        <a href="{{ route('other-activities.pendamping.index', ['type' => 'lap-pendamping']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lap-pendamping' ? 'active text-primary-300' : '' }}">Laporan Pendamping</a>
+                        <a href="{{ route('other-activities.pendamping.index', ['type' => 'lha-eksternal']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lha-eksternal' ? 'active' : '' }}">LHA Auditor Eksternal</a>
+                        <a href="{{ route('other-activities.pendamping.index', ['type' => 'lap-pendamping']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lap-pendamping' ? 'active' : '' }}">Laporan Pendamping</a>
                     </div>
                 </div>
 
@@ -239,10 +239,10 @@
                         <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </div>
                     <div x-show="subOpen" x-collapse class="pl-4 mt-1 space-y-1">
-                        <a href="{{ route('other-activities.qa.index', ['type' => 'st-qa']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'st-qa' ? 'active text-primary-300' : '' }}">Surat Tugas QA</a>
-                        <a href="{{ route('other-activities.qa.index', ['type' => 'pk-qa']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'pk-qa' ? 'active text-primary-300' : '' }}">Program Kerja QA</a>
-                        <a href="{{ route('other-activities.qa.index', ['type' => 'kk-qa']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'kk-qa' ? 'active text-primary-300' : '' }}">Kertas Kerja QA</a>
-                        <a href="{{ route('other-activities.qa.index', ['type' => 'lap-qa']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lap-qa' ? 'active text-primary-300' : '' }}">Laporan Hasil QA</a>
+                        <a href="{{ route('other-activities.qa.index', ['type' => 'st-qa']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'st-qa' ? 'active' : '' }}">Surat Tugas QA</a>
+                        <a href="{{ route('other-activities.qa.index', ['type' => 'pk-qa']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'pk-qa' ? 'active' : '' }}">Program Kerja QA</a>
+                        <a href="{{ route('other-activities.qa.index', ['type' => 'kk-qa']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'kk-qa' ? 'active' : '' }}">Kertas Kerja QA</a>
+                        <a href="{{ route('other-activities.qa.index', ['type' => 'lap-qa']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lap-qa' ? 'active' : '' }}">Laporan Hasil QA</a>
                     </div>
                 </div>
                 @endcan
@@ -278,14 +278,14 @@
     </nav>
 
     {{-- User Info at bottom --}}
-    <div class="border-t border-surface-200 p-4">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center flex-shrink-0">
-                <span class="text-primary-700 text-xs font-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+    <div class="border-t border-sidebar-border p-3 bg-sidebar-bg">
+        <div class="flex items-center gap-3 p-2 rounded-xl bg-white/85 border border-sidebar-border/60 shadow-sm">
+            <div class="w-8 h-8 rounded-full bg-primary-100 border border-primary-300 flex items-center justify-center flex-shrink-0">
+                <span class="text-primary-800 text-xs font-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-charcoal text-xs font-medium truncate">{{ Auth::user()->name }}</p>
-                <p class="text-charcoal-muted text-xs truncate">{{ ucfirst(str_replace('_', ' ', Auth::user()->roles->first()?->name ?? '-')) }}</p>
+                <p class="text-charcoal text-xs font-semibold truncate">{{ Auth::user()->name }}</p>
+                <p class="text-charcoal/70 text-[11px] font-medium truncate">{{ ucfirst(str_replace('_', ' ', Auth::user()->roles->first()?->name ?? '-')) }}</p>
             </div>
         </div>
     </div>

@@ -49,7 +49,7 @@
             <thead>
                 <tr>
                     <th>User Info</th>
-                    <th>NIP & Posisi</th>
+                    <th>NIP</th>
                     <th>Bidang</th>
                     <th>Role</th>
                     <th>Status</th>
@@ -72,11 +72,13 @@
                     </td>
                     <td>
                         <p class="text-sm text-charcoal">{{ $user->nip ?? '-' }}</p>
-                        <p class="text-xs text-charcoal-muted">{{ $user->position ?? '-' }}</p>
                     </td>
                     <td>
                         @if($user->department)
-                            <span class="badge badge-primary">{{ $user->department->code }}</span>
+                            <div class="max-w-xs">
+                                <p class="text-xs font-semibold text-charcoal truncate" title="{{ $user->department->name }}">{{ $user->department->name }}</p>
+                                <span class="badge badge-primary text-[10px] mt-0.5">{{ $user->department->code }} &bull; {{ strtoupper($user->department->level) }}</span>
+                            </div>
                         @else
                             <span class="text-xs text-charcoal-muted">-</span>
                         @endif
@@ -141,14 +143,10 @@
                         <span class="font-medium text-charcoal">{{ $user->nip ?? '-' }}</span>
                     </div>
                     <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
-                        <span class="text-charcoal-muted">Posisi</span>
-                        <span class="font-medium text-charcoal">{{ $user->position ?? '-' }}</span>
-                    </div>
-                    <div class="flex justify-between items-center text-sm border-b border-surface-100 pb-2">
                         <span class="text-charcoal-muted">Bidang</span>
-                        <span>
+                        <span class="text-right max-w-[200px]">
                             @if($user->department)
-                                <span class="badge badge-primary">{{ $user->department->code }}</span>
+                                <span class="badge badge-primary text-xs" title="{{ $user->department->name }}">{{ $user->department->name }}</span>
                             @else
                                 <span class="text-xs text-charcoal-muted">-</span>
                             @endif
