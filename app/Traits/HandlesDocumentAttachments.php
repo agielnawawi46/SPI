@@ -49,27 +49,6 @@ trait HandlesDocumentAttachments
             $fileName = time() . '_' . $uniqueId . '_' . $originalName;
             $path = $file->storeAs($subDir, $fileName, 'public');
 
-            $pdfPath = null;
-            $extension = strtolower($file->getClientOriginalExtension());
-            if (in_array($extension, ['doc', 'docx'])) {
-                try {
-                    \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
-                    \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
-                    
-                    $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $path));
-                    $pdfFilename = time() . '_' . $uniqueId . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
-                    $pdfRelativePath = $subDir . '/' . $pdfFilename;
-                    $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
-                    
-                    $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
-                    $pdfWriter->save($pdfAbsolutePath);
-                    
-                    $pdfPath = $pdfRelativePath;
-                } catch (\Throwable $e) {
-                    Log::error('Error converting DOCX to PDF: ' . $e->getMessage());
-                }
-            }
-
             $document->attachments()->create([
                 'uploaded_by' => Auth::id(),
                 'file_name'   => $originalName,
@@ -77,7 +56,7 @@ trait HandlesDocumentAttachments
                 'file_type'   => $file->getClientMimeType(),
                 'file_size'   => $file->getSize(),
                 'description' => 'Lampiran Dokumen',
-                'pdf_path'    => $pdfPath,
+                'pdf_path'    => null,
             ]);
 
             $savedCount++;

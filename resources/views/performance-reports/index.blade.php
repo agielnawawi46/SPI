@@ -67,6 +67,23 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
                             
+                            @php
+                                $hasFiles = $report->attachments && $report->attachments->count() > 0;
+                                $fileCount = $hasFiles ? $report->attachments->count() : 0;
+                            @endphp
+                            @if($hasFiles)
+                            <a href="{{ route('documents.download', $report) }}" class="btn-icon relative bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all" title="Unduh Berkas ({{ $fileCount }} Dokumen)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                @if($fileCount > 1)
+                                <span class="absolute -top-1 -right-1 px-1 min-w-[15px] h-[15px] text-[9.5px] font-bold bg-amber-400 text-charcoal rounded-full flex items-center justify-center border border-white leading-none shadow-2xs">ZIP</span>
+                                @endif
+                            </a>
+                            @else
+                            <button type="button" disabled class="btn-icon bg-surface-200 text-charcoal-muted cursor-not-allowed shadow-sm transition-all disabled:opacity-100" title="Unduh Berkas (Belum ada berkas)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            </button>
+                            @endif
+                            
                             @if($report->canBeEditedBy(Auth::user()))
                             <a href="{{ route('performance-reports.edit', $report) }}" class="btn-icon bg-amber-500 text-white hover:bg-amber-400 hover:opacity-80 shadow-sm transition-all" title="Edit">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -129,6 +146,23 @@
                 <a href="{{ route('performance-reports.show', $report) }}" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-80 shadow-sm transition-all" title="Lihat Detail">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                 </a>
+                
+                @php
+                    $hasFiles = $report->attachments && $report->attachments->count() > 0;
+                    $fileCount = $hasFiles ? $report->attachments->count() : 0;
+                @endphp
+                @if($hasFiles)
+                <a href="{{ route('documents.download', $report) }}" class="btn-icon relative bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all" title="Unduh Berkas ({{ $fileCount }} Dokumen)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    @if($fileCount > 1)
+                    <span class="absolute -top-1 -right-1 px-1 min-w-[15px] h-[15px] text-[9.5px] font-bold bg-amber-400 text-charcoal rounded-full flex items-center justify-center border border-white leading-none shadow-2xs">ZIP</span>
+                    @endif
+                </a>
+                @else
+                <button type="button" disabled class="btn-icon bg-surface-200 text-charcoal-muted cursor-not-allowed shadow-sm transition-all disabled:opacity-100" title="Unduh Berkas (Belum ada berkas)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                </button>
+                @endif
                 
                 @if($report->canBeEditedBy(Auth::user()))
                 <a href="{{ route('performance-reports.edit', $report) }}" class="btn-icon bg-amber-500 text-white hover:bg-amber-400 hover:opacity-80 shadow-sm transition-all" title="Edit">

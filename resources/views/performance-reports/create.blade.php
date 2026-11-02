@@ -18,8 +18,11 @@
         @csrf
         <div class="card-body space-y-5">
             <div class="form-group">
-                <label class="form-label">Judul Laporan <span class="text-red-500">*</span></label>
-                <input type="text" name="title" class="form-input" value="{{ old('title') }}" placeholder="Contoh: Laporan Kinerja SPI" required>
+                <label class="form-label flex items-center justify-between">
+                    <span>Judul Laporan <span class="text-red-500">*</span></span>
+                    <span class="text-[11px] text-charcoal-muted font-normal">(Otomatis terisi dari berkas, atau ketik manual)</span>
+                </label>
+                <input type="text" name="title" class="form-input" value="{{ old('title') }}" placeholder="Contoh: Laporan Kinerja SPI (atau otomatis dari nama berkas)" required>
                 @error('title')<p class="form-error">{{ $message }}</p>@enderror
             </div>
             

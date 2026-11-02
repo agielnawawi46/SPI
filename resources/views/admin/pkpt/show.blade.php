@@ -39,10 +39,14 @@
                     </a>
                     @endcan
                     @can('pkpt.delete')
-                    <button type="button" x-data @click="$dispatch('open-modal', 'delete-pkpt-{{ $pkpt->id }}')" class="btn-secondary text-red-600 border-red-200 hover:bg-red-50 text-sm flex items-center shadow-sm">
-                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        Hapus
-                    </button>
+                    <form action="{{ route('pkpt.destroy', $pkpt) }}" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus PKPT {{ addslashes($pkpt->title) }}? Data yang dihapus tidak dapat dikembalikan.')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn-secondary text-red-600 border-red-200 hover:bg-red-50 text-sm flex items-center shadow-sm cursor-pointer" title="Hapus PKPT">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            Hapus
+                        </button>
+                    </form>
                     @endcan
                     <a href="{{ route('pkpt.index') }}" class="btn-secondary text-sm flex items-center shadow-sm">
                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -176,35 +180,6 @@
     </div>
 
 </div>
-
-@can('pkpt.delete')
-<div x-data="{ show: false }" 
-     x-show="show"
-     @open-modal.window="if ($event.detail === 'delete-pkpt-{{ $pkpt->id }}') show = true"
-     @close-modal.window="show = false"
-     @keydown.escape.window="show = false"
-     class="modal-overlay"
-     style="display: none;">
-    
-    <div class="modal-box max-w-md" @click.stop x-transition>
-        <div class="modal-header">
-            <h3 class="card-title text-red-600">Konfirmasi Hapus PKPT</h3>
-            <button @click="show = false" class="text-charcoal-muted hover:text-charcoal"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-        </div>
-        <div class="modal-body">
-            <p class="text-sm text-charcoal">Apakah Anda yakin ingin menghapus PKPT <strong>{{ $pkpt->title }}</strong>? Data yang dihapus tidak dapat dikembalikan.</p>
-        </div>
-        <div class="modal-footer">
-            <button @click="show = false" class="btn-secondary">Batal</button>
-            <form action="{{ route('pkpt.destroy', $pkpt) }}" method="POST" class="inline-block">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn-danger">Ya, Hapus</button>
-            </form>
-        </div>
-    </div>
-</div>
-@endcan
 
 @endsection
 

@@ -14,7 +14,7 @@ class PerformanceReportController extends Controller
 
     public function index(Request $request)
     {
-        $query = Document::with(['creator', 'documentType'])
+        $query = Document::with(['creator', 'documentType', 'attachments'])
             ->whereHas('documentType', fn($q) => $q->where('module', 'report'));
 
         if ($search = $request->get('search')) {

@@ -45,7 +45,7 @@ class PkptController extends Controller
         );
 
         // Migrate legacy single file into document_attachments if none exist yet
-        if ($pkpt->file_path && $document->attachments()->count() === 0 && Storage::disk('public')->exists($pkpt->file_path)) {
+        if ($pkpt->file_path && $document->attachments()->count() === 0) {
             $document->attachments()->create([
                 'uploaded_by' => $pkpt->created_by ?? Auth::id() ?? 1,
                 'file_name'   => $pkpt->file_name ?? basename($pkpt->file_path),
@@ -66,6 +66,28 @@ class PkptController extends Controller
     public function index(Request $request)
     {
         $pkptDocType = DocumentType::where('slug', 'pkpt')->first();
+
+        // Sinkronisasi otomatis: Jika berkas PKPT kosong tapi statusnya bukan draft, ubah menjadi draft
+        $emptyPkpts = Pkpt::where('status', '!=', 'draft')
+            ->where(function ($q) {
+                $q->whereNull('file_path')->orWhere('file_path', '');
+            })
+            ->whereDoesntHave('documents', function ($q) use ($pkptDocType) {
+                if ($pkptDocType) {
+                    $q->where('document_type_id', $pkptDocType->id)->has('attachments');
+                }
+            })
+            ->get();
+
+        foreach ($emptyPkpts as $ep) {
+            $ep->update(['status' => 'draft']);
+            if ($pkptDocType) {
+                Document::where('pkpt_id', $ep->id)
+                    ->where('document_type_id', $pkptDocType->id)
+                    ->update(['status' => 'draft']);
+            }
+        }
+
         $query = Pkpt::with(['creator', 'documents' => function($q) use ($pkptDocType) {
             if ($pkptDocType) {
                 $q->where('document_type_id', $pkptDocType->id)->with('attachments');
@@ -190,6 +212,32 @@ class PkptController extends Controller
                 $pkpt->file_path = $latestAtt->file_path;
                 $pkpt->file_size = $latestAtt->file_size;
                 $pkpt->file_type = $latestAtt->file_type;
+                // Jika sebelumnya draft karena file kosong dan sekarang ada file diunggah, kembalikan ke approved (Closed)
+                if ($pkpt->status === 'draft') {
+                    $pkpt->status = 'approved';
+                    $document->status = 'approved';
+                    $document->save();
+                }
+            } else {
+                $pkpt->file_name = null;
+                $pkpt->file_path = null;
+                $pkpt->file_size = 0;
+                $pkpt->file_type = null;
+                $pkpt->status = 'draft';
+                $document->status = 'draft';
+                $document->save();
+            }
+            $pkpt->save();
+        } else {
+            // Jika tidak ada upload file baru dan berkas kosong, pastikan status draft
+            if ($document->attachments()->count() === 0 && empty($pkpt->file_path)) {
+                $pkpt->file_name = null;
+                $pkpt->file_path = null;
+                $pkpt->file_size = 0;
+                $pkpt->file_type = null;
+                $pkpt->status = 'draft';
+                $document->status = 'draft';
+                $document->save();
                 $pkpt->save();
             }
         }
@@ -209,7 +257,7 @@ class PkptController extends Controller
     public function destroyAttachment(Pkpt $pkpt, DocumentAttachment $attachment)
     {
         $document = $this->getOrCreatePkptDocument($pkpt);
-        if ($attachment->document_id !== $document->id) {
+        if ($attachment->document_id !== $document->id && $attachment->document?->pkpt_id !== $pkpt->id) {
             abort(404);
         }
 
@@ -233,6 +281,10 @@ class PkptController extends Controller
             $pkpt->file_path = null;
             $pkpt->file_size = 0;
             $pkpt->file_type = null;
+            // Jika semua file sudah terhapus, kembalikan status PKPT dan Dokumen ke Draft
+            $pkpt->status = 'draft';
+            $document->status = 'draft';
+            $document->save();
         }
         $pkpt->save();
 
@@ -261,9 +313,10 @@ class PkptController extends Controller
     public function viewPkptFile(Pkpt $pkpt, ?DocumentAttachment $attachment = null)
     {
         if ($attachment) {
-            $filePath = $attachment->file_path;
-            $fileName = $attachment->file_name;
-            $mimeType = $attachment->file_type ?? 'application/pdf';
+            $hasPdf = $attachment->pdf_path && Storage::disk('public')->exists($attachment->pdf_path);
+            $filePath = $hasPdf ? $attachment->pdf_path : $attachment->file_path;
+            $fileName = $hasPdf ? pathinfo($attachment->file_name, PATHINFO_FILENAME) . '.pdf' : $attachment->file_name;
+            $mimeType = $hasPdf ? 'application/pdf' : ($attachment->file_type ?? Storage::disk('public')->mimeType($filePath) ?? 'application/octet-stream');
         } else {
             $document = $this->getOrCreatePkptDocument($pkpt);
             $attachments = $document->attachments()->get();
@@ -274,24 +327,33 @@ class PkptController extends Controller
             }
 
             if ($attachments->count() === 1) {
-                $filePath = $attachments->first()->file_path;
-                $fileName = $attachments->first()->file_name;
-                $mimeType = $attachments->first()->file_type ?? 'application/pdf';
+                $first = $attachments->first();
+                $hasPdf = $first->pdf_path && Storage::disk('public')->exists($first->pdf_path);
+                $filePath = $hasPdf ? $first->pdf_path : $first->file_path;
+                $fileName = $hasPdf ? pathinfo($first->file_name, PATHINFO_FILENAME) . '.pdf' : $first->file_name;
+                $mimeType = $hasPdf ? 'application/pdf' : ($first->file_type ?? Storage::disk('public')->mimeType($filePath) ?? 'application/octet-stream');
             } else {
+                $hasPdf = false;
                 $filePath = $pkpt->file_path;
                 $fileName = $pkpt->file_name;
-                $mimeType = $pkpt->file_type ?? 'application/pdf';
+                $mimeType = $pkpt->file_type ?? 'application/octet-stream';
             }
         }
 
         if (!$filePath || !Storage::disk('public')->exists($filePath)) {
-            return redirect()->route('pkpt.show', $pkpt)->with('error', 'File tidak ditemukan.');
+            return redirect()->back()->with('error', 'File fisik tidak ditemukan di server.');
         }
+
+        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        $isInline = $hasPdf || in_array($ext, ['pdf', 'png', 'jpg', 'jpeg']);
 
         return Storage::disk('public')->response(
             $filePath, 
             $fileName,
-            ['Content-Disposition' => 'inline; filename="'.$fileName.'"']
+            [
+                'Content-Type' => $mimeType,
+                'Content-Disposition' => ($isInline ? 'inline' : 'attachment') . '; filename="'.addslashes($fileName).'"'
+            ]
         );
     }
 
@@ -300,7 +362,7 @@ class PkptController extends Controller
         // 1. Jika unduh berkas spesifik
         if ($attachment) {
             if (!$attachment->file_path || !Storage::disk('public')->exists($attachment->file_path)) {
-                return redirect()->back()->with('error', 'File tidak ditemukan.');
+                return redirect()->back()->with('error', 'File fisik tidak ditemukan di server.');
             }
             return Storage::disk('public')->download(
                 $attachment->file_path, 
@@ -377,8 +439,14 @@ class PkptController extends Controller
     public function kertasKerjaIndex(Request $request)
     {
         $documentType = \App\Models\DocumentType::where('slug', 'kertas-kerja-pkpt')->firstOrFail();
+
+        // Sinkronisasi otomatis: Jika berkas Kertas Kerja PKPT kosong tetapi statusnya bukan draft, kembalikan ke draft
+        Document::where('document_type_id', $documentType->id)
+            ->where('status', '!=', 'draft')
+            ->doesntHave('attachments')
+            ->update(['status' => 'draft']);
         
-        $query = \App\Models\Document::with(['pkpt', 'creator'])
+        $query = \App\Models\Document::with(['pkpt', 'creator'])->withCount('attachments')
             ->where('document_type_id', $documentType->id)
             ->whereHas('pkpt'); // Pastikan PKPT-nya tidak dihapus (soft-deleted)
 
@@ -461,26 +529,6 @@ class PkptController extends Controller
                 $fileName = time() . '_' . $uniqueId . '_' . $originalName;
                 $filePath = $file->storeAs('attachments', $fileName, 'public');
 
-                $pdfPath = null;
-                if (in_array($extension, ['doc', 'docx'])) {
-                    try {
-                        \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
-                        \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
-                        
-                        $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $filePath));
-                        $pdfFilename = time() . '_' . $uniqueId . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
-                        $pdfRelativePath = 'attachments/' . $pdfFilename;
-                        $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
-                        
-                        $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
-                        $pdfWriter->save($pdfAbsolutePath);
-                        
-                        $pdfPath = $pdfRelativePath;
-                    } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::error('Error converting DOCX to PDF: ' . $e->getMessage());
-                    }
-                }
-
                 $document->attachments()->create([
                     'uploaded_by' => Auth::id(),
                     'description' => $category,
@@ -488,7 +536,7 @@ class PkptController extends Controller
                     'file_path'   => $filePath,
                     'file_type'   => $file->getClientMimeType(),
                     'file_size'   => $file->getSize(),
-                    'pdf_path'    => $pdfPath,
+                    'pdf_path'    => null,
                 ]);
 
                 $uploadedCount++;
@@ -519,26 +567,6 @@ class PkptController extends Controller
                     $fileName = time() . '_' . $uniqueId . '_' . $originalName;
                     $filePath = $file->storeAs('attachments', $fileName, 'public');
 
-                    $pdfPath = null;
-                    if (in_array($extension, ['doc', 'docx'])) {
-                        try {
-                            \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
-                            \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
-                            
-                            $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $filePath));
-                            $pdfFilename = time() . '_' . $uniqueId . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
-                            $pdfRelativePath = 'attachments/' . $pdfFilename;
-                            $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
-                            
-                            $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
-                            $pdfWriter->save($pdfAbsolutePath);
-                            
-                            $pdfPath = $pdfRelativePath;
-                        } catch (\Throwable $e) {
-                            \Illuminate\Support\Facades\Log::error('Error converting DOCX to PDF: ' . $e->getMessage());
-                        }
-                    }
-
                     $document->attachments()->create([
                         'uploaded_by' => Auth::id(),
                         'description' => $category,
@@ -546,7 +574,7 @@ class PkptController extends Controller
                         'file_path'   => $filePath,
                         'file_type'   => $file->getClientMimeType(),
                         'file_size'   => $file->getSize(),
-                        'pdf_path'    => $pdfPath,
+                        'pdf_path'    => null,
                     ]);
 
                     $uploadedCount++;
@@ -566,11 +594,20 @@ class PkptController extends Controller
 
     public function destroyKertasKerjaAttachment(Pkpt $pkpt, DocumentAttachment $attachment)
     {
-        if (Storage::disk('public')->exists($attachment->file_path)) {
+        if ($attachment->file_path && Storage::disk('public')->exists($attachment->file_path)) {
             Storage::disk('public')->delete($attachment->file_path);
         }
+        if ($attachment->pdf_path && Storage::disk('public')->exists($attachment->pdf_path)) {
+            Storage::disk('public')->delete($attachment->pdf_path);
+        }
         
+        $document = $attachment->document;
         $attachment->delete();
+
+        // Jika semua berkas Kertas Kerja terhapus (kosong), kembalikan status ke Draft
+        if ($document && $document->attachments()->count() === 0 && $document->status !== 'draft') {
+            $document->update(['status' => 'draft']);
+        }
         
         return redirect()->route('pkpt.kertas-kerja', $pkpt)->with('success', 'File Kertas Kerja berhasil dihapus.');
     }
@@ -583,9 +620,148 @@ class PkptController extends Controller
             ->first();
             
         if ($document) {
+            foreach ($document->attachments as $att) {
+                if ($att->file_path && Storage::disk('public')->exists($att->file_path)) {
+                    Storage::disk('public')->delete($att->file_path);
+                }
+                if ($att->pdf_path && Storage::disk('public')->exists($att->pdf_path)) {
+                    Storage::disk('public')->delete($att->pdf_path);
+                }
+                $att->delete();
+            }
             $document->delete();
         }
         
         return redirect()->route('pkpt.kertas-kerja.index')->with('success', 'Data Kertas Kerja PKPT berhasil dihapus.');
+    }
+
+    public function reopenKertasKerja(Pkpt $pkpt)
+    {
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403, 'Hanya Administrator yang memiliki akses untuk membuka kunci Kertas Kerja PKPT.');
+        }
+
+        $documentType = DocumentType::where('slug', 'kertas-kerja-pkpt')->firstOrFail();
+        $document = Document::where('pkpt_id', $pkpt->id)
+            ->where('document_type_id', $documentType->id)
+            ->first();
+
+        if (!$document) {
+            return redirect()->back()->with('error', 'Dokumen Kertas Kerja PKPT tidak ditemukan.');
+        }
+
+        if ($document->status === 'draft') {
+            return redirect()->back()->with('warning', 'Dokumen Kertas Kerja PKPT saat ini sudah berstatus Draft.');
+        }
+
+        $document->update([
+            'status' => 'draft',
+        ]);
+
+        return redirect()->back()->with('success', 'Kertas Kerja PKPT berhasil dibuka kembali (Reopen ke Draft). Berkas sekarang dapat diubah atau ditambahkan.');
+    }
+
+    public function downloadKertasKerjaZip(Pkpt $pkpt)
+    {
+        $documentType = DocumentType::where('slug', 'kertas-kerja-pkpt')->first();
+        if (!$documentType) {
+            return redirect()->back()->with('error', 'Tipe dokumen Kertas Kerja PKPT tidak ditemukan.');
+        }
+
+        $document = Document::where('pkpt_id', $pkpt->id)
+            ->where('document_type_id', $documentType->id)
+            ->with('attachments')
+            ->first();
+
+        if (!$document || $document->attachments->isEmpty()) {
+            return redirect()->back()->with('warning', 'Belum ada berkas Kertas Kerja PKPT yang diunggah untuk diunduh.');
+        }
+
+        // Folder name mapping for the 6 categories (numbered 01 to 06 for orderly display)
+        $folderMapping = [
+            'RJP'             => '01_RJP - Rencana Jangka Panjang',
+            'RKAP'            => '02_RKAP - Rencana Kerja & Anggaran Perusahaan',
+            'Profil Risiko'   => '03_Profil Risiko - Dokumen Profil Risiko',
+            'Arahan PS'       => '04_Arahan PS - Arahan Pemegang Saham',
+            'Arahan Dekom'    => '05_Arahan Dekom - Arahan Dewan Komisaris',
+            'Arahan Direktur' => '06_Arahan Direktur - Arahan Direktur',
+        ];
+
+        // Filter attachments that actually exist on storage
+        $validAttachments = $document->attachments->filter(function ($att) {
+            return $att->file_path && Storage::disk('public')->exists($att->file_path);
+        });
+
+        if ($validAttachments->isEmpty()) {
+            return redirect()->back()->with('error', 'Berkas fisik Kertas Kerja PKPT tidak ditemukan di server.');
+        }
+
+        $cleanTitle = \Illuminate\Support\Str::slug($pkpt->title) ?: 'PKPT';
+        $zipFileName = 'Kertas_Kerja_PKPT_' . $pkpt->period_year . '_' . $cleanTitle . '.zip';
+
+        $tempDir = storage_path('app/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        $zipPath = $tempDir . '/' . uniqid('kk_zip_') . '.zip';
+
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            return redirect()->back()->with('error', 'Gagal membuat arsip ZIP.');
+        }
+
+        // 1. Create all 6 category folders in the ZIP so the structure is always complete & organized
+        foreach ($folderMapping as $folder) {
+            $zip->addEmptyDir($folder);
+        }
+
+        // 2. Track filenames per folder to handle duplicates cleanly
+        $usedNamesPerFolder = [];
+        $addedCount = 0;
+
+        foreach ($validAttachments as $att) {
+            $catKey = trim($att->description ?? '');
+            $folderName = $folderMapping[$catKey] ?? '07_Lainnya';
+
+            if (!isset($usedNamesPerFolder[$folderName])) {
+                $usedNamesPerFolder[$folderName] = [];
+            }
+
+            $realPath = storage_path('app/public/' . $att->file_path);
+            if (!file_exists($realPath)) {
+                continue;
+            }
+
+            $fileName = $att->file_name ?: basename($att->file_path);
+
+            // Handle filename collision inside the same category folder
+            $checkName = strtolower($fileName);
+            if (in_array($checkName, $usedNamesPerFolder[$folderName])) {
+                $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+                $base = pathinfo($fileName, PATHINFO_FILENAME);
+                $counter = 1;
+                do {
+                    $newFileName = $base . " ({$counter})" . ($ext ? '.' . $ext : '');
+                    $counter++;
+                } while (in_array(strtolower($newFileName), $usedNamesPerFolder[$folderName]));
+                $fileName = $newFileName;
+            }
+
+            $usedNamesPerFolder[$folderName][] = strtolower($fileName);
+            $zipPathInArchive = $folderName . '/' . $fileName;
+
+            $zip->addFile($realPath, $zipPathInArchive);
+            $addedCount++;
+        }
+
+        $zip->close();
+
+        if ($addedCount === 0 || !file_exists($zipPath)) {
+            return redirect()->back()->with('error', 'Tidak ada berkas yang berhasil dimasukkan ke dalam arsip ZIP.');
+        }
+
+        return response()->download($zipPath, $zipFileName, [
+            'Content-Type' => 'application/zip',
+        ])->deleteFileAfterSend(true);
     }
 }

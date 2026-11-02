@@ -18,8 +18,11 @@
         <input type="hidden" name="document_type_id" value="{{ $selectedType?->id }}">
         <div class="card-body space-y-4">
             <div class="form-group">
-                <label class="form-label">Judul <span class="text-red-500">*</span></label>
-                <input type="text" name="title" class="form-input" value="{{ old('title') }}" placeholder="Judul dokumen QA" required>
+                <label class="form-label flex items-center justify-between">
+                    <span>Judul <span class="text-red-500">*</span></span>
+                    <span class="text-[11px] text-charcoal-muted font-normal">(Otomatis terisi dari berkas, atau ketik manual)</span>
+                </label>
+                <input type="text" name="title" class="form-input" value="{{ old('title') }}" placeholder="Judul dokumen QA (atau otomatis dari nama berkas)" required>
                 @error('title')<p class="form-error">{{ $message }}</p>@enderror
             </div>
             <x-file-upload 

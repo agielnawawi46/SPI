@@ -112,6 +112,23 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
                             
+                            @php
+                                $hasFiles = $doc->attachments && $doc->attachments->count() > 0;
+                                $fileCount = $hasFiles ? $doc->attachments->count() : 0;
+                            @endphp
+                            @if($hasFiles)
+                            <a href="{{ route('documents.download', $doc) }}" class="btn-icon relative bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all" title="Unduh Berkas ({{ $fileCount }} Dokumen)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                @if($fileCount > 1)
+                                <span class="absolute -top-1 -right-1 px-1 min-w-[15px] h-[15px] text-[9.5px] font-bold bg-amber-400 text-charcoal rounded-full flex items-center justify-center border border-white leading-none shadow-2xs">ZIP</span>
+                                @endif
+                            </a>
+                            @else
+                            <button type="button" disabled class="btn-icon bg-surface-200 text-charcoal-muted cursor-not-allowed shadow-sm transition-all disabled:opacity-100" title="Unduh Berkas (Belum ada berkas)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            </button>
+                            @endif
+                            
                             @if($doc->canBeEditedBy(Auth::user()))
                             <a href="{{ route('other-activities.qa.edit', $doc) }}" class="btn-icon bg-amber-500 text-white hover:bg-amber-400 hover:opacity-80 shadow-sm transition-all" title="Edit">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -119,10 +136,10 @@
                             @endif
                             
                             @if($doc->canBeDeletedBy(Auth::user()))
-                            <form action="{{ route('other-activities.qa.destroy', $doc) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen QA ini?');">
+                            <form action="{{ route('other-activities.qa.destroy', $doc) }}" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen QA {{ addslashes($doc->title ?? '') }}?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-80 shadow-sm transition-all" title="Hapus">
+                                <button type="submit" class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-80 shadow-sm transition-all cursor-pointer" title="Hapus">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
                             </form>
@@ -178,8 +195,42 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-surface-50 px-4 py-3 flex items-center justify-end border-t border-surface-200">
-                <a href="{{ route('other-activities.qa.show', $doc) }}" class="btn-secondary btn-sm">Lihat Detail</a>
+            <div class="bg-surface-50 px-4 py-3 flex items-center justify-end border-t border-surface-200 gap-2">
+                <a href="{{ route('other-activities.qa.show', $doc) }}" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-80 shadow-sm transition-all" title="Lihat Detail">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </a>
+                
+                @php
+                    $hasFiles = $doc->attachments && $doc->attachments->count() > 0;
+                    $fileCount = $hasFiles ? $doc->attachments->count() : 0;
+                @endphp
+                @if($hasFiles)
+                <a href="{{ route('documents.download', $doc) }}" class="btn-icon relative bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all" title="Unduh Berkas ({{ $fileCount }} Dokumen)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    @if($fileCount > 1)
+                    <span class="absolute -top-1 -right-1 px-1 min-w-[15px] h-[15px] text-[9.5px] font-bold bg-amber-400 text-charcoal rounded-full flex items-center justify-center border border-white leading-none shadow-2xs">ZIP</span>
+                    @endif
+                </a>
+                @else
+                <button type="button" disabled class="btn-icon bg-surface-200 text-charcoal-muted cursor-not-allowed shadow-sm transition-all disabled:opacity-100" title="Unduh Berkas (Belum ada berkas)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                </button>
+                @endif
+                
+                @if($doc->canBeEditedBy(Auth::user()))
+                <a href="{{ route('other-activities.qa.edit', $doc) }}" class="btn-icon bg-amber-500 text-white hover:bg-amber-400 hover:opacity-80 shadow-sm transition-all" title="Edit">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                </a>
+                @endif
+                @if($doc->canBeDeletedBy(Auth::user()))
+                <form action="{{ route('other-activities.qa.destroy', $doc) }}" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen QA {{ addslashes($doc->title ?? '') }}?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-80 shadow-sm transition-all cursor-pointer" title="Hapus">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                </form>
+                @endif
             </div>
         </div>
         @empty

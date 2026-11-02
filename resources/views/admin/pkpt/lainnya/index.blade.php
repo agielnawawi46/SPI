@@ -93,13 +93,26 @@
                             <a href="{{ route('pkpt.lainnya.show', $item) }}" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-80 shadow-sm transition-all" title="Lihat Detail">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
+                            @if($item->attachment_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($item->attachment_path))
+                            <a href="{{ \Illuminate\Support\Facades\Storage::url($item->attachment_path) }}" download class="btn-icon bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all" title="Unduh Berkas">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            </a>
+                            @else
+                            <button type="button" disabled class="btn-icon bg-surface-200 text-charcoal-muted cursor-not-allowed shadow-sm transition-all disabled:opacity-100" title="Unduh Berkas (Belum ada berkas)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            </button>
+                            @endif
                             <a href="{{ route('pkpt.lainnya.edit', $item) }}" class="btn-icon bg-amber-500 text-white hover:bg-amber-400 hover:opacity-80 shadow-sm transition-all" title="Edit">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </a>
                             @can('pkpt.delete')
-                            <button type="button" x-data @click="$dispatch('open-modal', 'delete-item-{{ $item->id }}')" class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-80 shadow-sm transition-all" title="Hapus">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            </button>
+                            <form action="{{ route('pkpt.lainnya.destroy', $item) }}" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data {{ addslashes($item->audit_object ?? '') }}? Data yang dihapus tidak dapat dikembalikan.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-80 shadow-sm transition-all cursor-pointer" title="Hapus">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </form>
                             @endcan
                         </div>
                     </td>
@@ -185,10 +198,14 @@
                     Edit
                 </a>
                 @can('pkpt.delete')
-                <button type="button" x-data @click="$dispatch('open-modal', 'delete-item-{{ $item->id }}')" class="btn-secondary btn-sm text-red-600 flex-1 justify-center">
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                    Hapus
-                </button>
+                <form action="{{ route('pkpt.lainnya.destroy', $item) }}" method="POST" class="flex-1 inline-block m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data {{ addslashes($item->audit_object ?? '') }}? Data yang dihapus tidak dapat dikembalikan.');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn-secondary btn-sm text-red-600 w-full justify-center cursor-pointer">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Hapus
+                    </button>
+                </form>
                 @endcan
             </div>
             @endcan
@@ -209,37 +226,5 @@
     </div>
     @endif
 </div>
-
-{{-- Delete Modals --}}
-@foreach($items as $item)
-    @can('pkpt.delete')
-    <div x-data="{ show: false }" 
-         x-show="show"
-         @open-modal.window="if ($event.detail === 'delete-item-{{ $item->id }}') show = true"
-         @close-modal.window="show = false"
-         @keydown.escape.window="show = false"
-         class="modal-overlay"
-         style="display: none;">
-        
-        <div class="modal-box max-w-md" @click.stop x-transition>
-            <div class="modal-header">
-                <h3 class="card-title text-red-600">Konfirmasi Hapus</h3>
-                <button @click="show = false" class="text-charcoal-muted hover:text-charcoal"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-sm text-charcoal">Apakah Anda yakin ingin menghapus data <strong>{{ $item->audit_object }}</strong>? Data yang dihapus tidak dapat dikembalikan.</p>
-            </div>
-            <div class="modal-footer">
-                <button @click="show = false" class="btn-secondary">Batal</button>
-                <form action="{{ route('pkpt.lainnya.destroy', $item) }}" method="POST" class="inline-block">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn-danger">Ya, Hapus</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    @endcan
-@endforeach
 
 @endsection

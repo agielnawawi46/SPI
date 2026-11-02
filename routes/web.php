@@ -50,9 +50,11 @@ Route::middleware(['auth', 'check.active', 'audit.trail'])->group(function () {
         
         // Kertas Kerja PKPT (6 File)
         Route::get('/{pkpt}/kertas-kerja', [\App\Http\Controllers\Admin\PkptController::class, 'kertasKerja'])->name('kertas-kerja')->middleware('permission:pkpt.view');
+        Route::get('/{pkpt}/kertas-kerja/download-zip', [\App\Http\Controllers\Admin\PkptController::class, 'downloadKertasKerjaZip'])->name('kertas-kerja.download-zip')->middleware('permission:pkpt.view');
         Route::post('/{pkpt}/kertas-kerja', [\App\Http\Controllers\Admin\PkptController::class, 'storeKertasKerja'])->name('store-kertas-kerja')->middleware('permission:pkpt.edit');
         Route::delete('/{pkpt}/kertas-kerja-hapus', [\App\Http\Controllers\Admin\PkptController::class, 'destroyKertasKerjaDocument'])->name('destroy-kertas-kerja')->middleware('permission:pkpt.delete');
         Route::delete('/{pkpt}/kertas-kerja/{attachment}', [\App\Http\Controllers\Admin\PkptController::class, 'destroyKertasKerjaAttachment'])->name('destroy-kertas-kerja-attachment')->middleware('permission:pkpt.delete');
+        Route::post('/{pkpt}/kertas-kerja/reopen', [\App\Http\Controllers\Admin\PkptController::class, 'reopenKertasKerja'])->name('reopen-kertas-kerja')->middleware('role:admin');
     });
 
     // Dashboard
@@ -73,6 +75,9 @@ Route::middleware(['auth', 'check.active', 'audit.trail'])->group(function () {
     Route::post('/approvals/document/{id}/sign-auditee', [\App\Http\Controllers\ApprovalController::class, 'signAuditee'])->name('approvals.sign_auditee');
     Route::post('/approvals/{approval}/action', [\App\Http\Controllers\ApprovalController::class, 'action'])->name('approvals.action');
     Route::post('/approvals/document/{id}/approve-direct', [\App\Http\Controllers\ApprovalController::class, 'approveDirect'])->name('approvals.approve_direct');
+    Route::get('/attachments/{attachment}/view', [\App\Http\Controllers\DocumentAttachmentController::class, 'view'])->name('attachments.view');
+    Route::get('/attachments/{attachment}/download', [\App\Http\Controllers\DocumentAttachmentController::class, 'download'])->name('attachments.download');
+    Route::get('/documents/{document}/download', [\App\Http\Controllers\DocumentAttachmentController::class, 'downloadDocument'])->name('documents.download');
     Route::delete('/documents/{document}/attachments/{attachment}', [\App\Http\Controllers\DocumentAttachmentController::class, 'destroy'])->name('documents.destroy-attachment');
 
 

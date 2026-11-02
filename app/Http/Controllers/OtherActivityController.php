@@ -17,7 +17,7 @@ class OtherActivityController extends Controller
     public function tindakLanjutIndex(Request $request)
     {
         $user = Auth::user();
-        $query = Document::with(['documentType', 'creator'])
+        $query = Document::with(['documentType', 'creator', 'attachments'])
             ->whereHas('documentType', function($q) {
                 $q->where('slug', 'monitoring-tl');
             });
@@ -238,7 +238,7 @@ class OtherActivityController extends Controller
         $typeSlug = $request->get('type');
         $search = $request->get('search');
         
-        $query = Document::with(['documentType', 'creator'])
+        $query = Document::with(['documentType', 'creator', 'attachments'])
             ->whereHas('documentType', fn($q) => $q->where('module', 'pendamping'));
             
         if ($typeSlug) {
@@ -365,7 +365,7 @@ class OtherActivityController extends Controller
         $typeSlug = $request->get('type');
         $search   = $request->get('search');
 
-        $query = Document::with(['documentType', 'creator'])
+        $query = Document::with(['documentType', 'creator', 'attachments'])
             ->whereHas('documentType', fn($q) => $q->where('module', 'qa'));
 
         if ($typeSlug) {

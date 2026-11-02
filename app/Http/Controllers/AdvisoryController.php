@@ -15,7 +15,7 @@ class AdvisoryController extends Controller
     {
         $typeSlug = $request->get('type');
         
-        $query = Document::with(['documentType', 'creator'])
+        $query = Document::with(['documentType', 'creator', 'attachments'])
             ->whereHas('documentType', fn($q) => $q->where('module', 'advisory'));
             
         if ($typeSlug) {

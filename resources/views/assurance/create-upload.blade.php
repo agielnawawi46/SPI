@@ -23,9 +23,12 @@
 
         <div class="card-body space-y-5">
             <div class="form-group">
-                <label class="form-label">Judul Dokumen <span class="text-red-500">*</span></label>
+                <label class="form-label flex items-center justify-between">
+                    <span>Judul Dokumen <span class="text-red-500">*</span></span>
+                    <span class="text-[11px] text-charcoal-muted font-normal">(Otomatis terisi dari berkas, atau ketik manual)</span>
+                </label>
                 <input type="text" name="title" class="form-input" value="{{ old('title') }}"
-                    placeholder="Masukkan judul dokumen">
+                    placeholder="Masukkan judul dokumen (atau otomatis dari nama berkas)">
                 @error('title')<p class="form-error">{{ $message }}</p>@enderror
             </div>
 

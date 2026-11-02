@@ -6,8 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') — SIMAK (Sistem Informasi Manajemen Audit & Kepatuhan)</title>
     <meta name="description" content="@yield('meta_description', 'SIMAK - Sistem Informasi Manajemen Audit & Kepatuhan PT Pelayanan Energi Batam')">
-    <link rel="icon" type="image/png" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
-    <link rel="shortcut icon" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
+    <link rel="icon" type="image/png" href="{{ asset('s2.png') }}?v={{ filemtime(public_path('s2.png')) }}">
+    <link rel="shortcut icon" href="{{ asset('s2.png') }}?v={{ filemtime(public_path('s2.png')) }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
@@ -89,8 +89,8 @@
     {{-- Logo --}}
     <div class="sidebar-logo">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 w-full group overflow-hidden" title="SIMAK — Sistem Informasi Manajemen Audit & Kepatuhan">
-            <img src="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}" 
-                 alt="Logo SIMAK PLN" 
+            <img src="{{ asset('s2.png') }}?v={{ filemtime(public_path('s2.png')) }}" 
+                 alt="Logo SIMAK" 
                  class="flex-shrink-0 w-10 h-10 object-contain drop-shadow-2xs transition-transform duration-200 group-hover:scale-105">
             <div class="min-w-0 flex-1">
                 <p class="sidebar-logo-text text-base font-black tracking-tight text-charcoal leading-none">SIMAK</p>
@@ -473,13 +473,28 @@
         <h3 id="upload-loading-title" class="text-base sm:text-lg font-bold text-charcoal tracking-tight mb-1">
             Sedang Mengunggah Dokumen...
         </h3>
-        <p id="upload-loading-subtitle" class="text-xs text-charcoal-muted leading-relaxed mb-4">
+        <p id="upload-loading-subtitle" class="text-xs text-charcoal-muted leading-relaxed mb-3">
             Mohon tunggu sebentar, berkas sedang dikirim dan diproses oleh sistem.
         </p>
 
-        {{-- Animated Indeterminate Progress Bar --}}
-        <div class="w-full bg-surface-100 rounded-full h-2 overflow-hidden mb-4 relative">
-            <div class="animate-upload-shimmer bg-gradient-to-r from-primary-500 via-teal-400 to-emerald-500 h-full rounded-full"></div>
+        {{-- Progress Percentage Header --}}
+        <div class="w-full flex items-center justify-between text-xs mb-1.5 px-0.5">
+            <span class="font-medium text-charcoal-muted flex items-center gap-1.5">
+                <span class="inline-block w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>
+                <span id="upload-loading-status-text">Mengunggah berkas...</span>
+            </span>
+            <span id="upload-loading-percent" class="font-extrabold text-primary-600 text-sm tracking-tight tabular-nums">
+                0%
+            </span>
+        </div>
+
+        {{-- Progress Bar with Percentage Fill --}}
+        <div class="w-full bg-surface-100 rounded-full h-2.5 sm:h-3 p-0.5 border border-surface-200 overflow-hidden mb-4 relative shadow-inner">
+            <div id="upload-loading-bar" 
+                 class="h-full rounded-full bg-gradient-to-r from-primary-500 via-teal-400 to-emerald-500 transition-all duration-150 ease-out relative"
+                 style="width: 0%;">
+                <div class="absolute inset-0 bg-white/25 rounded-full animate-pulse"></div>
+            </div>
         </div>
 
         {{-- Caution note --}}
@@ -555,14 +570,36 @@
         if (isDestructive) {
             iconWrap.className = 'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-red-100';
             iconWrap.querySelector('svg').setAttribute('class', 'w-5 h-5 text-red-600');
-            btnOk.className = 'px-5 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm';
+            btnOk.className = 'px-5 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm cursor-pointer';
         } else {
             iconWrap.className = 'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100';
             iconWrap.querySelector('svg').setAttribute('class', 'w-5 h-5 text-amber-600');
-            btnOk.className = 'px-5 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors shadow-sm';
+            btnOk.className = 'px-5 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors shadow-sm cursor-pointer';
         }
 
-        msgEl.textContent = message;
+        // Format message: hilangkan garis miring, hilangkan tanda petik, dan boldkan teks file / entitas
+        let clean = (message || '').replace(/\\+/g, '');
+        let safeMsg = '';
+        if (clean.includes('<strong') || clean.includes('<b>')) {
+            safeMsg = clean;
+        } else {
+            safeMsg = clean.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // Hapus tanda petik dan boldkan teks yang berada di dalam tanda petik
+        safeMsg = safeMsg.replace(/['"]([^'"]+?)['"]/g, function(match, inner) {
+            return '<strong class="font-bold text-charcoal">' + inner.trim() + '</strong>';
+        });
+
+        // Pola deteksi entitas setelah kata menghapus jika belum diapit bold
+        if (!safeMsg.includes('<strong')) {
+            safeMsg = safeMsg.replace(/(menghapus\s+(?:file|berkas|dokumen\s+QA|dokumen|PKPT|data\s+Kertas\s+Kerja\s+PKPT|data\s+Kertas\s+Kerja\s+untuk\s+PKPT|data|user|tugas\s+tindak\s+lanjut)\s+)([^?.,]+?)([\?\.])/i, function(match, prefix, entityName, punct) {
+                const trimmed = entityName.trim().replace(/^['"]+|['"]+$/g, '');
+                return prefix + '<strong class="font-bold text-charcoal">' + trimmed + '</strong>' + punct;
+            });
+        }
+
+        msgEl.innerHTML = safeMsg;
         overlay.style.display = 'flex';
         // Animate in
         requestAnimationFrame(() => {
@@ -659,11 +696,103 @@
         const uploadBox     = document.getElementById('custom-upload-box');
         const uploadTitle   = document.getElementById('upload-loading-title');
         const uploadSub     = document.getElementById('upload-loading-subtitle');
+        const uploadPercent = document.getElementById('upload-loading-percent');
+        const uploadBar     = document.getElementById('upload-loading-bar');
+        const uploadStatus  = document.getElementById('upload-loading-status-text');
 
-        function showUploadLoading(title, subtitle) {
+        let progressTimer = null;
+        let currentPercent = 0;
+
+        function resetProgress() {
+            if (progressTimer) {
+                clearInterval(progressTimer);
+                progressTimer = null;
+            }
+            currentPercent = 0;
+            if (uploadPercent) uploadPercent.textContent = '0%';
+            if (uploadBar) uploadBar.style.width = '0%';
+            if (uploadStatus) uploadStatus.textContent = 'Menyiapkan berkas...';
+        }
+
+        function startProgressAnimation(form) {
+            resetProgress();
+
+            let totalBytes = 0;
+            let fileCount = 0;
+
+            if (form) {
+                const fileInputs = form.querySelectorAll('input[type="file"]');
+                fileInputs.forEach(inp => {
+                    if (inp.files && inp.files.length > 0) {
+                        Array.from(inp.files).forEach(f => {
+                            totalBytes += f.size || 0;
+                            fileCount++;
+                        });
+                    }
+                });
+            }
+
+            let sizeStr = '';
+            if (totalBytes > 0) {
+                if (totalBytes >= 1048576) {
+                    sizeStr = (totalBytes / 1048576).toFixed(1) + ' MB';
+                } else {
+                    sizeStr = Math.round(totalBytes / 1024) + ' KB';
+                }
+            }
+
+            if (uploadStatus) {
+                if (fileCount > 0) {
+                    uploadStatus.textContent = `Mengunggah ${fileCount} berkas ${sizeStr ? '(' + sizeStr + ')' : ''}...`;
+                } else {
+                    uploadStatus.textContent = 'Mengunggah berkas...';
+                }
+            }
+
+            // Adaptive duration based on total upload size (min 1.6s, max 15s)
+            const duration = Math.max(1600, Math.min(15000, 1600 + (totalBytes / 1048576) * 350));
+            const startTime = Date.now();
+
+            progressTimer = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const ratio = Math.min(1, elapsed / duration);
+
+                if (ratio < 0.7) {
+                    // Phase 1 (0% -> 75%): Fast and steady transfer
+                    const p1 = (ratio / 0.7);
+                    currentPercent = Math.min(75, Math.round(p1 * 75));
+                    if (uploadStatus && fileCount > 0) {
+                        uploadStatus.textContent = `Mengunggah ${fileCount} berkas ${sizeStr ? '(' + sizeStr + ')' : ''}...`;
+                    }
+                } else if (ratio < 1.0) {
+                    // Phase 2 (75% -> 92%): Processing and verifying
+                    const p2 = (ratio - 0.7) / 0.3;
+                    currentPercent = Math.min(92, Math.round(75 + p2 * 17));
+                    if (uploadStatus) {
+                        uploadStatus.textContent = 'Memproses dan memverifikasi berkas...';
+                    }
+                } else {
+                    // Phase 3 (92% -> 98%): Saving to system & finalizing
+                    if (currentPercent < 98) {
+                        currentPercent = Math.min(98, currentPercent + 0.25);
+                    }
+                    if (uploadStatus) {
+                        uploadStatus.textContent = 'Menyimpan ke sistem...';
+                    }
+                }
+
+                const displayPercent = Math.min(99, Math.floor(currentPercent));
+                if (uploadPercent) uploadPercent.textContent = displayPercent + '%';
+                if (uploadBar) uploadBar.style.width = displayPercent + '%';
+            }, 60);
+        }
+
+        function showUploadLoading(title, subtitle, form) {
             if (!uploadOverlay || !uploadBox) return;
             if (title && uploadTitle) uploadTitle.textContent = title;
             if (subtitle && uploadSub) uploadSub.textContent = subtitle;
+
+            startProgressAnimation(form);
 
             uploadOverlay.style.display = 'flex';
             requestAnimationFrame(() => {
@@ -677,6 +806,7 @@
 
         function hideUploadLoading() {
             if (!uploadOverlay || !uploadBox) return;
+            resetProgress();
             uploadOverlay.style.opacity = '0';
             uploadBox.style.transform = 'scale(0.95)';
             uploadBox.style.opacity   = '0';
@@ -739,7 +869,7 @@
                 const customTitle = form.getAttribute('data-loading-title');
                 const customSub = form.getAttribute('data-loading-subtitle');
                 disableSubmit(form);
-                showUploadLoading(customTitle, customSub);
+                showUploadLoading(customTitle, customSub, form);
             }
         });
     })();
@@ -751,20 +881,27 @@
 
         // Check if onsubmit attribute contains confirm(
         const onsubmitAttr = form.getAttribute('onsubmit') || '';
-        const match = onsubmitAttr.match(/(?:return\s+)?confirm\(['"](.+?)['"]\)/);
+        const match = onsubmitAttr.match(/(?:return\s+)?confirm\(([\s\S]+)\)/);
         if (match) {
             e.preventDefault();
             e.stopImmediatePropagation();
-            form.removeAttribute('onsubmit');
-            showDialog(match[1]);
+            let confirmMsg = match[1].trim();
+            if ((confirmMsg.startsWith("'") && confirmMsg.endsWith("'")) || (confirmMsg.startsWith('"') && confirmMsg.endsWith('"'))) {
+                confirmMsg = confirmMsg.slice(1, -1);
+            }
+            showDialog(confirmMsg);
             _resolve = (confirmed) => {
                 if (confirmed) {
                     form._confirmHandled = true;
                     if (window._isFormUploading && window._isFormUploading(form)) {
                         if (window._disableSubmit) window._disableSubmit(form);
-                        if (window.showUploadLoading) window.showUploadLoading();
+                        if (window.showUploadLoading) window.showUploadLoading(null, null, form);
                     }
-                    form.submit();
+                    try {
+                        HTMLFormElement.prototype.submit.call(form);
+                    } catch (err) {
+                        form.submit();
+                    }
                 }
             };
         }
@@ -773,29 +910,38 @@
     // Intercept all button/element onclick="return confirm(...)"
     document.addEventListener('click', function (e) {
         const el = e.target.closest('[onclick]');
-        if (!el) return;
+        if (!el || el._confirmHandled) return;
         const onclickAttr = el.getAttribute('onclick') || '';
-        const match = onclickAttr.match(/(?:return\s+)?confirm\(['"](.+?)['"]\)/);
+        const match = onclickAttr.match(/(?:return\s+)?confirm\(([\s\S]+)\)/);
         if (match) {
             e.preventDefault();
             e.stopImmediatePropagation();
-            el.removeAttribute('onclick');
 
-            showDialog(match[1]);
+            let confirmMsg = match[1].trim();
+            if ((confirmMsg.startsWith("'") && confirmMsg.endsWith("'")) || (confirmMsg.startsWith('"') && confirmMsg.endsWith('"'))) {
+                confirmMsg = confirmMsg.slice(1, -1);
+            }
+            showDialog(confirmMsg);
             _resolve = (confirmed) => {
                 if (confirmed) {
+                    el._confirmHandled = true;
                     // Re-trigger: if inside a form, submit it
                     const form = el.closest('form') || el.form;
                     if (form) {
                         form._confirmHandled = true;
                         if (window._isFormUploading && window._isFormUploading(form)) {
                             if (window._disableSubmit) window._disableSubmit(form);
-                            if (window.showUploadLoading) window.showUploadLoading();
+                            if (window.showUploadLoading) window.showUploadLoading(null, null, form);
                         }
-                        form.submit();
+                        try {
+                            HTMLFormElement.prototype.submit.call(form);
+                        } catch (err) {
+                            form.submit();
+                        }
                     } else {
                         el.click();
                     }
+                    setTimeout(() => { el._confirmHandled = false; }, 1000);
                 }
             };
         }

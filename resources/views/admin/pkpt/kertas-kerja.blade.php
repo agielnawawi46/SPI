@@ -24,11 +24,20 @@
                         Tahun: <strong>{{ $pkpt->period_year }}</strong>
                     </span>
                     <span>&bull;</span>
-                    <span class="flex items-center gap-1">
+                    <span class="flex items-center gap-1.5">
                         Status: 
                         <span class="badge {{ $document && $document->status === 'draft' ? 'badge-draft' : 'badge-completed' }}">
                             {{ $document && $document->status === 'draft' ? 'Draft' : 'Closed' }}
                         </span>
+                        @if($document && $document->status !== 'draft' && auth()->user()->hasRole('admin'))
+                            <form action="{{ route('pkpt.reopen-kertas-kerja', $pkpt) }}" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin membuka kunci (reopen) Kertas Kerja PKPT ini kembali ke status Draft?')">
+                                @csrf
+                                <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 transition-all shadow-2xs cursor-pointer ml-1" title="Buka Kunci Closed">
+                                    <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                                    <span>Buka Kunci</span>
+                                </button>
+                            </form>
+                        @endif
                     </span>
                     <span>&bull;</span>
                     <span class="flex items-center gap-1">
@@ -36,10 +45,23 @@
                     </span>
                 </div>
             </div>
-            <a href="{{ route('pkpt.kertas-kerja.index') }}" class="btn-secondary text-sm">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                Kembali
-            </a>
+            <div class="flex items-center gap-2">
+                @php
+                    $totalAttachmentsCount = $document && $document->attachments ? $document->attachments->count() : 0;
+                @endphp
+                @if($totalAttachmentsCount > 0)
+                <a href="{{ route('pkpt.kertas-kerja.download-zip', $pkpt) }}" 
+                   class="btn-secondary text-sm py-2 px-3.5 flex items-center gap-2 text-emerald-700 hover:text-emerald-800 border-emerald-300 hover:bg-emerald-50 rounded-xl transition-all shadow-2xs font-semibold" 
+                   title="Unduh seluruh berkas Kertas Kerja dalam format ZIP terstruktur per folder">
+                    <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span>Unduh Semua (.ZIP)</span>
+                </a>
+                @endif
+                <a href="{{ route('pkpt.kertas-kerja.index') }}" class="btn-secondary text-sm">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    Kembali
+                </a>
+            </div>
         </div>
 
         <div class="card-body">
@@ -178,7 +200,7 @@
                                                 {{-- Action Buttons (Image 2 Icon Style) --}}
                                                 <div class="flex items-center gap-1.5 flex-shrink-0">
                                                     {{-- View / Preview --}}
-                                                    <a href="{{ Storage::url($att->pdf_path ?: $att->file_path) }}" 
+                                                    <a href="{{ route('pkpt.view-file', [$pkpt, $att->id]) }}" 
                                                        target="_blank" 
                                                        title="Lihat Berkas" 
                                                        class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-90 shadow-sm transition-all">
@@ -186,9 +208,7 @@
                                                     </a>
                                                     
                                                     {{-- Download --}}
-                                                    <a href="{{ Storage::url($att->file_path) }}" 
-                                                       download 
-                                                       target="_blank" 
+                                                    <a href="{{ route('pkpt.download', [$pkpt, $att->id]) }}" 
                                                        title="Unduh Berkas" 
                                                        class="btn-icon bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -199,7 +219,7 @@
                                                     <form action="{{ route('pkpt.destroy-kertas-kerja-attachment', [$pkpt, $att->id]) }}" 
                                                           method="POST" 
                                                           class="inline-block m-0 p-0 leading-none" 
-                                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus file \'{{ addslashes($att->file_name) }}\'?')">
+                                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus file {{ addslashes($att->file_name) }}?')">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" 
@@ -399,14 +419,27 @@
                 </div>
             @elseif($document && $document->status !== 'draft')
                 <div class="mt-8 pt-6 border-t border-surface-200">
-                    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600 border border-emerald-200">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-sm text-emerald-900">Kertas Kerja PKPT Telah Selesai (Closed)</p>
+                                <p class="text-xs text-emerald-700 mt-0.5">Seluruh berkas dokumen Kertas Kerja pada PKPT ini telah dikunci. Berkas tidak dapat diubah atau dihapus.</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-semibold text-sm">Kertas Kerja PKPT Telah Selesai (Closed)</p>
-                            <p class="text-xs text-emerald-700 mt-0.5">Seluruh berkas dokumen Kertas Kerja pada PKPT ini telah dikunci dan disimpan secara permanen.</p>
+                        @if(auth()->user()->hasRole('admin'))
+                        <div class="flex-shrink-0">
+                            <form action="{{ route('pkpt.reopen-kertas-kerja', $pkpt) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membuka kunci (reopen) Kertas Kerja PKPT ini? Dokumen akan kembali ke status Draft sehingga berkas dapat diubah, ditambah, atau dihapus kembali.')">
+                                @csrf
+                                <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-md shadow-amber-500/20 hover:shadow-lg transition-all cursor-pointer">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                                    <span>Buka Kunci Closed (Reopen ke Draft)</span>
+                                </button>
+                            </form>
                         </div>
+                        @endif
                     </div>
                 </div>
             @endif

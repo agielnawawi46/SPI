@@ -168,14 +168,17 @@
 
                 @else
                     <div class="md:col-span-2 form-group">
-                        <label class="form-label">
-                            @if($selectedType && $selectedType->slug === 'lap-konsultasi')
-                                Nomor / Judul Laporan <span class="text-red-500">*</span>
-                            @else
-                                Judul Dokumen <span class="text-red-500">*</span>
-                            @endif
+                        <label class="form-label flex items-center justify-between">
+                            <span>
+                                @if($selectedType && $selectedType->slug === 'lap-konsultasi')
+                                    Nomor / Judul Laporan <span class="text-red-500">*</span>
+                                @else
+                                    Judul Dokumen <span class="text-red-500">*</span>
+                                @endif
+                            </span>
+                            <span class="text-[11px] text-charcoal-muted font-normal">(Otomatis terisi dari berkas, atau ketik manual)</span>
                         </label>
-                        <input type="text" name="title" class="form-input" value="{{ old('title') }}" placeholder="Contoh: Laporan Konsultasi / Nomor Dokumen">
+                        <input type="text" name="title" class="form-input" value="{{ old('title') }}" placeholder="Contoh: Laporan Konsultasi / Nomor Dokumen (atau otomatis dari berkas)">
                         @error('title')<p class="form-error">{{ $message }}</p>@enderror
                     </div>
                     

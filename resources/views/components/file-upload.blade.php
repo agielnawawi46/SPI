@@ -11,6 +11,8 @@
     'badge' => null,
     'deleteRoute' => null,
     'deleteRouteParams' => [],
+    'autoFillTitle' => true,
+    'targetTitleInput' => null,
 ])
 
 @php
@@ -27,94 +29,14 @@
 @endphp
 
 <div class="border rounded-2xl bg-white shadow-sm overflow-hidden transition-all duration-200" 
-     :class="(selectedFiles.length > 0 || @json($filesList->isNotEmpty())) ? 'border-emerald-500 ring-1 ring-emerald-500/20' : 'border-surface-200'" 
-     x-data="{
-        selectedFiles: [],
-        isDragging: false,
-        getDt() {
-            if (!this.$el._dt) this.$el._dt = new DataTransfer();
-            return this.$el._dt;
-        },
-        setDt(newDt) {
-            this.$el._dt = newDt;
-        },
-        addFiles(files) {
-            const fileList = Array.from(files || []);
-            if (fileList.length === 0) return;
-
-            const dt = this.getDt();
-            if (@json($multiple)) {
-                for (const file of fileList) {
-                    const exists = Array.from(dt.files).some(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified);
-                    if (!exists) {
-                        dt.items.add(file);
-                    }
-                }
-            } else {
-                const singleDt = new DataTransfer();
-                singleDt.items.add(fileList[0]);
-                this.setDt(singleDt);
-            }
-
-            const input = document.getElementById('{{ $inputId }}');
-            if (input) {
-                input.files = this.getDt().files;
-            }
-            this.syncSelectedFiles();
-        },
-        handleFileChange(event) {
-            this.addFiles(event.target.files);
-        },
-        handleDrop(event) {
-            this.isDragging = false;
-            if (event.dataTransfer && event.dataTransfer.files) {
-                this.addFiles(event.dataTransfer.files);
-            }
-        },
-        removeFile(index) {
-            const dt = this.getDt();
-            const newDt = new DataTransfer();
-            Array.from(dt.files).forEach((file, i) => {
-                if (i !== index) {
-                    newDt.items.add(file);
-                }
-            });
-            this.setDt(newDt);
-            const input = document.getElementById('{{ $inputId }}');
-            if (input) {
-                input.files = newDt.files;
-                if (newDt.files.length === 0) {
-                    input.value = '';
-                }
-            }
-            this.syncSelectedFiles();
-        },
-        clearFiles() {
-            this.setDt(new DataTransfer());
-            const el = document.getElementById('{{ $inputId }}');
-            if (el) el.value = '';
-            this.syncSelectedFiles();
-        },
-        syncSelectedFiles() {
-            const dt = this.getDt();
-            this.selectedFiles = Array.from(dt.files).map(f => {
-                let sizeStr = '';
-                if (f.size > 1024 * 1024) {
-                    sizeStr = (f.size / (1024 * 1024)).toFixed(2) + ' MB';
-                } else if (f.size > 1024) {
-                    sizeStr = (f.size / 1024).toFixed(1) + ' KB';
-                } else {
-                    sizeStr = f.size + ' B';
-                }
-                const ext = f.name.split('.').pop().toLowerCase();
-                return {
-                    name: f.name,
-                    size: sizeStr,
-                    ext: ext
-                };
-            });
-        }
-     }">
+     :class="(selectedFiles.length > 0 || {{ $filesList->isNotEmpty() ? 'true' : 'false' }}) ? 'border-emerald-500 ring-1 ring-emerald-500/20' : 'border-surface-200'" 
+     x-data="fileUploadComponent({
+        inputId: '{{ $inputId }}',
+        multiple: {{ $multiple ? 'true' : 'false' }},
+        autoFillTitle: {{ $autoFillTitle ? 'true' : 'false' }},
+        targetTitleInput: '{{ $targetTitleInput }}',
+        csrfToken: '{{ csrf_token() }}'
+     })">
     
     {{-- Header --}}
     <div class="p-4 sm:p-5 border-b {{ $filesList->isNotEmpty() ? 'border-emerald-200 bg-emerald-50/30' : 'border-surface-100 bg-surface-50/60' }}">
@@ -169,7 +91,7 @@
             <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
                 @foreach($filesList as $item)
                     @php
-                        $fileName = $item->file_name ?? (basename($item->file_path ?? $item));
+                        $fileName = is_object($item) ? ($item->file_name ?? basename($item->file_path ?? '')) : basename($item);
                         $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
                         $iconStyle = match($ext) {
                             'pdf' => 'text-red-500 bg-red-50 border-red-200',
@@ -185,8 +107,13 @@
                             'jpg', 'jpeg', 'png' => 'bg-purple-50 text-purple-700 border-purple-200',
                             default => 'bg-surface-100 text-charcoal border-surface-200'
                         };
-                        $fileUrl = is_object($item) ? Storage::url($item->pdf_path ?: $item->file_path) : Storage::url($item);
-                        $downloadUrl = is_object($item) ? Storage::url($item->file_path) : Storage::url($item);
+                        if (is_object($item) && isset($item->id)) {
+                            $fileUrl = route('attachments.view', $item->id);
+                            $downloadUrl = route('attachments.download', $item->id);
+                        } else {
+                            $fileUrl = is_object($item) ? Storage::url($item->pdf_path ?: $item->file_path) : Storage::url($item);
+                            $downloadUrl = is_object($item) ? Storage::url($item->file_path) : Storage::url($item);
+                        }
                     @endphp
 
                     <div class="p-2.5 bg-emerald-50/20 hover:bg-emerald-50/40 border border-emerald-400 rounded-xl flex items-center justify-between gap-3 transition-colors shadow-2xs">
@@ -223,7 +150,7 @@
                             <a href="{{ $fileUrl }}" target="_blank" title="Lihat Berkas" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-90 shadow-sm transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
-                            <a href="{{ $downloadUrl }}" download target="_blank" title="Unduh Berkas" class="btn-icon bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all">
+                            <a href="{{ $downloadUrl }}" title="Unduh Berkas" class="btn-icon bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                             </a>
                             @php
@@ -237,9 +164,9 @@
                             @endphp
                             @if($deleteUrl)
                             <button type="button" 
-                                    onclick="if(confirm('Apakah Anda yakin ingin menghapus berkas \'{{ addslashes($fileName) }}\'?')) { const f = document.createElement('form'); f.method = 'POST'; f.action = '{{ $deleteUrl }}'; const t = document.createElement('input'); t.type = 'hidden'; t.name = '_token'; t.value = '{{ csrf_token() }}'; const m = document.createElement('input'); m.type = 'hidden'; m.name = '_method'; m.value = 'DELETE'; f.appendChild(t); f.appendChild(m); document.body.appendChild(f); f.submit(); }"
+                                    @click.prevent.stop="deleteExistingAttachment('{{ $deleteUrl }}', @js($fileName))"
                                     title="Hapus Berkas" 
-                                    class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-90 shadow-sm transition-all">
+                                    class="btn-icon bg-red-500 text-white hover:bg-red-400 hover:opacity-90 shadow-sm transition-all cursor-pointer">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                             @endif
@@ -329,8 +256,8 @@
                 </template>
             </div>
 
-            {{-- Text Instructions --}}
-            <div class="space-y-1.5 max-w-md pointer-events-none">
+            {{-- Typography & Description --}}
+            <div class="pointer-events-none space-y-1">
                 <template x-if="isDragging">
                     <p class="text-sm sm:text-base font-bold text-primary-700 animate-pulse">
                         Lepaskan berkas di sini untuk menambahkan berkas...
@@ -352,3 +279,230 @@
         </div>
     </div>
 </div>
+
+<script>
+if (typeof window.fileUploadComponent !== 'function') {
+    window.fileUploadComponent = function(config) {
+        return {
+            selectedFiles: [],
+            isDragging: false,
+            autoFillTitle: Boolean(config.autoFillTitle),
+            targetTitleSelector: config.targetTitleInput || null,
+            inputId: config.inputId,
+            multiple: Boolean(config.multiple),
+            csrfToken: config.csrfToken,
+
+            getDt() {
+                if (!this.$el._dt) this.$el._dt = new DataTransfer();
+                return this.$el._dt;
+            },
+            setDt(newDt) {
+                this.$el._dt = newDt;
+            },
+            findTitleInput() {
+                if (this.targetTitleSelector) {
+                    const target = document.querySelector(this.targetTitleSelector);
+                    if (target) return target;
+                }
+                const form = this.$el.closest('form');
+                if (!form) return null;
+
+                const candidates = Array.from(form.querySelectorAll('input[name="title"], input[id="title"], input[name="judul_dokumen"], input[name="judul"]'));
+                return candidates.find(el => el.offsetParent !== null) || candidates[0] || null;
+            },
+            initTitleTracker(titleInput) {
+                if (!titleInput || titleInput._hasAutoFillTracker) return;
+                titleInput._hasAutoFillTracker = true;
+                titleInput._userHasEdited = (titleInput.value || '').trim() !== '';
+                titleInput._autoFilledByComponent = false;
+
+                titleInput.addEventListener('input', (e) => {
+                    if (e.isTrusted) {
+                        if (titleInput.value.trim() === '') {
+                            titleInput._userHasEdited = false;
+                            titleInput._autoFilledByComponent = false;
+                        } else {
+                            titleInput._userHasEdited = true;
+                        }
+                    }
+                });
+            },
+            tryAutoFillTitle(file) {
+                if (!this.autoFillTitle || !file) return;
+
+                const titleInput = this.findTitleInput();
+                if (!titleInput) return;
+
+                this.initTitleTracker(titleInput);
+
+                const currentValue = (titleInput.value || '').trim();
+                if (currentValue !== '' && titleInput._userHasEdited && !titleInput._autoFilledByComponent) {
+                    return;
+                }
+
+                const rawName = file.name || '';
+                const lastDot = rawName.lastIndexOf('.');
+                const cleanName = (lastDot > 0 ? rawName.substring(0, lastDot) : rawName).trim();
+
+                if (cleanName) {
+                    titleInput.value = cleanName;
+                    titleInput._autoFilledByComponent = true;
+                    titleInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    titleInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+                    titleInput.classList.add('ring-2', 'ring-emerald-400', 'transition-all');
+                    setTimeout(() => {
+                        titleInput.classList.remove('ring-2', 'ring-emerald-400');
+                    }, 1200);
+                }
+            },
+            addFiles(files) {
+                const fileList = Array.from(files || []);
+                if (fileList.length === 0) return;
+
+                const dt = this.getDt();
+                if (this.multiple) {
+                    for (const file of fileList) {
+                        const exists = Array.from(dt.files).some(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified);
+                        if (!exists) {
+                            dt.items.add(file);
+                        }
+                    }
+                } else {
+                    const singleDt = new DataTransfer();
+                    singleDt.items.add(fileList[0]);
+                    this.setDt(singleDt);
+                }
+
+                const input = document.getElementById(this.inputId);
+                if (input) {
+                    input.files = this.getDt().files;
+                }
+                this.syncSelectedFiles();
+
+                if (fileList.length > 0) {
+                    this.tryAutoFillTitle(fileList[0]);
+                }
+            },
+            handleFileChange(event) {
+                this.addFiles(event.target.files);
+            },
+            handleDrop(event) {
+                this.isDragging = false;
+                if (event.dataTransfer && event.dataTransfer.files) {
+                    this.addFiles(event.dataTransfer.files);
+                }
+            },
+            removeFile(index) {
+                const dt = this.getDt();
+                const newDt = new DataTransfer();
+                Array.from(dt.files).forEach((file, i) => {
+                    if (i !== index) {
+                        newDt.items.add(file);
+                    }
+                });
+                this.setDt(newDt);
+                const input = document.getElementById(this.inputId);
+                if (input) {
+                    input.files = newDt.files;
+                    if (newDt.files.length === 0) {
+                        input.value = '';
+                    }
+                }
+                this.syncSelectedFiles();
+
+                const titleInput = this.findTitleInput();
+                if (titleInput && titleInput._autoFilledByComponent && !titleInput._userHasEdited) {
+                    if (newDt.files.length > 0) {
+                        this.tryAutoFillTitle(newDt.files[0]);
+                    } else {
+                        titleInput.value = '';
+                        titleInput._autoFilledByComponent = false;
+                        titleInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        titleInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+            },
+            clearFiles() {
+                this.setDt(new DataTransfer());
+                const el = document.getElementById(this.inputId);
+                if (el) el.value = '';
+                this.syncSelectedFiles();
+
+                const titleInput = this.findTitleInput();
+                if (titleInput && titleInput._autoFilledByComponent && !titleInput._userHasEdited) {
+                    titleInput.value = '';
+                    titleInput._autoFilledByComponent = false;
+                    titleInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    titleInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            },
+            syncSelectedFiles() {
+                const dt = this.getDt();
+                this.selectedFiles = Array.from(dt.files).map(f => {
+                    let sizeStr = '';
+                    if (f.size > 1024 * 1024) {
+                        sizeStr = (f.size / (1024 * 1024)).toFixed(2) + ' MB';
+                    } else if (f.size > 1024) {
+                        sizeStr = (f.size / 1024).toFixed(1) + ' KB';
+                    } else {
+                        sizeStr = f.size + ' B';
+                    }
+                    const ext = f.name.split('.').pop().toLowerCase();
+                    return {
+                        name: f.name,
+                        size: sizeStr,
+                        ext: ext
+                    };
+                });
+            },
+            deleteExistingAttachment(url, fileName) {
+                if (typeof window.executeAttachmentDelete === 'function') {
+                    window.executeAttachmentDelete(url, fileName, this.csrfToken);
+                }
+            }
+        };
+    };
+}
+
+if (typeof window.executeAttachmentDelete !== 'function') {
+    window.executeAttachmentDelete = function(url, fileName, csrfToken) {
+        if (!url) return;
+        const displayName = fileName || 'ini';
+        const msg = 'Apakah Anda yakin ingin menghapus berkas ' + displayName + '?';
+
+        const proceed = () => {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+            form.style.display = 'none';
+
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = '_token';
+            tokenInput.value = csrfToken;
+            form.appendChild(tokenInput);
+
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'DELETE';
+            form.appendChild(methodInput);
+
+            document.body.appendChild(form);
+            form._confirmHandled = true;
+            try {
+                HTMLFormElement.prototype.submit.call(form);
+            } catch (e) {
+                form.submit();
+            }
+        };
+
+        if (typeof window.showConfirmDialog === 'function') {
+            window.showConfirmDialog(msg, proceed);
+        } else {
+            proceed();
+        }
+    };
+}
+</script>

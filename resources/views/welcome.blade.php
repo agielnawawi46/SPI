@@ -6,8 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SIMAK — Sistem Informasi Manajemen Audit & Kepatuhan</title>
     <meta name="description" content="SIMAK - Sistem Informasi Manajemen Audit & Kepatuhan PT Pelayanan Energi Batam">
-    <link rel="icon" type="image/png" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
-    <link rel="shortcut icon" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
+    <link rel="icon" type="image/png" href="{{ asset('s2.png') }}?v={{ filemtime(public_path('s2.png')) }}">
+    <link rel="shortcut icon" href="{{ asset('s2.png') }}?v={{ filemtime(public_path('s2.png')) }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
@@ -43,13 +43,8 @@
                 <a href="{{ url('/') }}" class="flex items-center gap-2 sm:gap-3.5 min-w-0">
                     <img src="{{ asset('pln.jpg') }}" alt="PLN Batam" class="h-8 sm:h-11 md:h-12 w-auto object-contain mix-blend-multiply filter contrast-125 flex-shrink-0">
                     <img src="{{ asset('DI.png') }}" alt="Danantara Indonesia" class="h-5 sm:h-6 md:h-7 w-auto object-contain border-l border-surface-200 pl-2 sm:pl-3.5 block flex-shrink-0">
+                    <img src="{{ asset('s2.png') }}?v={{ filemtime(public_path('s2.png')) }}" alt="Logo SIMAK" class="h-7 sm:h-9 md:h-10 w-auto object-contain border-l border-surface-200 pl-2 sm:pl-3.5 block flex-shrink-0">
                 </a>
-                
-                <div class="hidden md:flex items-center gap-2.5 pl-4 border-l border-surface-200 flex-shrink-0">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-primary-50 text-primary-700">
-                        SIMAK
-                    </span>
-                </div>
             </div>
 
             {{-- Right Action --}}

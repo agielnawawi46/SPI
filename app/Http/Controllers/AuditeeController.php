@@ -105,32 +105,12 @@ class AuditeeController extends Controller
             $originalName = $file->getClientOriginalName();
             $uniqueId = uniqid();
             $path = $file->storeAs('evidences', time() . '_' . $uniqueId . '_' . $originalName, 'public');
-            
-            $pdfPath = null;
-            $extension = strtolower($file->getClientOriginalExtension());
-            if (in_array($extension, ['doc', 'docx'])) {
-                try {
-                    \PhpOffice\PhpWord\Settings::setPdfRendererPath(base_path('vendor/dompdf/dompdf'));
-                    \PhpOffice\PhpWord\Settings::setPdfRendererName('DomPDF');
-                    
-                    $phpWord = \PhpOffice\PhpWord\IOFactory::load(storage_path('app/public/' . $path));
-                    $pdfFilename = time() . '_' . $uniqueId . '_' . pathinfo($originalName, PATHINFO_FILENAME) . '.pdf';
-                    $pdfRelativePath = 'evidences/' . $pdfFilename;
-                    $pdfAbsolutePath = storage_path('app/public/' . $pdfRelativePath);
-                    
-                    $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
-                    $pdfWriter->save($pdfAbsolutePath);
-                    $pdfPath = $pdfRelativePath;
-                } catch (\Exception $e) {
-                    \Log::error('DOCX to PDF Conversion failed: ' . $e->getMessage());
-                }
-            }
 
             $followUp->evidences()->create([
                 'uploaded_by' => Auth::id(),
                 'file_name'   => $originalName,
                 'file_path'   => $path,
-                'pdf_path'    => $pdfPath,
+                'pdf_path'    => null,
                 'file_type'   => $file->getClientMimeType(),
                 'file_size'   => $file->getSize(),
                 'description' => $request->description,

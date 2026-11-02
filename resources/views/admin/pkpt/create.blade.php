@@ -23,8 +23,11 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="form-group mb-0">
-                    <label for="title" class="form-label">Judul PKPT <span class="text-red-500">*</span></label>
-                    <input type="text" id="title" name="title" value="{{ old('title') }}" class="form-input" required placeholder="Contoh: PKPT Tahun 2026">
+                    <label for="title" class="form-label flex items-center justify-between">
+                        <span>Judul PKPT <span class="text-red-500">*</span></span>
+                        <span class="text-[11px] text-charcoal-muted font-normal">(Otomatis terisi dari berkas, atau ketik manual)</span>
+                    </label>
+                    <input type="text" id="title" name="title" value="{{ old('title') }}" class="form-input" required placeholder="Contoh: PKPT Tahun 2026 (atau otomatis dari nama file)">
                     @error('title') <p class="form-error"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ $message }}</p> @enderror
                 </div>
                 

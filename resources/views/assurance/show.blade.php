@@ -130,8 +130,8 @@
                     @forelse($document->attachments as $attachment)
                         @php
                             $ext = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
-                            $previewUrl = $attachment->pdf_path ? Storage::url($attachment->pdf_path) : Storage::url($attachment->file_path);
-                            $downloadUrl = Storage::url($attachment->file_path);
+                            $previewUrl = route('attachments.view', $attachment->id);
+                            $downloadUrl = route('attachments.download', $attachment->id);
                             $iconColor = match($ext) {
                                 'pdf' => 'bg-red-50 text-red-600',
                                 'doc', 'docx' => 'bg-blue-50 text-blue-600',
@@ -358,16 +358,10 @@
                                         @php
                                             $ext = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
                                         @endphp
-                                        @if($attachment->pdf_path)
-                                            <a href="{{ Storage::url($attachment->pdf_path) }}" target="_blank" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-90 shadow-sm transition-all" title="Lihat Berkas">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                            </a>
-                                        @elseif(in_array($ext, ['pdf', 'png', 'jpg', 'jpeg']))
-                                            <a href="{{ Storage::url($attachment->file_path) }}" target="_blank" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-90 shadow-sm transition-all" title="Lihat Berkas">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                            </a>
-                                        @endif
-                                        <a href="{{ Storage::url($attachment->file_path) }}" download class="btn-icon bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all" title="Unduh Berkas">
+                                        <a href="{{ route('attachments.view', $attachment->id) }}" target="_blank" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-90 shadow-sm transition-all" title="Lihat Berkas">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        </a>
+                                        <a href="{{ route('attachments.download', $attachment->id) }}" class="btn-icon bg-emerald-600 text-white hover:bg-emerald-500 hover:opacity-90 shadow-sm transition-all" title="Unduh Berkas">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                         </a>
                                     </div>

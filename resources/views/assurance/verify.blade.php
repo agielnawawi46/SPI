@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verifikasi Keaslian Dokumen — SIMAK PT Pelayanan Energi Batam</title>
-    <link rel="icon" type="image/png" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
-    <link rel="shortcut icon" href="{{ asset('pln.png') }}?v={{ filemtime(public_path('pln.png')) }}">
+    <link rel="icon" type="image/png" href="{{ asset('s2.png') }}?v={{ filemtime(public_path('s2.png')) }}">
+    <link rel="shortcut icon" href="{{ asset('s2.png') }}?v={{ filemtime(public_path('s2.png')) }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-surface-50 flex items-center justify-center p-4 py-10">
@@ -18,7 +18,7 @@
 
             {{-- Header / Brand --}}
             <div class="flex items-center justify-center gap-2 mb-6 mt-1">
-                <img src="{{ asset('pln.png') }}" alt="PLN / PEB" class="h-7 w-auto object-contain">
+                <img src="{{ asset('s2.png') }}" alt="SIMAK / PEB" class="h-7 w-auto object-contain">
                 <span class="text-xs font-bold tracking-wider text-charcoal-muted uppercase">SIMAK • PT Pelayanan Energi Batam</span>
             </div>
 
