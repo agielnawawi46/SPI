@@ -30,8 +30,8 @@ export default {
                     300: '#c4cad4',  // border & subtle dividers
                 },
                 sidebar: {
-                    bg:     '#b2bccb',  // deep soft slate-gray
-                    border: '#9ba8b9',  // distinct border tone
+                    bg:     '#062d35',  // Deep Teal Corporate (PT PEB)
+                    border: '#0b3d47',  // Clean subtle dark border
                 },
                 charcoal: {
                     DEFAULT: '#333333',

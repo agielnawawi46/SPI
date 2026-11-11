@@ -56,6 +56,198 @@ Alpine.data('flashMessage', () => ({
     }
 }));
 
+// Kertas Kerja PKPT 6-Category Upload Component
+const createKertasKerjaCard = (config) => ({
+    key: config.key,
+    label: config.label,
+    files: config.files || [],
+    csrfToken: config.csrfToken,
+    uploadUrl: config.uploadUrl,
+    selectedFiles: [],
+    isDragging: false,
+    isUploading: false,
+    uploadProgress: 0,
+    errorMessage: '',
+
+    get hasFiles() {
+        return this.files.length > 0;
+    },
+    getDt() {
+        if (!this.$el || !this.$el._dt) {
+            const newDt = new DataTransfer();
+            if (this.$el) this.$el._dt = newDt;
+            else this._dt = newDt;
+        }
+        return this.$el ? this.$el._dt : this._dt;
+    },
+    setDt(newDt) {
+        if (this.$el) this.$el._dt = newDt;
+        this._dt = newDt;
+    },
+    addFiles(newFiles) {
+        const dt = this.getDt();
+        const files = Array.from(newFiles || []);
+        for (let f of files) {
+            const exists = Array.from(dt.files).some(x => x.name === f.name && x.size === f.size && x.lastModified === f.lastModified);
+            if (!exists) dt.items.add(f);
+        }
+        if (this.$refs.fileInput) {
+            this.$refs.fileInput.files = dt.files;
+        }
+        this.syncList();
+    },
+    handleFiles(e) {
+        this.addFiles(e.target.files);
+    },
+    handleDrop(e) {
+        this.isDragging = false;
+        if (e.dataTransfer && e.dataTransfer.files) {
+            this.addFiles(e.dataTransfer.files);
+        }
+    },
+    removeSelectedFile(idx) {
+        const dt = this.getDt();
+        const newDt = new DataTransfer();
+        Array.from(dt.files).forEach((f, i) => {
+            if (i !== idx) newDt.items.add(f);
+        });
+        this.setDt(newDt);
+        if (this.$refs.fileInput) {
+            this.$refs.fileInput.files = newDt.files;
+            if (newDt.files.length === 0) {
+                this.$refs.fileInput.value = '';
+            }
+        }
+        this.syncList();
+    },
+    clearFiles() {
+        this.setDt(new DataTransfer());
+        if (this.$refs.fileInput) {
+            this.$refs.fileInput.value = '';
+        }
+        this.selectedFiles = [];
+        this.errorMessage = '';
+    },
+    syncList() {
+        const dt = this.getDt();
+        this.selectedFiles = Array.from(dt.files).map(f => ({
+            name: f.name,
+            size: f.size > 1048576 ? (f.size / 1048576).toFixed(1) + ' MB' : Math.round(f.size / 1024) + ' KB'
+        }));
+    },
+    submitUpload() {
+        const dt = this.getDt();
+        const filesToUpload = dt.files.length > 0 ? dt.files : (this.$refs.fileInput ? this.$refs.fileInput.files : []);
+        if (filesToUpload.length === 0 || this.isUploading) return;
+        
+        this.isUploading = true;
+        this.uploadProgress = 0;
+        this.errorMessage = '';
+
+        const formData = new FormData();
+        formData.append('_token', this.csrfToken);
+        formData.append('category', this.key);
+        for (let i = 0; i < filesToUpload.length; i++) {
+            formData.append('attachments[]', filesToUpload[i]);
+        }
+
+        const targetUrl = this.uploadUrl || (this.$refs.uploadForm ? this.$refs.uploadForm.action : window.location.href);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', targetUrl, true);
+        xhr.setRequestHeader('X-CSRF-TOKEN', this.csrfToken);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Accept', 'application/json');
+
+        xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+                this.uploadProgress = Math.round((e.loaded / e.total) * 100);
+            }
+        };
+
+        xhr.onload = () => {
+            this.isUploading = false;
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    const res = JSON.parse(xhr.responseText);
+                    if (res.success) {
+                        this.files = res.attachments || [];
+                        this.clearFiles();
+                        window.dispatchEvent(new CustomEvent('pkpt-attachments-updated', {
+                            detail: { total: res.total_count, category: this.key, message: res.message }
+                        }));
+                    } else {
+                        this.errorMessage = res.message || 'Gagal mengunggah berkas.';
+                    }
+                } catch (err) {
+                    this.errorMessage = 'Terjadi kesalahan respons server.';
+                }
+            } else {
+                try {
+                    const errRes = JSON.parse(xhr.responseText);
+                    this.errorMessage = errRes.message || 'Gagal mengunggah berkas. Pastikan format file PDF, Word, atau Excel.';
+                } catch(e) {
+                    this.errorMessage = 'Gagal mengunggah berkas (Error ' + xhr.status + ').';
+                }
+            }
+        };
+
+        xhr.onerror = () => {
+            this.isUploading = false;
+            this.errorMessage = 'Koneksi jaringan terputus saat mengunggah.';
+        };
+
+        xhr.send(formData);
+    },
+    deleteFile(att) {
+        if (!att || !att.delete_url) return;
+        const msg = 'Apakah Anda yakin ingin menghapus file "' + att.file_name + '"?';
+
+        const proceed = async () => {
+            try {
+                const res = await fetch(att.delete_url, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': this.csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success) {
+                        this.files = this.files.filter(f => f.id !== att.id);
+                        window.dispatchEvent(new CustomEvent('pkpt-attachments-updated', {
+                            detail: { 
+                                total: data.total_count, 
+                                category: this.key, 
+                                message: 'File ' + att.file_name + ' berhasil dihapus.' 
+                            }
+                        }));
+                    } else {
+                        this.errorMessage = data.message || 'Gagal menghapus file.';
+                    }
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    this.errorMessage = errData.message || ('Gagal menghapus file (Error ' + res.status + ').');
+                }
+            } catch (e) {
+                this.errorMessage = 'Terjadi kesalahan jaringan saat menghapus file.';
+            }
+        };
+
+        if (typeof window.showConfirmDialog === 'function') {
+            window.showConfirmDialog(msg, proceed);
+        } else if (confirm(msg)) {
+            proceed();
+        }
+    }
+});
+
+Alpine.data('kertasKerjaCard', createKertasKerjaCard);
+window.kertasKerjaCard = createKertasKerjaCard;
+
 Alpine.start();
 
 // ============================================

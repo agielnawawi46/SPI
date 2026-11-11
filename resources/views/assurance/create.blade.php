@@ -83,57 +83,141 @@
                 </template>
 
                 <!-- Surat Tugas & KKA Specific Fields -->
+                @php
+                    $timAuditCreateInitial = old('tim_audit') ?: [['nama' => '', 'nip' => '', 'jabatan_pegawai' => '', 'jabatan_tim' => 'Ketua Tim']];
+                @endphp
                 <template x-if="selectedType == stgTypeId || selectedType == kertasKerjaAuditTypeId">
                     <div class="md:col-span-2 space-y-6">
+                        <script>
+                            function stgCreateHeaderData() {
+                                return {
+                                    headerText: @json(old('header_text', $stgTemplate['header_text'] ?? 'FMR-003-14')),
+                                    tanggalFormulir: @json(old('tanggal_formulir', $stgTemplate['tanggal_formulir'] ?? date('Y-m-d'))),
+                                    judulDokumen: @json(old('judul_dokumen', $stgTemplate['judul_dokumen'] ?? 'SURAT TUGAS AUDIT')),
+                                    titleNoStg: @json(old('title', $stgTemplate['title'] ?? '')),
+                                    deskripsiPembuka: @json(old('deskripsi_pembuka', $stgTemplate['deskripsi_pembuka'] ?? ('Dalam rangka melakukan audit rutin di lingkungan Perusahaan sesuai Program Kerja Pengawasan Tahunan (PKPT) Terintegrasi ' . date('Y') . ' yang dilaksanakan oleh Tim SPI PT PEB, maka dengan ini kami menugaskan kepada :'))),
+                                    isSavingTemplate: false,
+                                    templateSavedSuccess: false,
+                                    templateMessage: '',
+                                    
+                                    async saveAsDefaultTemplate() {
+                                        this.isSavingTemplate = true;
+                                        this.templateSavedSuccess = false;
+                                        this.templateMessage = '';
+                                        try {
+                                            const res = await fetch('{{ route('assurance.save-header-template') }}', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'Accept': 'application/json',
+                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                                },
+                                                body: JSON.stringify({
+                                                    audit_type: '{{ $auditType }}',
+                                                    header_text: this.headerText,
+                                                    tanggal_formulir: this.tanggalFormulir,
+                                                    judul_dokumen: this.judulDokumen,
+                                                    title: this.titleNoStg,
+                                                    deskripsi_pembuka: this.deskripsiPembuka
+                                                })
+                                            });
+                                            const data = await res.json();
+                                            if (data.success) {
+                                                this.templateSavedSuccess = true;
+                                                this.templateMessage = data.message || 'Format penomoran berhasil disimpan sebagai default berikutnya.';
+                                                setTimeout(() => { this.templateSavedSuccess = false; }, 6000);
+                                            } else {
+                                                alert(data.message || 'Gagal menyimpan format penomoran.');
+                                            }
+                                        } catch (err) {
+                                            console.error(err);
+                                            alert('Terjadi kesalahan saat menyimpan format penomoran.');
+                                        } finally {
+                                            this.isSavingTemplate = false;
+                                        }
+                                    }
+                                };
+                            }
+
+                            function stgCreateTimAuditData() {
+                                return {
+                                    rows: @json($timAuditCreateInitial)
+                                };
+                            }
+
+                            function stgCreateJadwalData() {
+                                return {
+                                    jadwalMulai: @json(old('jadwal_mulai', '')),
+                                    jadwalSelesai: @json(old('jadwal_selesai', '')),
+                                    formatDateIndo(dateStr) {
+                                        if (!dateStr) return '';
+                                        const parts = dateStr.split('-');
+                                        if (parts.length !== 3) return dateStr;
+                                        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                        const day = parts[2];
+                                        const month = months[parseInt(parts[1], 10) - 1] || '';
+                                        const year = parts[0];
+                                        return `${day} ${month} ${year}`.trim();
+                                    },
+                                    get formattedJadwal() {
+                                        const m = this.formatDateIndo(this.jadwalMulai);
+                                        const s = this.formatDateIndo(this.jadwalSelesai);
+                                        if (m && s) return `${m} s.d. ${s}`;
+                                        return m || '';
+                                    }
+                                };
+                            }
+
+                            function stgCreatePenutupData() {
+                                return {
+                                    deskripsiPenutup: @json(old('deskripsi_penutup', $stgClosingTemplate['deskripsi_penutup'] ?? 'Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.')),
+                                    tglStg: @json(old('tgl_stg', $stgClosingTemplate['tgl_stg'] ?? date('Y-m-d'))),
+                                    jabatanDirektur: @json(old('jabatan_direktur', $stgClosingTemplate['jabatan_direktur'] ?? 'Plt. Direktur PT PEB')),
+                                    namaDirektur: @json(old('nama_direktur', $stgClosingTemplate['nama_direktur'] ?? 'SAMSUL BAHRI')),
+                                    isSavingClosing: false,
+                                    closingSavedSuccess: false,
+                                    closingMessage: '',
+                                    
+                                    async saveClosingDefault() {
+                                        this.isSavingClosing = true;
+                                        this.closingSavedSuccess = false;
+                                        this.closingMessage = '';
+                                        try {
+                                            const res = await fetch('{{ route('assurance.save-closing-template') }}', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'Accept': 'application/json',
+                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                                },
+                                                body: JSON.stringify({
+                                                    audit_type: '{{ $auditType }}',
+                                                    deskripsi_penutup: this.deskripsiPenutup,
+                                                    tgl_stg: this.tglStg,
+                                                    jabatan_direktur: this.jabatanDirektur,
+                                                    nama_direktur: this.namaDirektur
+                                                })
+                                            });
+                                            const data = await res.json();
+                                            if (data.success) {
+                                                this.closingSavedSuccess = true;
+                                                this.closingMessage = data.message || 'Format penutup & penandatangan berhasil disimpan sebagai default berikutnya.';
+                                                setTimeout(() => { this.closingSavedSuccess = false; }, 6000);
+                                            } else {
+                                                alert(data.message || 'Gagal menyimpan format penutup.');
+                                            }
+                                        } catch (err) {
+                                            console.error(err);
+                                            alert('Terjadi kesalahan saat menyimpan format penutup.');
+                                        } finally {
+                                            this.isSavingClosing = false;
+                                        }
+                                    }
+                                };
+                            }
+                        </script>
                         <!-- BAGIAN 1: Informasi Dokumen & Header (Daftar & Penomoran) -->
-                        <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden"
-                             x-data="{
-                                 headerText: {{ json_encode(old('header_text', $stgTemplate['header_text'] ?? 'FMR-003-14'), JSON_UNESCAPED_SLASHES) }},
-                                 tanggalFormulir: {{ json_encode(old('tanggal_formulir', $stgTemplate['tanggal_formulir'] ?? date('Y-m-d')), JSON_UNESCAPED_SLASHES) }},
-                                 judulDokumen: {{ json_encode(old('judul_dokumen', $stgTemplate['judul_dokumen'] ?? 'SURAT TUGAS AUDIT'), JSON_UNESCAPED_SLASHES) }},
-                                 titleNoStg: {{ json_encode(old('title', $stgTemplate['title'] ?? ''), JSON_UNESCAPED_SLASHES) }},
-                                 deskripsiPembuka: {{ json_encode(old('deskripsi_pembuka', $stgTemplate['deskripsi_pembuka'] ?? ('Dalam rangka melakukan audit rutin di lingkungan Perusahaan sesuai Program Kerja Pengawasan Tahunan (PKPT) Terintegrasi ' . date('Y') . ' yang dilaksanakan oleh Tim SPI PT PEB, maka dengan ini kami menugaskan kepada :')), JSON_UNESCAPED_SLASHES) }},
-                                 isSavingTemplate: false,
-                                 templateSavedSuccess: false,
-                                 templateMessage: '',
-                                 
-                                 async saveAsDefaultTemplate() {
-                                     this.isSavingTemplate = true;
-                                     this.templateSavedSuccess = false;
-                                     this.templateMessage = '';
-                                     try {
-                                         const res = await fetch('{{ route('assurance.save-header-template') }}', {
-                                             method: 'POST',
-                                             headers: {
-                                                 'Content-Type': 'application/json',
-                                                 'Accept': 'application/json',
-                                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                             },
-                                             body: JSON.stringify({
-                                                 audit_type: '{{ $auditType }}',
-                                                 header_text: this.headerText,
-                                                 tanggal_formulir: this.tanggalFormulir,
-                                                 judul_dokumen: this.judulDokumen,
-                                                 title: this.titleNoStg,
-                                                 deskripsi_pembuka: this.deskripsiPembuka
-                                             })
-                                         });
-                                         const data = await res.json();
-                                         if (data.success) {
-                                             this.templateSavedSuccess = true;
-                                             this.templateMessage = data.message || 'Format penomoran berhasil disimpan sebagai default berikutnya.';
-                                             setTimeout(() => { this.templateSavedSuccess = false; }, 6000);
-                                         } else {
-                                             alert(data.message || 'Gagal menyimpan format penomoran.');
-                                         }
-                                     } catch (err) {
-                                         console.error(err);
-                                         alert('Terjadi kesalahan saat menyimpan format penomoran.');
-                                     } finally {
-                                         this.isSavingTemplate = false;
-                                     }
-                                 }
-                             }">
+                        <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden" x-data="stgCreateHeaderData()">
                             <div class="bg-surface-100 px-4 py-3 border-b border-surface-200">
                                 <h4 class="font-bold text-charcoal flex items-center gap-2">
                                     <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -198,9 +282,7 @@
                         </div>
 
                         <!-- BAGIAN 2: Tim Audit -->
-                        <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden" x-data="{
-                            rows: {{ old('tim_audit') ? json_encode(old('tim_audit')) : "[{nama: '', nip: '', jabatan_pegawai: '', jabatan_tim: 'Ketua Tim'}]" }}
-                        }">
+                        <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden" x-data="stgCreateTimAuditData()">
                             <div class="bg-surface-100 px-4 py-3 border-b border-surface-200">
                                 <h4 class="font-bold text-charcoal flex items-center gap-2">
                                     <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
@@ -256,28 +338,7 @@
                         </div>
 
                         <!-- BAGIAN 3: Rincian Penugasan -->
-                        <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden"
-                             x-data="{
-                                 jadwalMulai: {{ json_encode(old('jadwal_mulai', ''), JSON_UNESCAPED_SLASHES) }},
-                                 jadwalSelesai: {{ json_encode(old('jadwal_selesai', ''), JSON_UNESCAPED_SLASHES) }},
-                                 formatDateIndo(dateStr) {
-                                     if (!dateStr) return '';
-                                     const parts = dateStr.split('-');
-                                     if (parts.length !== 3) return dateStr;
-                                     const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                                     const day = parts[2];
-                                     const month = months[parseInt(parts[1], 10) - 1] || '';
-                                     const year = parts[0];
-                                     return `${day} ${month} ${year}`.trim();
-                                 },
-                                 get formattedJadwal() {
-                                     const m = this.formatDateIndo(this.jadwalMulai);
-                                     const s = this.formatDateIndo(this.jadwalSelesai);
-                                     if (m && s) return `${m} s.d. ${s}`;
-                                     if (m) return m;
-                                     return '';
-                                 }
-                             }">
+                        <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden" x-data="stgCreateJadwalData()">
                             <div class="bg-surface-100 px-4 py-3 border-b border-surface-200">
                                 <h4 class="font-bold text-charcoal flex items-center gap-2">
                                     <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
@@ -344,52 +405,7 @@
                         </div>
 
                         <!-- BAGIAN 4: Penandatangan & Penutup -->
-                        <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden"
-                             x-data="{
-                                 deskripsiPenutup: {{ json_encode(old('deskripsi_penutup', $stgClosingTemplate['deskripsi_penutup'] ?? 'Demikian surat tugas ini dibuat untuk dilaksanakan sebagaimana mestinya.'), JSON_UNESCAPED_SLASHES) }},
-                                 tglStg: {{ json_encode(old('tgl_stg', $stgClosingTemplate['tgl_stg'] ?? date('Y-m-d')), JSON_UNESCAPED_SLASHES) }},
-                                 jabatanDirektur: {{ json_encode(old('jabatan_direktur', $stgClosingTemplate['jabatan_direktur'] ?? 'Plt. Direktur PT PEB'), JSON_UNESCAPED_SLASHES) }},
-                                 namaDirektur: {{ json_encode(old('nama_direktur', $stgClosingTemplate['nama_direktur'] ?? 'SAMSUL BAHRI'), JSON_UNESCAPED_SLASHES) }},
-                                 isSavingClosing: false,
-                                 closingSavedSuccess: false,
-                                 closingMessage: '',
-                                 
-                                 async saveClosingDefault() {
-                                     this.isSavingClosing = true;
-                                     this.closingSavedSuccess = false;
-                                     this.closingMessage = '';
-                                     try {
-                                         const res = await fetch('{{ route('assurance.save-closing-template') }}', {
-                                             method: 'POST',
-                                             headers: {
-                                                 'Content-Type': 'application/json',
-                                                 'Accept': 'application/json',
-                                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                             },
-                                             body: JSON.stringify({
-                                                 audit_type: '{{ $auditType }}',
-                                                 deskripsi_penutup: this.deskripsiPenutup,
-                                                 tgl_stg: this.tglStg,
-                                                 jabatan_direktur: this.jabatanDirektur,
-                                                 nama_direktur: this.namaDirektur
-                                             })
-                                         });
-                                         const data = await res.json();
-                                         if (data.success) {
-                                             this.closingSavedSuccess = true;
-                                             this.closingMessage = data.message || 'Format penutup & penandatangan berhasil disimpan sebagai default berikutnya.';
-                                             setTimeout(() => { this.closingSavedSuccess = false; }, 6000);
-                                         } else {
-                                             alert(data.message || 'Gagal menyimpan format penutup.');
-                                         }
-                                     } catch (err) {
-                                         console.error(err);
-                                         alert('Terjadi kesalahan saat menyimpan format penutup.');
-                                     } finally {
-                                         this.isSavingClosing = false;
-                                     }
-                                 }
-                             }">
+                        <div class="border border-surface-200 rounded-xl bg-white shadow-sm overflow-hidden" x-data="stgCreatePenutupData()">
                             <div class="bg-surface-100 px-4 py-3 border-b border-surface-200">
                                 <h4 class="font-bold text-charcoal flex items-center gap-2">
                                     <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>

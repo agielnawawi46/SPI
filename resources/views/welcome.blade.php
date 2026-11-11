@@ -193,12 +193,12 @@
                 <div class="w-1/2 lg:w-1/3 flex-shrink-0 px-4 sm:px-6 lg:px-8 xl:px-10 flex items-center justify-center transition-opacity duration-500"
                      :class="!isLogin ? 'opacity-0 pointer-events-none' : 'opacity-100'">
                     
-                    <div class="w-full max-w-md bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-surface-200/80 shadow-2xl shadow-primary-950/10 p-6 sm:p-7 xl:p-8 relative">
+                    <div class="w-full max-w-md bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-surface-200/80 shadow-2xl shadow-primary-950/10 p-6 sm:p-7 relative max-h-[calc(100vh-120px)] overflow-y-auto">
                         {{-- Top Accent Tag --}}
                         <div class="flex items-center justify-between mb-5">
                             <div class="flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-primary-500 animate-pulse"></span>
-                                <span class="text-xs font-bold tracking-wider uppercase text-primary-700">Autentikasi Pengguna</span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span class="text-xs font-bold tracking-wider uppercase text-primary-700">Google Workspace SSO</span>
                             </div>
                             <button type="button" 
                                     @click="isLogin = false" 
@@ -210,112 +210,67 @@
                         </div>
 
                         <div class="mb-5 text-left">
-                            <h2 class="text-xl sm:text-2xl font-extrabold text-charcoal tracking-tight">Selamat Datang</h2>
-                            <p class="text-xs sm:text-sm text-charcoal-medium mt-1">Masukkan akun kredensial SIMAK Anda untuk masuk.</p>
+                            <h2 class="text-xl sm:text-2xl font-extrabold text-charcoal tracking-tight">Selamat Datang di SIMAK</h2>
+                            <p class="text-xs sm:text-sm text-charcoal-medium mt-1">Akses masuk terpadu Sistem Informasi Manajemen Audit & Kepatuhan.</p>
                         </div>
 
-                        {{-- Session Error --}}
+                        {{-- Session Alerts --}}
                         @if (session('error'))
-                            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs sm:text-sm text-red-700 flex items-center gap-2.5">
-                                <svg class="w-4 h-4 flex-shrink-0 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                <span>{{ session('error') }}</span>
+                            <div class="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs sm:text-sm text-red-700 flex items-start gap-2.5">
+                                <svg class="w-4 h-4 flex-shrink-0 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span class="leading-relaxed">{{ session('error') }}</span>
+                            </div>
+                        @endif
+                        @if (session('success'))
+                            <div class="mb-4 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs sm:text-sm text-emerald-800 flex items-start gap-2.5">
+                                <svg class="w-4 h-4 flex-shrink-0 text-emerald-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span class="leading-relaxed">{{ session('success') }}</span>
                             </div>
                         @endif
 
-                        {{-- Login Form --}}
-                        <form id="welcome-login-form" action="{{ route('login.post') }}" method="POST" class="space-y-4">
-                            @csrf
-
-                            {{-- Email --}}
-                            <div class="space-y-1.5 text-left">
-                                <label for="welcome-email" class="block text-xs font-semibold text-charcoal">Email</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-charcoal-muted">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
-                                        </svg>
-                                    </div>
-                                    <input
-                                        id="welcome-email"
-                                        name="email"
-                                        type="email"
-                                        autocomplete="email"
-                                        value="{{ old('email') }}"
-                                        placeholder="nama@spi.internal"
-                                        class="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-surface-50 border border-surface-200 rounded-xl text-charcoal placeholder-charcoal-muted/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all {{ $errors->has('email') ? 'border-red-400 bg-red-50/30' : '' }}"
-                                        required
-                                    >
+                        {{-- Corporate Info Box --}}
+                        <div class="mb-5 p-4 bg-surface-50 border border-surface-200 rounded-2xl text-left space-y-2">
+                            <div class="flex items-center gap-2 text-xs font-bold text-charcoal">
+                                <div class="w-6 h-6 rounded-lg bg-primary-100 text-primary-700 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                                 </div>
-                                @error('email')
-                                    <p class="text-xs text-red-600 flex items-center gap-1 mt-1">
-                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                                        {{ $message }}
-                                    </p>
-                                @enderror
+                                <span>Single Sign-On (SSO) Resmi</span>
                             </div>
+                            <p class="text-xs text-charcoal-muted leading-relaxed">
+                                Silakan masuk menggunakan akun email resmi Google Workspace Anda (<strong class="text-charcoal font-semibold">@peb.co.id</strong>) yang telah didaftarkan oleh Administrator SPI.
+                            </p>
+                        </div>
 
-                            {{-- Password --}}
-                            <div class="space-y-1.5 text-left" x-data="{ showPwd: false }">
-                                <label for="welcome-password" class="block text-xs font-semibold text-charcoal">Password</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-charcoal-muted">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                        </svg>
-                                    </div>
-                                    <input
-                                        id="welcome-password"
-                                        name="password"
-                                        :type="showPwd ? 'text' : 'password'"
-                                        autocomplete="current-password"
-                                        placeholder="••••••••"
-                                        class="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-surface-50 border border-surface-200 rounded-xl text-charcoal placeholder-charcoal-muted/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all {{ $errors->has('password') ? 'border-red-400 bg-red-50/30' : '' }}"
-                                        required
-                                    >
-                                    <button type="button" @click="showPwd = !showPwd" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-charcoal-muted hover:text-charcoal transition-colors cursor-pointer">
-                                        <svg x-show="!showPwd" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                        <svg x-show="showPwd" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
-                                    </button>
-                                </div>
-                                @error('password')
-                                    <p class="text-xs text-red-600 flex items-center gap-1 mt-1">
-                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                                        {{ $message }}
-                                    </p>
-                                @enderror
-                            </div>
+                        {{-- Google Login CTA Button & Action --}}
+                        <div class="space-y-3">
+                            <a href="{{ route('auth.google') }}" 
+                               id="btn-login-google"
+                               class="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white hover:bg-surface-50 text-charcoal text-xs sm:text-sm font-bold rounded-xl border border-surface-300 hover:border-primary-500 shadow-sm hover:shadow transition-all cursor-pointer group">
+                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                                </svg>
+                                <span>Masuk dengan Akun Google</span>
+                            </a>
 
-                            {{-- Remember Me --}}
-                            <div class="flex items-center pt-0.5">
-                                <label class="flex items-center gap-2 cursor-pointer select-none">
-                                    <input id="welcome-remember" name="remember" type="checkbox" class="w-4 h-4 rounded border-surface-300 text-primary-600 focus:ring-primary-500/20">
-                                    <span class="text-xs text-charcoal-medium">Ingat saya</span>
-                                </label>
-                            </div>
+                            <button type="button" 
+                                    @click="isLogin = false" 
+                                    id="btn-login-kembali"
+                                    class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-charcoal-medium hover:text-charcoal bg-surface-100 hover:bg-surface-200 border border-surface-200 rounded-xl transition-all cursor-pointer"
+                                    title="Kembali ke Beranda">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                                <span>Kembali ke Beranda</span>
+                            </button>
+                        </div>
 
-                            {{-- Action Buttons --}}
-                            <div class="flex items-center gap-2.5 pt-2">
-                                {{-- Back to Hero Button --}}
-                                <button type="button" 
-                                        @click="isLogin = false" 
-                                        id="btn-login-kembali"
-                                        class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-charcoal-medium hover:text-charcoal bg-surface-100 hover:bg-surface-200 border border-surface-200 rounded-xl transition-all cursor-pointer"
-                                        title="Kembali ke Beranda">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                                    <span>Kembali</span>
-                                </button>
-
-                                {{-- Submit --}}
-                                <button type="submit" 
-                                        id="btn-welcome-submit" 
-                                        class="flex-1 inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-md shadow-primary-600/20 hover:shadow-lg hover:shadow-primary-600/30 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                                    </svg>
-                                    <span>Masuk</span>
-                                </button>
-                            </div>
-                        </form>
+                        {{-- Footer Help Text --}}
+                        <div class="mt-6 pt-4 border-t border-surface-200 text-center">
+                            <p class="text-[11px] text-charcoal-muted">
+                                Belum memiliki akun atau butuh penyesuaian hak akses? Hubungi <strong class="text-charcoal font-semibold">Administrator SPI</strong>.
+                            </p>
+                        </div>
                     </div>
 
                 </div>

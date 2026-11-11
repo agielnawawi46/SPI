@@ -47,7 +47,7 @@
                             </div>
                             <div class="bg-surface-100 p-2 rounded-lg border border-surface-200">
                                 <span class="font-bold text-charcoal">password</span>
-                                <span class="text-red-500 font-sans text-[10px] block font-normal mt-0.5">Wajib</span>
+                                <span class="text-emerald-700 font-sans text-[10px] block font-semibold mt-0.5">Opsional (Google SSO)</span>
                             </div>
                             <div class="bg-surface-100 p-2 rounded-lg border border-surface-200">
                                 <span class="font-bold text-charcoal">role</span>
@@ -71,6 +71,7 @@
                             <span>Ketentuan Pengisian:</span>
                         </div>
                         <ul class="list-disc pl-5 space-y-1 text-[11px] leading-relaxed">
+                            <li><strong>Password (Google SSO):</strong> Kolom <code class="font-mono bg-white px-1 py-0.5 rounded border border-amber-200 text-amber-900">password</code> boleh dikosongkan jika user login via akun Google perusahaan. Sistem akan mengenerate password acak terenkripsi otomatis.</li>
                             <li><strong>Auditee (Manager, Asman, Staff):</strong> Kolom <code class="font-mono bg-white px-1 py-0.5 rounded border border-amber-200 text-amber-900">department_code</code> wajib diisi sesuai kode bidang resmi pada tabel kamus di bawah.</li>
                             <li><strong>Direktur & Komisaris:</strong> Berdiri sendiri menaungi seluruh perusahaan, sehingga kolom <code class="font-mono bg-white px-1 py-0.5 rounded border border-amber-200 text-amber-900">department_code</code> dapat dikosongkan.</li>
                             <li>Kolom <code class="font-mono bg-white px-1 py-0.5 rounded border border-amber-200 text-amber-900">position</code> (jabatan) sudah ditiadakan di template baru, namun sistem tetap mendukung jika diimpor dari file CSV lama.</li>
@@ -126,6 +127,20 @@
                                 <span class="text-[10px] font-bold uppercase bg-primary-100 text-primary-700 px-2 py-0.5 rounded border border-primary-200 flex-shrink-0">Siap Import</span>
                             </div>
 
+                            {{-- Upload Progress Indicator (Identical to Kertas Kerja) --}}
+                            <div id="import-upload-progress" data-inline-upload-progress class="mt-3 p-3 bg-primary-50/80 rounded-xl border border-primary-200 hidden">
+                                <div class="flex items-center justify-between text-xs font-semibold text-primary-800 mb-1.5">
+                                    <span class="flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 animate-spin text-primary-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        <span id="import-upload-status">Sedang mengunggah & memproses berkas CSV...</span>
+                                    </span>
+                                    <span id="import-upload-percent" class="font-bold text-primary-700">0%</span>
+                                </div>
+                                <div class="w-full bg-primary-100 rounded-full h-2 overflow-hidden">
+                                    <div id="import-upload-bar" class="bg-primary-600 h-2 rounded-full transition-all duration-150" style="width: 0%;"></div>
+                                </div>
+                            </div>
+
                             @error('csv_file')
                                 <p class="form-error mt-2">{{ $message }}</p>
                             @enderror
@@ -135,9 +150,9 @@
 
                 <div class="card-footer p-4 border-t border-surface-200 bg-surface-50/50 mt-auto flex items-center justify-end gap-2.5">
                     <a href="{{ route('admin.users.index') }}" class="btn-secondary text-xs px-4 py-2">Batal</a>
-                    <button type="submit" class="btn-primary text-xs px-5 py-2 cursor-pointer shadow-2xs" onclick="this.innerHTML='<svg class=\'animate-spin w-3.5 h-3.5 mr-1.5 inline\' viewBox=\'0 0 24 24\'><circle class=\'opacity-25\' cx=\'12\' cy=\'12\' r=\'10\' stroke=\'currentColor\' stroke-width=\'4\' fill=\'none\'></circle><path class=\'opacity-75\' fill=\'currentColor\' d=\'M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z\'></path></svg> Mengimpor...'; this.classList.add('opacity-75'); this.form.submit();">
-                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                        Mulai Import User
+                    <button type="submit" id="import-submit-btn" class="btn-primary text-xs px-5 py-2 cursor-pointer shadow-2xs flex items-center">
+                        <svg class="w-4 h-4 mr-1.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        <span id="import-btn-text">Mulai Import User</span>
                     </button>
                 </div>
             </form>
@@ -250,6 +265,30 @@
             container.classList.remove('hidden');
             container.classList.add('flex');
         }
+    });
+
+    // Listen to upload progress events
+    window.addEventListener('app-upload-progress', function(e) {
+        var progEl = document.getElementById('import-upload-progress');
+        var percentEl = document.getElementById('import-upload-percent');
+        var barEl = document.getElementById('import-upload-bar');
+        var statusEl = document.getElementById('import-upload-status');
+        var btnText = document.getElementById('import-btn-text');
+
+        if (progEl) {
+            progEl.classList.remove('hidden');
+            if (percentEl) percentEl.textContent = e.detail.percent + '%';
+            if (barEl) barEl.style.width = e.detail.percent + '%';
+            if (statusEl && e.detail.status) statusEl.textContent = e.detail.status;
+            if (btnText) btnText.textContent = 'Mengimpor (' + e.detail.percent + '%)...';
+        }
+    });
+
+    window.addEventListener('app-upload-reset', function() {
+        var progEl = document.getElementById('import-upload-progress');
+        var btnText = document.getElementById('import-btn-text');
+        if (progEl) progEl.classList.add('hidden');
+        if (btnText) btnText.textContent = 'Mulai Import User';
     });
 </script>
 @endpush

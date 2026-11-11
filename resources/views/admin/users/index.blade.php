@@ -61,11 +61,23 @@
                 <tr>
                     <td>
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                                <span class="text-primary-700 text-xs font-bold">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
-                            </div>
+                            @if($user->avatar)
+                                <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-surface-200">
+                            @else
+                                <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                                    <span class="text-primary-700 text-xs font-bold">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                                </div>
+                            @endif
                             <div>
-                                <p class="text-sm font-semibold text-charcoal">{{ $user->name }}</p>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <p class="text-sm font-semibold text-charcoal">{{ $user->name }}</p>
+                                    @if($user->google_id)
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Akun terhubung ke Google Workspace SSO">
+                                        <svg class="w-2.5 h-2.5 text-emerald-600" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                        Google SSO
+                                    </span>
+                                    @endif
+                                </div>
                                 <p class="text-xs text-charcoal-muted">{{ $user->email }}</p>
                             </div>
                         </div>

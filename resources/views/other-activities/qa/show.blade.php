@@ -178,101 +178,12 @@
 
     {{-- STQ Document Preview (Hanya tampil jika tidak ada berkas unggahan) --}}
     @if($document->attachments->count() === 0)
-    <div class="bg-white shadow-xl mx-auto p-10 max-w-[210mm] min-h-[297mm] mb-8 text-black text-[11pt] flex flex-col leading-[1.15]" style="font-family: Arial, sans-serif;">
-        <div class="flex items-center justify-between mb-4 pb-2">
-            <div class="w-1/4">
-                <img src="{{ asset('pln.jpg') }}" alt="Header" class="max-h-24 object-contain">
-            </div>
-            <div class="w-3/4 text-right text-[8pt] text-[#002060] leading-snug">
-                @if($document->header_text)
-                <p>No. Formulir : {{ $document->header_text }}</p>
-                @endif
-                @if($document->tanggal_formulir)
-                <p>Tanggal Formulir : {{ \Carbon\Carbon::parse($document->tanggal_formulir)->translatedFormat('d F Y') }}</p>
-                @endif
-                <p>Tanggal : {{ $document->tgl_stg ? $document->tgl_stg->translatedFormat('d F Y') : $document->created_at->translatedFormat('d F Y') }}</p>
-                <p>Halaman : 1</p>
-            </div>
+    <div class="space-y-4">
+        <div class="max-w-[210mm] mx-auto">
+            <h4 class="text-sm font-bold text-charcoal">Dokumen Resmi Digital Sistem</h4>
+            <p class="text-xs text-charcoal-muted">Lembar formulir standar yang diterbitkan dan disahkan melalui sistem.</p>
         </div>
-        <div class="text-center mb-6">
-            <h4 class="font-bold text-[12pt] uppercase">{{ $document->judul_dokumen ?? 'SURAT TUGAS AUDIT QA' }}</h4>
-            <p class="font-medium text-[12pt]">{{ $document->title }}</p>
-        </div>
-        <div class="mb-4">
-            <p class="whitespace-pre-line text-justify">{{ $document->deskripsi_pembuka ?? '-' }}</p>
-        </div>
-        <div class="mt-4 mb-4">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse border border-black" style="table-layout: fixed; margin-bottom: -1px;">
-                    <thead>
-                        <tr>
-                            <th class="border border-black px-2 py-2 text-center font-semibold bg-gray-50" style="width: 5%;">No.</th>
-                            <th class="border border-black px-4 py-2 text-center font-semibold bg-gray-50" style="width: 70%;">Identitas Tim QA</th>
-                            <th class="border border-black px-4 py-2 text-center font-semibold bg-gray-50" style="width: 25%;">Jabatan Tim</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php $counter = 1; @endphp
-                        @if($document->tim_audit && is_array($document->tim_audit))
-                            @foreach($document->tim_audit as $tim)
-                            <tr>
-                                <td class="border border-black px-2 py-2 text-center align-top">{{ $counter++ }}.</td>
-                                <td class="border border-black px-4 py-2 align-top">
-                                    <div class="grid grid-cols-[70px_10px_1fr] gap-x-2">
-                                        <div>Nama</div><div>:</div><div class="uppercase break-words" style="word-break: break-all;">{{ $tim['nama'] ?? '-' }}</div>
-                                        <div>NIP</div><div>:</div><div class="break-words" style="word-break: break-all;">{{ $tim['nip'] ?? '-' }}</div>
-                                        <div>Jabatan</div><div>:</div><div class="capitalize break-words" style="word-break: break-all;">{{ $tim['jabatan_pegawai'] ?? '-' }}</div>
-                                    </div>
-                                </td>
-                                <td class="border border-black px-4 py-2 text-center align-middle break-words" style="word-break: break-all;">{{ $tim['jabatan_tim'] ?? '-' }}</td>
-                            </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
-                <table class="w-full text-left border-collapse border border-black" style="table-layout: fixed;">
-                    <tbody>
-                        <tr>
-                            <td class="border border-black px-4 py-2 align-top" style="width: 32%;">Periode QA</td>
-                            <td class="border border-black px-2 py-2 text-center align-top" style="width: 2%;">:</td>
-                            <td class="border border-black px-4 py-2 align-top break-words" style="width: 66%; word-break: break-all;">{{ $document->periode_audit ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td class="border border-black px-4 py-2 align-top">Lingkup QA</td>
-                            <td class="border border-black px-2 py-2 text-center align-top">:</td>
-                            <td class="border border-black px-4 py-2 align-top text-justify break-words" style="word-break: break-all;">{{ $document->lingkup_audit ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td class="border border-black px-4 py-2 align-top">Tujuan QA</td>
-                            <td class="border border-black px-2 py-2 text-center align-top">:</td>
-                            <td class="border border-black px-4 py-2 align-top text-justify break-words" style="word-break: break-all;">{{ $document->tujuan_audit ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td class="border border-black px-4 py-2 align-top">Waktu Pelaksanaan QA</td>
-                            <td class="border border-black px-2 py-2 text-center align-top">:</td>
-                            <td class="border border-black px-4 py-2 align-top break-words" style="word-break: break-all;">{{ $document->jadwal_audit ?? '-' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="mt-4">
-            <p class="whitespace-pre-line text-justify">{{ $document->deskripsi_penutup ?? '-' }}</p>
-        </div>
-        <div class="flex flex-col items-center mt-12 mb-8">
-            <p>{{ $document->tgl_stg ? $document->tgl_stg->format('d F Y') : '-' }}</p>
-            <p class="font-bold mb-4">{{ $document->jabatan_direktur ?? '-' }}</p>
-            @if($document->qr_code_path)
-            <img src="{{ asset('storage/' . $document->qr_code_path) }}" alt="QR Code" class="w-24 h-24 object-contain my-2">
-            @else
-            <div class="h-20"></div>
-            @endif
-            <div class="h-4"></div>
-            <p class="font-bold">{{ $document->nama_direktur ?? '-' }}</p>
-        </div>
-        <div class="flex justify-center mt-auto">
-            <img src="{{ asset('pln2.jpg') }}" alt="Footer" class="max-h-24 object-contain">
-        </div>
+        @include('assurance.partials.a4-preview')
     </div>
     @endif
     @endif

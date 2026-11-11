@@ -171,17 +171,37 @@
                     @error('custom_department') <p class="form-error">{{ $message }}</p> @enderror
                 </div>
 
-                {{-- Password --}}
-                <div class="form-group">
-                    <label for="password" class="form-label">Password <span class="text-red-500">*</span></label>
-                    <input type="password" name="password" id="password" placeholder="Minimal 8 karakter" class="form-input @error('password') border-red-400 @enderror" required>
-                    @error('password') <p class="form-error">{{ $message }}</p> @enderror
-                </div>
+                {{-- Opsi Login Google SSO vs Password Manual --}}
+                <div class="form-group md:col-span-2 p-4 bg-primary-50/40 border border-primary-200 rounded-xl" x-data="{ useGoogleSso: {{ old('auth_via_google', '1') == '1' ? 'true' : 'false' }} }">
+                    <div class="flex items-start gap-3">
+                        <input type="hidden" name="auth_via_google" value="0">
+                        <input type="checkbox" name="auth_via_google" id="auth_via_google" value="1" x-model="useGoogleSso" class="w-4 h-4 mt-0.5 text-primary-600 border-surface-300 rounded focus:ring-primary-500 cursor-pointer">
+                        <div class="flex-1">
+                            <label for="auth_via_google" class="text-xs sm:text-sm font-bold text-charcoal cursor-pointer flex items-center gap-2">
+                                Gunakan Akun Google Perusahaan (SSO)
+                                <span class="text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-primary-100 text-primary-800 border border-primary-300">Rekomendasi</span>
+                            </label>
+                            <p class="text-xs text-charcoal-muted mt-0.5">
+                                Pengguna akan login menggunakan email Google Workspace perusahaan (@peb.co.id) tanpa perlu password manual. Password di sistem akan dienkripsi secara acak.
+                            </p>
+                        </div>
+                    </div>
 
-                {{-- Konfirmasi Password --}}
-                <div class="form-group">
-                    <label for="password_confirmation" class="form-label">Konfirmasi Password <span class="text-red-500">*</span></label>
-                    <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Ulangi password di atas" class="form-input" required>
+                    {{-- Form Password Manual jika checkbox tidak dicentang --}}
+                    <div x-show="!useGoogleSso" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-primary-200/60" x-cloak>
+                        {{-- Password --}}
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password Manual <span class="text-red-500">*</span></label>
+                            <input type="password" name="password" id="password" placeholder="Minimal 8 karakter" class="form-input @error('password') border-red-400 @enderror" :required="!useGoogleSso">
+                            @error('password') <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+
+                        {{-- Konfirmasi Password --}}
+                        <div class="form-group">
+                            <label for="password_confirmation" class="form-label">Konfirmasi Password <span class="text-red-500">*</span></label>
+                            <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Ulangi password di atas" class="form-input" :required="!useGoogleSso">
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Status Aktif --}}

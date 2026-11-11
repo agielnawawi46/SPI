@@ -77,17 +77,24 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $rules = [
             'name'          => 'required|string|max:255',
             'email'         => 'required|string|email|max:255|unique:users',
-            'password'      => 'required|string|min:8|confirmed',
             'nip'           => 'nullable|string|max:50|unique:users',
             'position'      => 'nullable|string|max:255',
             'department_id' => 'nullable|exists:departments,id',
             'custom_department' => 'nullable|string|max:255|required_if:department_id,' . (Department::where('code', 'LAIN')->first()?->id ?? -1),
             'role'          => 'required|exists:roles,name',
             'is_active'     => 'boolean',
-        ]);
+        ];
+
+        if ($request->boolean('auth_via_google')) {
+            $rules['password'] = 'nullable|string|min:8|confirmed';
+        } else {
+            $rules['password'] = 'required|string|min:8|confirmed';
+        }
+
+        $validated = $request->validate($rules);
 
         $lainDept = Department::where('code', 'LAIN')->first();
         if ($lainDept && $request->department_id == $lainDept->id && $request->filled('custom_department')) {
@@ -107,10 +114,14 @@ class UserController extends Controller
             $role = $validated['role'];
             $departmentId = in_array($role, ['direktur', 'komisaris']) ? null : ($validated['department_id'] ?? null);
 
+            $passwordHash = !empty($validated['password'])
+                ? Hash::make($validated['password'])
+                : Hash::make(\Illuminate\Support\Str::random(32));
+
             $user = User::create([
                 'name'          => $validated['name'],
                 'email'         => $validated['email'],
-                'password'      => Hash::make($validated['password']),
+                'password'      => $passwordHash,
                 'nip'           => $validated['nip'] ?? null,
                 'position'      => $validated['position'] ?? null,
                 'department_id' => $departmentId,
@@ -244,9 +255,9 @@ class UserController extends Controller
 
             foreach ($records as $index => $row) {
                 try {
-                    // Check required fields
-                    if (empty($row['name']) || empty($row['email']) || empty($row['password']) || empty($row['role'])) {
-                        throw new \Exception("Kolom name, email, password, role wajib diisi.");
+                    // Check required fields (password is optional for Google SSO accounts)
+                    if (empty($row['name']) || empty($row['email']) || empty($row['role'])) {
+                        throw new \Exception("Kolom name, email, dan role wajib diisi.");
                     }
 
                     // Map Department code to ID
@@ -277,12 +288,17 @@ class UserController extends Controller
                         $departmentId = null;
                     }
 
-                    // Create or update user by email
+                    // Create or update user by email (keep existing password or generate random if empty)
+                    $existingUser = User::where('email', trim($row['email']))->first();
+                    $passwordHash = !empty($row['password'])
+                        ? Hash::make(trim($row['password']))
+                        : ($existingUser?->password ?? Hash::make(\Illuminate\Support\Str::random(32)));
+
                     $user = User::updateOrCreate(
                         ['email' => trim($row['email'])],
                         [
                             'name'          => trim($row['name']),
-                            'password'      => Hash::make(trim($row['password'])),
+                            'password'      => $passwordHash,
                             'nip'           => !empty($row['nip']) ? trim($row['nip']) : null,
                             'position'      => !empty($row['position']) ? trim($row['position']) : null,
                             'department_id' => $departmentId,

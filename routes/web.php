@@ -14,6 +14,10 @@ Route::middleware('guest')->group(function () {
     })->name('home');
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login',[LoginController::class, 'login'])->name('login.post');
+
+    // Google Workspace SSO (OAuth 2.0)
+    Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 });
 
 // ============================================
@@ -24,7 +28,11 @@ Route::get('/verify/{uuid}', [\App\Http\Controllers\AssuranceController::class, 
 // ============================================
 // AUTHENTICATED ROUTES
 // ============================================
-Route::middleware(['auth', 'check.active', 'audit.trail'])->group(function () {
+Route::middleware(['auth', 'check.active', 'audit.trail', 'profile.complete'])->group(function () {
+
+    // Profile Completion (Onboarding)
+    Route::get('/complete-profile', [\App\Http\Controllers\ProfileCompletionController::class, 'show'])->name('profile.complete');
+    Route::post('/complete-profile', [\App\Http\Controllers\ProfileCompletionController::class, 'store'])->name('profile.complete.store');
 
     // Logout
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

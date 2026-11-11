@@ -37,6 +37,17 @@
         $currentAuditType = $auditType;
     }
 
+    if (request()->routeIs('assurance*')) {
+        $currentAuditType = $currentAuditType ?: 'terjadwal';
+        $currentDocType = $currentDocType ?: 'surat-tugas';
+    } elseif (request()->routeIs('advisory*')) {
+        $currentDocType = $currentDocType ?: 'bak';
+    } elseif (request()->routeIs('other-activities.pendamping*')) {
+        $currentDocType = $currentDocType ?: 'lha-eksternal';
+    } elseif (request()->routeIs('other-activities.qa*')) {
+        $currentDocType = $currentDocType ?: 'st-qa';
+    }
+
     // HITUNG NOTIFIKASI PENDING APPROVAL
     $user = auth()->user();
     $hasPendingPkpt = false;
@@ -93,8 +104,8 @@
                  alt="Logo SIMAK" 
                  class="flex-shrink-0 w-10 h-10 object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105">
             <div class="min-w-0 flex-1">
-                <p class="sidebar-logo-text text-base font-black tracking-tight text-charcoal leading-none">SIMAK</p>
-                <p class="text-charcoal/70 text-[10px] leading-tight font-semibold mt-1 line-clamp-2">
+                <p class="sidebar-logo-text text-base font-black tracking-tight text-white leading-none">SIMAK</p>
+                <p class="text-teal-200/80 text-[10px] leading-tight font-medium mt-1 line-clamp-2">
                     Sistem Informasi Manajemen Audit & Kepatuhan
                 </p>
             </div>
@@ -102,12 +113,12 @@
     </div>
 
     {{-- Nav Menu --}}
-    <nav class="flex-1 py-4 overflow-y-auto space-y-1 px-2">
+    <nav class="flex-1 py-4 overflow-y-auto space-y-1 px-1.5">
 
         {{-- Dashboard --}}
         <a href="{{ route('dashboard') }}" @click="activeMenu = 'dashboard'" class="sidebar-link" :class="{ 'active': activeMenu === 'dashboard' }">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            Dashboard
+            <span class="flex-1 text-left whitespace-nowrap">Dashboard</span>
         </a>
 
         @can('pkpt.view')
@@ -115,13 +126,14 @@
         <div x-data="{ open: {{ request()->routeIs('pkpt*') ? 'true' : 'false' }} }">
             <div @click="open = !open; activeMenu = 'pkpt'" class="sidebar-link cursor-pointer" :class="{ 'active': activeMenu === 'pkpt' }">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-                Penyusunan PKPT
+                <span class="flex-1 text-left whitespace-nowrap">Penyusunan PKPT</span>
                 @if($hasPendingPkpt)
-                <span class="w-2 h-2 bg-red-500 rounded-full ml-auto"></span>
+                <span class="w-2 h-2 bg-red-500 rounded-full mr-1 flex-shrink-0"></span>
                 @endif
+                <svg :class="{'rotate-180': open}" class="sidebar-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
             <div x-show="open" x-collapse class="mt-1.5 space-y-1.5">
-                <a href="{{ route('pkpt.index') }}" class="sidebar-sublink {{ request()->routeIs('pkpt.index') ? 'active' : '' }}">PKPT</a>
+                <a href="{{ route('pkpt.index') }}" class="sidebar-sublink {{ request()->routeIs('pkpt.index') || (request()->routeIs('pkpt.*') && !request()->routeIs('pkpt.kertas-kerja*') && !request()->routeIs('pkpt.lainnya*')) ? 'active' : '' }}">PKPT</a>
                 <a href="{{ route('pkpt.kertas-kerja.index') }}" class="sidebar-sublink {{ request()->routeIs('pkpt.kertas-kerja.index') || request()->routeIs('pkpt.kertas-kerja') ? 'active' : '' }}">Kertas Kerja PKPT</a>
                 <a href="{{ route('pkpt.lainnya.index') }}" class="sidebar-sublink {{ request()->routeIs('pkpt.lainnya*') ? 'active' : '' }}">Lainnya</a>
             </div>
@@ -133,19 +145,20 @@
         <div x-data="{ open: {{ request()->routeIs('assurance*') ? 'true' : 'false' }} }">
             <div @click="open = !open; activeMenu = 'assurance'" class="sidebar-link cursor-pointer" :class="{ 'active': activeMenu === 'assurance' }">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                Layanan Assurance
+                <span class="flex-1 text-left whitespace-nowrap">Layanan Assurance</span>
                 @if($hasPendingAssurance)
-                <span class="w-2 h-2 bg-red-500 rounded-full ml-auto"></span>
+                <span class="w-2 h-2 bg-red-500 rounded-full mr-1 flex-shrink-0"></span>
                 @endif
+                <svg :class="{'rotate-180': open}" class="sidebar-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
             <div x-show="open" x-collapse class="mt-1.5 space-y-1.5">
                 {{-- Audit Terjadwal --}}
-                <div x-data="{ subOpen: {{ $currentAuditType == 'terjadwal' ? 'true' : 'false' }} }">
-                    <div @click="subOpen = !subOpen" class="sidebar-sublink cursor-pointer flex justify-between items-center" :class="{ 'active': '{{ $currentAuditType }}' == 'terjadwal' && !subOpen }">
-                        Audit Terjadwal
-                        <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                <div x-data="{ subOpen: {{ $currentAuditType == 'tidak_terjadwal' ? 'false' : 'true' }} }">
+                    <div @click="subOpen = !subOpen" class="sidebar-sublink cursor-pointer flex justify-between items-center whitespace-nowrap" :class="{ 'active': '{{ $currentAuditType }}' == 'terjadwal' && !subOpen, 'active-category': '{{ $currentAuditType }}' == 'terjadwal' && subOpen }">
+                        <span>Audit Terjadwal</span>
+                        <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </div>
-                    <div x-show="subOpen" x-collapse class="pl-4 mt-1 space-y-1">
+                    <div x-show="subOpen" x-collapse class="pl-2 mt-1 space-y-1">
                         <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'surat-tugas']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'surat-tugas' && $currentAuditType == 'terjadwal' ? 'active' : '' }}">Surat Tugas Audit</a>
                         <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'program-kerja']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'program-kerja' && $currentAuditType == 'terjadwal' ? 'active' : '' }}">Program Kerja Audit</a>
                         <a href="{{ route('assurance.index', ['audit_type' => 'terjadwal', 'type' => 'slide-entry']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'slide-entry' && $currentAuditType == 'terjadwal' ? 'active' : '' }}">Slide Entry Meeting</a>
@@ -156,11 +169,11 @@
 
                 {{-- Audit Tidak Terjadwal --}}
                 <div x-data="{ subOpen: {{ $currentAuditType == 'tidak_terjadwal' ? 'true' : 'false' }} }">
-                    <div @click="subOpen = !subOpen" class="sidebar-sublink cursor-pointer flex justify-between items-center" :class="{ 'active': '{{ $currentAuditType }}' == 'tidak_terjadwal' && !subOpen }">
-                        Audit Tidak Terjadwal
-                        <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    <div @click="subOpen = !subOpen" class="sidebar-sublink cursor-pointer flex justify-between items-center whitespace-nowrap" :class="{ 'active': '{{ $currentAuditType }}' == 'tidak_terjadwal' && !subOpen, 'active-category': '{{ $currentAuditType }}' == 'tidak_terjadwal' && subOpen }">
+                        <span>Audit Tidak Terjadwal</span>
+                        <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </div>
-                    <div x-show="subOpen" x-collapse class="pl-4 mt-1 space-y-1">
+                    <div x-show="subOpen" x-collapse class="pl-2 mt-1 space-y-1">
                         <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'surat-tugas']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'surat-tugas' && $currentAuditType == 'tidak_terjadwal' ? 'active' : '' }}">Surat Tugas Audit</a>
                         <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'program-kerja']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'program-kerja' && $currentAuditType == 'tidak_terjadwal' ? 'active' : '' }}">Program Kerja Audit</a>
                         <a href="{{ route('assurance.index', ['audit_type' => 'tidak_terjadwal', 'type' => 'slide-entry']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'slide-entry' && $currentAuditType == 'tidak_terjadwal' ? 'active' : '' }}">Slide Entry Meeting</a>
@@ -177,10 +190,11 @@
         <div x-data="{ open: {{ request()->routeIs('advisory*') ? 'true' : 'false' }} }">
             <div @click="open = !open; activeMenu = 'advisory'" class="sidebar-link cursor-pointer" :class="{ 'active': activeMenu === 'advisory' }">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                Layanan Advisory
+                <span class="flex-1 text-left whitespace-nowrap">Layanan Advisory</span>
                 @if($hasPendingAdvisory)
-                <span class="w-2 h-2 bg-red-500 rounded-full ml-auto"></span>
+                <span class="w-2 h-2 bg-red-500 rounded-full mr-1 flex-shrink-0"></span>
                 @endif
+                <svg :class="{'rotate-180': open}" class="sidebar-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
             <div x-show="open" x-collapse class="mt-1.5 space-y-1.5">
                 <a href="{{ route('advisory.index', ['type' => 'bak']) }}" class="sidebar-sublink {{ $currentDocType == 'bak' ? 'active' : '' }}">Berita Acara Konsultasi</a>
@@ -196,7 +210,7 @@
         @role('manager|asman|staff')
         <a href="{{ route('auditee.index') }}" @click="activeMenu = 'auditee'" class="sidebar-link" :class="{ 'active': activeMenu === 'auditee' }">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8l2 2 4-4"/></svg>
-            Tindak Lanjut
+            <span class="flex-1 text-left whitespace-nowrap">Tindak Lanjut</span>
             @if($hasPendingAuditee)
             <span class="w-2 h-2 bg-red-500 rounded-full ml-auto"></span>
             @endif
@@ -209,10 +223,11 @@
         <div x-data="{ open: {{ request()->routeIs('other-activities*') ? 'true' : 'false' }} }">
             <div @click="open = !open; activeMenu = 'other-activities'" class="sidebar-link cursor-pointer" :class="{ 'active': activeMenu === 'other-activities' }">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8l2 2 4-4"/></svg>
-                Kegiatan Lainnya
+                <span class="flex-1 text-left whitespace-nowrap">Kegiatan Lainnya</span>
                 @if($hasPendingOther)
-                <span class="w-2 h-2 bg-red-500 rounded-full ml-auto"></span>
+                <span class="w-2 h-2 bg-red-500 rounded-full mr-1 flex-shrink-0"></span>
                 @endif
+                <svg :class="{'rotate-180': open}" class="sidebar-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
             <div x-show="open" x-collapse class="mt-1.5 space-y-1.5">
                 @can('other_activity.view')
@@ -222,11 +237,11 @@
                 @can('assurance.view')
                 {{-- Pendamping Eksternal --}}
                 <div x-data="{ subOpen: {{ request()->routeIs('other-activities.pendamping*') ? 'true' : 'false' }} }">
-                    <div @click="subOpen = !subOpen" class="sidebar-sublink cursor-pointer flex justify-between items-center" :class="{ 'active': request()->routeIs('other-activities.pendamping*') && !subOpen }">
-                        Pendamping Eksternal
-                        <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    <div @click="subOpen = !subOpen" class="sidebar-sublink cursor-pointer flex justify-between items-center whitespace-nowrap" :class="{ 'active': request()->routeIs('other-activities.pendamping*') && !subOpen, 'active-category': request()->routeIs('other-activities.pendamping*') && subOpen }">
+                        <span>Pendamping Eksternal</span>
+                        <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </div>
-                    <div x-show="subOpen" x-collapse class="pl-4 mt-1 space-y-1">
+                    <div x-show="subOpen" x-collapse class="pl-2 mt-1 space-y-1">
                         <a href="{{ route('other-activities.pendamping.index', ['type' => 'lha-eksternal']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lha-eksternal' ? 'active' : '' }}">LHA Auditor Eksternal</a>
                         <a href="{{ route('other-activities.pendamping.index', ['type' => 'lap-pendamping']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'lap-pendamping' ? 'active' : '' }}">Laporan Pendamping</a>
                     </div>
@@ -234,11 +249,11 @@
 
                 {{-- Quality Assurance (QA) --}}
                 <div x-data="{ subOpen: {{ request()->routeIs('other-activities.qa*') ? 'true' : 'false' }} }">
-                    <div @click="subOpen = !subOpen" class="sidebar-sublink cursor-pointer flex justify-between items-center" :class="{ 'active': request()->routeIs('other-activities.qa*') && !subOpen }">
-                        Quality Assurance (QA)
-                        <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    <div @click="subOpen = !subOpen" class="sidebar-sublink cursor-pointer flex justify-between items-center whitespace-nowrap" :class="{ 'active': request()->routeIs('other-activities.qa*') && !subOpen, 'active-category': request()->routeIs('other-activities.qa*') && subOpen }">
+                        <span>Quality Assurance (QA)</span>
+                        <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </div>
-                    <div x-show="subOpen" x-collapse class="pl-4 mt-1 space-y-1">
+                    <div x-show="subOpen" x-collapse class="pl-2 mt-1 space-y-1">
                         <a href="{{ route('other-activities.qa.index', ['type' => 'st-qa']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'st-qa' ? 'active' : '' }}">Surat Tugas QA</a>
                         <a href="{{ route('other-activities.qa.index', ['type' => 'pk-qa']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'pk-qa' ? 'active' : '' }}">Program Kerja QA</a>
                         <a href="{{ route('other-activities.qa.index', ['type' => 'kk-qa']) }}" class="sidebar-sublink text-[13px] {{ $currentDocType == 'kk-qa' ? 'active' : '' }}">Kertas Kerja QA</a>
@@ -254,7 +269,7 @@
         {{-- Laporan Kinerja --}}
         <a href="{{ route('performance-reports.index') }}" @click="activeMenu = 'performance-reports'" class="sidebar-link" :class="{ 'active': activeMenu === 'performance-reports' }">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            Laporan Kinerja
+            <span class="flex-1 text-left whitespace-nowrap">Laporan Kinerja</span>
         </a>
         @endcan
 
@@ -263,9 +278,10 @@
         <div class="mt-4 pt-2 border-t border-surface-200">
             <p class="sidebar-section-title !pt-2">Pengaturan Sistem</p>
             <div x-data="{ open: {{ request()->routeIs('admin*') ? 'true' : 'false' }} }">
-                <div @click="open = !open; activeMenu = 'admin'" class="sidebar-link cursor-pointer !mx-0 !px-5" :class="{ 'active': activeMenu === 'admin' }">
+                <div @click="open = !open; activeMenu = 'admin'" class="sidebar-link cursor-pointer" :class="{ 'active': activeMenu === 'admin' }">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-[18px] h-[18px]"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    Administrasi
+                    <span class="flex-1 text-left whitespace-nowrap">Administrasi</span>
+                    <svg :class="{'rotate-180': open}" class="sidebar-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </div>
                 <div x-show="open" x-collapse class="mt-1.5 space-y-1.5">
                     <a href="{{ route('admin.users.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.users*') ? 'active' : '' }}">Manajemen User</a>
@@ -279,13 +295,13 @@
 
     {{-- User Info at bottom --}}
     <div class="border-t border-sidebar-border p-3 bg-sidebar-bg">
-        <div class="flex items-center gap-3 p-2 rounded-xl bg-white/85 border border-sidebar-border/60 shadow-sm">
-            <div class="w-8 h-8 rounded-full bg-primary-100 border border-primary-300 flex items-center justify-center flex-shrink-0">
-                <span class="text-primary-800 text-xs font-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+        <div class="flex items-center gap-3 p-2 rounded-xl bg-white/10 border border-white/10 shadow-sm backdrop-blur-sm">
+            <div class="w-8 h-8 rounded-full bg-primary-500/20 border border-primary-400/40 flex items-center justify-center flex-shrink-0">
+                <span class="text-primary-300 text-xs font-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-charcoal text-xs font-semibold truncate">{{ Auth::user()->name }}</p>
-                <p class="text-charcoal/70 text-[11px] font-medium truncate">{{ ucfirst(str_replace('_', ' ', Auth::user()->roles->first()?->name ?? '-')) }}</p>
+                <p class="text-white text-xs font-semibold truncate">{{ Auth::user()->name }}</p>
+                <p class="text-teal-200/70 text-[11px] font-medium truncate">{{ ucfirst(str_replace('_', ' ', Auth::user()->roles->first()?->name ?? '-')) }}</p>
             </div>
         </div>
     </div>
@@ -489,11 +505,11 @@
         </div>
 
         {{-- Progress Bar with Percentage Fill --}}
-        <div class="w-full bg-surface-100 rounded-full h-2.5 sm:h-3 p-0.5 border border-surface-200 overflow-hidden mb-4 relative shadow-inner">
+        <div class="w-full bg-primary-100 rounded-full h-2.5 sm:h-3 p-0.5 border border-primary-200 overflow-hidden mb-4 relative shadow-inner">
             <div id="upload-loading-bar" 
-                 class="h-full rounded-full bg-gradient-to-r from-primary-500 via-teal-400 to-emerald-500 transition-all duration-150 ease-out relative"
+                 class="h-full rounded-full bg-primary-600 transition-all duration-150 ease-out relative"
                  style="width: 0%;">
-                <div class="absolute inset-0 bg-white/25 rounded-full animate-pulse"></div>
+                <div class="absolute inset-0 bg-white/20 rounded-full animate-pulse"></div>
             </div>
         </div>
 
@@ -640,10 +656,13 @@
 
     // Expose showDialog globally for direct JS usage: window.showConfirmDialog('msg', callback)
     window.showConfirmDialog = function(message, onConfirm) {
-        showDialog(message);
-        _resolve = (confirmed) => {
-            if (confirmed && typeof onConfirm === 'function') onConfirm();
-        };
+        return new Promise((resolve) => {
+            showDialog(message);
+            _resolve = (confirmed) => {
+                resolve(confirmed);
+                if (confirmed && typeof onConfirm === 'function') onConfirm();
+            };
+        });
     };
 
     // Override native alert()
@@ -712,6 +731,8 @@
             if (uploadPercent) uploadPercent.textContent = '0%';
             if (uploadBar) uploadBar.style.width = '0%';
             if (uploadStatus) uploadStatus.textContent = 'Menyiapkan berkas...';
+
+            window.dispatchEvent(new CustomEvent('app-upload-reset'));
         }
 
         function startProgressAnimation(form) {
@@ -741,13 +762,22 @@
                 }
             }
 
+            const initialStatus = fileCount > 0 
+                ? `Mengunggah ${fileCount} berkas ${sizeStr ? '(' + sizeStr + ')' : ''}...`
+                : 'Sedang mengunggah berkas...';
+
             if (uploadStatus) {
-                if (fileCount > 0) {
-                    uploadStatus.textContent = `Mengunggah ${fileCount} berkas ${sizeStr ? '(' + sizeStr + ')' : ''}...`;
-                } else {
-                    uploadStatus.textContent = 'Mengunggah berkas...';
-                }
+                uploadStatus.textContent = initialStatus;
             }
+
+            // Broadcast initial 0% progress
+            window.dispatchEvent(new CustomEvent('app-upload-progress', {
+                detail: {
+                    form: form,
+                    percent: 0,
+                    status: initialStatus
+                }
+            }));
 
             // Adaptive duration based on total upload size (min 1.6s, max 15s)
             const duration = Math.max(1600, Math.min(15000, 1600 + (totalBytes / 1048576) * 350));
@@ -756,43 +786,66 @@
             progressTimer = setInterval(() => {
                 const elapsed = Date.now() - startTime;
                 const ratio = Math.min(1, elapsed / duration);
+                let currentStatusText = 'Sedang mengunggah berkas...';
 
                 if (ratio < 0.7) {
                     // Phase 1 (0% -> 75%): Fast and steady transfer
                     const p1 = (ratio / 0.7);
                     currentPercent = Math.min(75, Math.round(p1 * 75));
-                    if (uploadStatus && fileCount > 0) {
-                        uploadStatus.textContent = `Mengunggah ${fileCount} berkas ${sizeStr ? '(' + sizeStr + ')' : ''}...`;
-                    }
+                    currentStatusText = fileCount > 0 ? `Mengunggah ${fileCount} berkas ${sizeStr ? '(' + sizeStr + ')' : ''}...` : 'Sedang mengunggah berkas...';
                 } else if (ratio < 1.0) {
                     // Phase 2 (75% -> 92%): Processing and verifying
                     const p2 = (ratio - 0.7) / 0.3;
                     currentPercent = Math.min(92, Math.round(75 + p2 * 17));
-                    if (uploadStatus) {
-                        uploadStatus.textContent = 'Memproses dan memverifikasi berkas...';
-                    }
+                    currentStatusText = 'Memproses dan memverifikasi berkas...';
                 } else {
                     // Phase 3 (92% -> 98%): Saving to system & finalizing
                     if (currentPercent < 98) {
                         currentPercent = Math.min(98, currentPercent + 0.25);
                     }
-                    if (uploadStatus) {
-                        uploadStatus.textContent = 'Menyimpan ke sistem...';
-                    }
+                    currentStatusText = 'Menyimpan ke sistem...';
                 }
 
                 const displayPercent = Math.min(99, Math.floor(currentPercent));
+                if (uploadStatus) uploadStatus.textContent = currentStatusText;
                 if (uploadPercent) uploadPercent.textContent = displayPercent + '%';
                 if (uploadBar) uploadBar.style.width = displayPercent + '%';
+
+                // Broadcast progress event to inline components
+                window.dispatchEvent(new CustomEvent('app-upload-progress', {
+                    detail: {
+                        form: form,
+                        percent: displayPercent,
+                        status: currentStatusText
+                    }
+                }));
             }, 60);
         }
 
         function showUploadLoading(title, subtitle, form) {
+            startProgressAnimation(form);
+
+            // If the form has an inline progress bar component, let the inline bar take center stage
+            // so the user sees the progress bar right on the upload input without a dark screen overlay
+            const hasInlineProgress = form && (
+                form.querySelector('[data-inline-upload-progress]') ||
+                form.querySelector('#import-upload-progress')
+            );
+
+            if (hasInlineProgress) {
+                const inlineEl = form.querySelector('[data-inline-upload-progress], #import-upload-progress');
+                if (inlineEl) {
+                    const rect = inlineEl.getBoundingClientRect();
+                    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+                        inlineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+                return;
+            }
+
             if (!uploadOverlay || !uploadBox) return;
             if (title && uploadTitle) uploadTitle.textContent = title;
             if (subtitle && uploadSub) uploadSub.textContent = subtitle;
-
-            startProgressAnimation(form);
 
             uploadOverlay.style.display = 'flex';
             requestAnimationFrame(() => {
@@ -846,11 +899,16 @@
 
         function disableSubmit(form) {
             const btn = form.querySelector('button[type="submit"], input[type="submit"]');
-            if (btn && !btn.disabled) {
-                btn.disabled = true;
+            if (btn && !btn._isSubmitting) {
+                btn._isSubmitting = true;
+                btn.style.pointerEvents = 'none';
                 btn.classList.add('opacity-75', 'cursor-not-allowed');
                 const svg = btn.querySelector('svg');
                 if (svg) svg.classList.add('animate-spin');
+                // Defer setting disabled attribute so native browser form serialization is not disrupted
+                setTimeout(() => {
+                    try { btn.disabled = true; } catch (e) {}
+                }, 100);
             }
         }
 

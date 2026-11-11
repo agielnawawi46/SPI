@@ -39,35 +39,51 @@
         @apply flex items-center gap-3 px-5 h-20 border-b border-sidebar-border flex-shrink-0 bg-sidebar-bg;
     }
     .sidebar-logo-text {
-        @apply text-charcoal font-bold text-sm leading-tight;
+        @apply text-white font-bold text-sm leading-tight;
     }
     .sidebar-section-title {
-        @apply text-[11px] font-bold uppercase tracking-wider text-charcoal/70 px-5 pt-5 pb-2;
+        @apply text-[11px] font-bold uppercase tracking-wider text-teal-300/60 px-5 pt-5 pb-2;
     }
     .sidebar-link {
-        @apply flex items-center gap-3 px-4 py-2.5 text-sm text-charcoal font-medium rounded-xl mx-2 transition-all duration-150 hover:bg-white hover:text-primary-700 hover:shadow-sm;
+        @apply flex items-center gap-2.5 px-3 py-2 text-sm text-slate-200 font-medium rounded-xl mx-1 transition-all duration-150 hover:bg-white/10 hover:text-white;
     }
     .sidebar-link.active {
-        @apply bg-white text-primary-700 font-bold shadow-sm border border-sidebar-border/50;
+        @apply bg-primary-500 text-white font-semibold shadow-md border border-primary-400/30;
     }
     .sidebar-link svg {
         @apply w-[18px] h-[18px] flex-shrink-0;
     }
+    .sidebar-link .sidebar-arrow {
+        @apply !w-3.5 !h-3.5 ml-auto transition-transform duration-200 text-slate-300/70 flex-shrink-0;
+    }
+    .sidebar-link:hover .sidebar-arrow {
+        @apply text-white;
+    }
+    .sidebar-link.active .sidebar-arrow {
+        @apply text-white opacity-100;
+    }
     .sidebar-sublink {
-        @apply flex items-center gap-2 pl-[42px] pr-4 py-2 mx-2 text-sm font-medium text-charcoal/90 rounded-lg hover:text-primary-700 hover:bg-white/80 transition-all duration-150 relative;
+        @apply flex items-center gap-2 pl-8 pr-2.5 py-1.5 mx-1 text-sm font-medium text-slate-300/80 rounded-lg hover:text-white hover:bg-white/10 transition-all duration-150 relative;
     }
     .sidebar-sublink::before {
         content: '';
-        @apply absolute left-[24px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-charcoal/30 transition-all duration-200;
+        @apply absolute left-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-teal-400/40 transition-all duration-200;
     }
     .sidebar-sublink:hover::before {
-        @apply bg-primary-500 scale-125;
+        @apply bg-teal-300 scale-125;
     }
-    .sidebar-sublink.active {
-        @apply text-primary-700 font-bold bg-white shadow-sm border border-sidebar-border/40;
+    .sidebar-sublink.active,
+    .sidebar-sublink.active:hover {
+        @apply text-white font-semibold bg-primary-500 shadow-md border border-primary-400/40;
     }
     .sidebar-sublink.active::before {
-        @apply bg-primary-600 scale-[1.75];
+        @apply bg-white scale-[1.75] shadow-sm;
+    }
+    .sidebar-sublink.active-category {
+        @apply text-teal-100 font-semibold bg-white/5 border border-white/10;
+    }
+    .sidebar-sublink.active-category::before {
+        @apply bg-teal-300 scale-125;
     }
 
     /* --- Top Navbar --- */

@@ -221,9 +221,12 @@
     {{-- Upload Dropzone Area --}}
     <div class="p-4 sm:p-6 bg-surface-50/40">
         <div class="relative border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center transition-all duration-200 group flex flex-col items-center justify-center min-h-[160px] cursor-pointer"
-             :class="isDragging 
-                 ? 'border-primary-500 bg-primary-50/80 ring-4 ring-primary-100 shadow-sm' 
-                 : 'border-surface-300 hover:border-primary-400 bg-white hover:bg-surface-50/70'">
+             :class="[
+                 isDragging 
+                     ? 'border-primary-500 bg-primary-50/80 ring-4 ring-primary-100 shadow-sm' 
+                     : 'border-surface-300 hover:border-primary-400 bg-white hover:bg-surface-50/70',
+                 isUploading ? 'opacity-70 pointer-events-none' : ''
+             ]">
 
             {{-- Transparent Native File Input Overlay --}}
             <input type="file" 
@@ -277,6 +280,23 @@
                 </p>
             </div>
         </div>
+
+        {{-- Upload Progress Indicator (Identical to Kertas Kerja) --}}
+        <div x-show="isUploading" 
+             x-cloak 
+             data-inline-upload-progress
+             class="mt-3 p-3 bg-primary-50/80 rounded-xl border border-primary-200 transition-all">
+            <div class="flex items-center justify-between text-xs font-semibold text-primary-800 mb-1.5">
+                <span class="flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 animate-spin text-primary-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span x-text="uploadStatus || 'Sedang mengunggah berkas...'"></span>
+                </span>
+                <span class="font-bold text-primary-700" x-text="uploadProgress + '%'"></span>
+            </div>
+            <div class="w-full bg-primary-100 rounded-full h-2 overflow-hidden">
+                <div class="bg-primary-600 h-2 rounded-full transition-all duration-150" :style="'width: ' + uploadProgress + '%'"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -286,11 +306,41 @@ if (typeof window.fileUploadComponent !== 'function') {
         return {
             selectedFiles: [],
             isDragging: false,
+            isUploading: false,
+            uploadProgress: 0,
+            uploadStatus: 'Sedang mengunggah berkas...',
             autoFillTitle: Boolean(config.autoFillTitle),
             targetTitleSelector: config.targetTitleInput || null,
             inputId: config.inputId,
             multiple: Boolean(config.multiple),
             csrfToken: config.csrfToken,
+
+            init() {
+                // Listen to upload progress events from form submission
+                window.addEventListener('app-upload-progress', (e) => {
+                    const form = this.$el.closest('form');
+                    if (!e.detail) return;
+                    if ((!e.detail.form || e.detail.form === form) && this.selectedFiles.length > 0) {
+                        this.isUploading = true;
+                        this.uploadProgress = e.detail.percent;
+                        if (e.detail.status) {
+                            this.uploadStatus = e.detail.status;
+                        }
+                    }
+                });
+
+                window.addEventListener('app-upload-reset', () => {
+                    this.isUploading = false;
+                    this.uploadProgress = 0;
+                    this.uploadStatus = 'Sedang mengunggah berkas...';
+                });
+
+                window.addEventListener('pageshow', () => {
+                    this.isUploading = false;
+                    this.uploadProgress = 0;
+                    this.uploadStatus = 'Sedang mengunggah berkas...';
+                });
+            },
 
             getDt() {
                 if (!this.$el._dt) this.$el._dt = new DataTransfer();

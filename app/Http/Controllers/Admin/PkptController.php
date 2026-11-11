@@ -586,13 +586,51 @@ class PkptController extends Controller
             $msg = $uploadedCount > 1 
                 ? "{$uploadedCount} berkas Kertas Kerja berhasil ditambahkan."
                 : 'Berkas Kertas Kerja berhasil ditambahkan.';
-            return redirect()->route('pkpt.kertas-kerja', $pkpt)->with('success', $msg);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                $category = $request->input('category');
+                $attachmentsQuery = $document->attachments();
+                if ($category) {
+                    $attachmentsQuery->where('description', $category);
+                }
+                $categoryAttachments = $attachmentsQuery->latest()->get()->map(function ($att) use ($pkpt) {
+                    $ext = strtolower(pathinfo($att->file_name, PATHINFO_EXTENSION));
+                    return [
+                        'id' => $att->id,
+                        'file_name' => $att->file_name,
+                        'ext' => $ext,
+                        'file_size_formatted' => $att->file_size_formatted,
+                        'created_at_formatted' => $att->created_at->format('d/m/Y H:i'),
+                        'view_url' => route('pkpt.view-file', [$pkpt, $att->id]),
+                        'download_url' => route('pkpt.download', [$pkpt, $att->id]),
+                        'delete_url' => route('pkpt.destroy-kertas-kerja-attachment', [$pkpt, $att->id]),
+                    ];
+                });
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $msg,
+                    'uploaded_count' => $uploadedCount,
+                    'category' => $category,
+                    'attachments' => $categoryAttachments,
+                    'total_count' => $document->attachments()->count(),
+                ]);
+            }
+
+            return redirect()->to(route('pkpt.kertas-kerja', $pkpt) . '#category-' . \Illuminate\Support\Str::slug($request->input('category', '')))->with('success', $msg);
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada berkas valid yang diunggah. Pastikan format file PDF, Word, atau Excel.',
+            ], 422);
         }
 
         return redirect()->route('pkpt.kertas-kerja', $pkpt)->with('error', 'Tidak ada berkas valid yang diunggah. Pastikan format file PDF, Word, atau Excel.');
     }
 
-    public function destroyKertasKerjaAttachment(Pkpt $pkpt, DocumentAttachment $attachment)
+    public function destroyKertasKerjaAttachment(Request $request, Pkpt $pkpt, DocumentAttachment $attachment)
     {
         if ($attachment->file_path && Storage::disk('public')->exists($attachment->file_path)) {
             Storage::disk('public')->delete($attachment->file_path);
@@ -602,14 +640,26 @@ class PkptController extends Controller
         }
         
         $document = $attachment->document;
+        $category = $attachment->description;
         $attachment->delete();
 
         // Jika semua berkas Kertas Kerja terhapus (kosong), kembalikan status ke Draft
         if ($document && $document->attachments()->count() === 0 && $document->status !== 'draft') {
             $document->update(['status' => 'draft']);
         }
+
+        $totalCount = $document ? $document->attachments()->count() : 0;
         
-        return redirect()->route('pkpt.kertas-kerja', $pkpt)->with('success', 'File Kertas Kerja berhasil dihapus.');
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'File Kertas Kerja berhasil dihapus.',
+                'total_count' => $totalCount,
+                'category' => $category,
+            ]);
+        }
+        
+        return redirect()->to(route('pkpt.kertas-kerja', $pkpt) . '#category-' . \Illuminate\Support\Str::slug($category))->with('success', 'File Kertas Kerja berhasil dihapus.');
     }
 
     public function destroyKertasKerjaDocument(Pkpt $pkpt)

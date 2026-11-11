@@ -13,10 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'check.active'  => \App\Http\Middleware\CheckUserActive::class,
-            'audit.trail'   => \App\Http\Middleware\AuditTrailMiddleware::class,
-            'role'          => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission'    => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'check.active'       => \App\Http\Middleware\CheckUserActive::class,
+            'audit.trail'        => \App\Http\Middleware\AuditTrailMiddleware::class,
+            'profile.complete'   => \App\Http\Middleware\EnsureProfileIsComplete::class,
+            'role'               => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission'         => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
     })
