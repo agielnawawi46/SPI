@@ -28,7 +28,7 @@ class GoogleAuthController extends Controller
         }
 
         $driver = Socialite::driver('google');
-        $driver->redirectUrl(route('auth.google.callback'));
+        $driver->redirectUrl(url('/auth/google/callback'));
 
         // Force Google to always show the account chooser ("Pilih akun")
         $params = [
@@ -59,7 +59,7 @@ class GoogleAuthController extends Controller
 
         try {
             $googleUser = Socialite::driver('google')
-                ->redirectUrl(route('auth.google.callback'))
+                ->redirectUrl(url('/auth/google/callback'))
                 ->user();
         } catch (\Throwable $e) {
             return redirect()->route('login')->with('error', 'Gagal memproses autentikasi Google: ' . $e->getMessage());

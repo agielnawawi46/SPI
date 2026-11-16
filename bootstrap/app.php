@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'check.active'       => \App\Http\Middleware\CheckUserActive::class,
             'audit.trail'        => \App\Http\Middleware\AuditTrailMiddleware::class,
