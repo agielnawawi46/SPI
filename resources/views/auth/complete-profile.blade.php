@@ -16,7 +16,7 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center gap-4">
             {{-- Brand Logos --}}
             <div class="flex items-center gap-2.5 sm:gap-4">
-                <img src="{{ asset('pln.jpg') }}" alt="PLN Batam" class="h-8 sm:h-10 w-auto object-contain mix-blend-multiply filter contrast-125">
+                <img src="{{ asset('pln.jpg') }}?v={{ filemtime(public_path('pln.jpg')) }}" alt="PLN Batam" class="h-8 sm:h-10 w-auto object-contain mix-blend-multiply">
                 <img src="{{ asset('DI.png') }}" alt="Danantara Indonesia" class="h-5 sm:h-6 w-auto object-contain border-l border-surface-200 pl-2.5 sm:pl-3.5">
                 <img src="{{ asset('s2.png') }}?v={{ filemtime(public_path('s2.png')) }}" alt="Logo SIMAK" class="h-7 sm:h-9 w-auto object-contain border-l border-surface-200 pl-2.5 sm:pl-3.5">
             </div>

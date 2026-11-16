@@ -41,7 +41,7 @@
             {{-- Brand Logos --}}
             <div class="flex items-center gap-2.5 sm:gap-5 min-w-0">
                 <a href="{{ url('/') }}" class="flex items-center gap-2 sm:gap-3.5 min-w-0">
-                    <img src="{{ asset('pln.jpg') }}" alt="PLN Batam" class="h-8 sm:h-11 md:h-12 w-auto object-contain mix-blend-multiply filter contrast-125 flex-shrink-0">
+                    <img src="{{ asset('pln.jpg') }}?v={{ filemtime(public_path('pln.jpg')) }}" alt="PLN Batam" class="h-8 sm:h-11 md:h-12 w-auto object-contain mix-blend-multiply flex-shrink-0">
                     <img src="{{ asset('DI.png') }}" alt="Danantara Indonesia" class="h-5 sm:h-6 md:h-7 w-auto object-contain border-l border-surface-200 pl-2 sm:pl-3.5 block flex-shrink-0">
                     <img src="{{ asset('s2.png') }}?v={{ filemtime(public_path('s2.png')) }}" alt="Logo SIMAK" class="h-7 sm:h-9 md:h-10 w-auto object-contain border-l border-surface-200 pl-2 sm:pl-3.5 block flex-shrink-0">
                 </a>
