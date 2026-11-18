@@ -85,6 +85,7 @@ class GoogleAuthController extends Controller
 
         if (!$user) {
             // Auto-create new user with data from Google Workspace SSO
+            // Role & Department will be selected by the user during onboarding (/complete-profile)
             $user = User::create([
                 'name'          => $googleUser->getName() ?: explode('@', $email)[0],
                 'email'         => $email,
@@ -96,13 +97,6 @@ class GoogleAuthController extends Controller
                 'position'      => null,
                 'nip'           => null,
             ]);
-
-            // Assign default role 'staff' (Auditee)
-            try {
-                $user->assignRole('staff');
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Role staff could not be assigned: ' . $e->getMessage());
-            }
         } else {
             // Check if user account is active
             if (!$user->is_active) {
@@ -122,13 +116,6 @@ class GoogleAuthController extends Controller
             }
             if (!empty($updates)) {
                 $user->update($updates);
-            }
-
-            // Ensure user has at least 'staff' role if no role is currently assigned
-            if ($user->roles()->count() === 0) {
-                try {
-                    $user->assignRole('staff');
-                } catch (\Throwable $e) {}
             }
         }
 
@@ -150,11 +137,11 @@ class GoogleAuthController extends Controller
             \Illuminate\Support\Facades\Log::warning('Failed to write audit log on Google login: ' . $e->getMessage());
         }
 
-        // Check if user profile is complete (NIP & Department required)
-        if (empty($user->nip) || empty($user->department_id)) {
+        // Check if user profile is complete (NIP, Role, and Department if required)
+        if (!$user->isProfileComplete()) {
             return redirect()->route('profile.complete')->with(
                 'info',
-                'Selamat datang di SIMAK, ' . $user->name . '! Silakan lengkapi NIP dan Bidang (Departemen) Anda terlebih dahulu.'
+                'Selamat datang di SIMAK, ' . $user->name . '! Silakan lengkapi NIP, Role, dan Bidang (Departemen) Anda terlebih dahulu.'
             );
         }
 

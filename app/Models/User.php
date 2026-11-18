@@ -113,4 +113,28 @@ class User extends Authenticatable
     {
         return $this->hasRole('komisaris');
     }
+
+    /**
+     * Check if user has a standalone executive role (Direktur / Komisaris) without a specific department.
+     */
+    public function isStandaloneRole(): bool
+    {
+        return $this->hasAnyRole(['direktur', 'komisaris']);
+    }
+
+    /**
+     * Check if user has completed their profile onboarding (NIP, Role, and Department if required).
+     */
+    public function isProfileComplete(): bool
+    {
+        if (empty($this->nip) || $this->roles()->count() === 0) {
+            return false;
+        }
+
+        if ($this->isStandaloneRole()) {
+            return true;
+        }
+
+        return !empty($this->department_id);
+    }
 }
