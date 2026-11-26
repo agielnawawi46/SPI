@@ -6,7 +6,8 @@
 
 @php
     $sizeClasses = match ($size) {
-        'md' => 'w-6 h-7',
+        'lg' => 'w-[35px] h-10',
+        'md' => 'w-7 h-8',
         'xs' => 'w-[18px] h-[21px]',
         default => 'w-[21px] h-6',
     };

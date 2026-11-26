@@ -257,26 +257,10 @@
                 @foreach($followUp->evidences as $evidence)
                 @php
                     $ext = strtolower(pathinfo($evidence->file_name ?? basename($evidence->file_path), PATHINFO_EXTENSION));
-                    $iconBg = match($ext) {
-                        'pdf' => 'bg-red-50 text-red-600 border border-red-200',
-                        'doc', 'docx' => 'bg-blue-50 text-blue-600 border border-blue-200',
-                        'xls', 'xlsx' => 'bg-emerald-50 text-emerald-600 border border-emerald-200',
-                        default => 'bg-surface-100 text-charcoal-muted border border-surface-200'
-                    };
                 @endphp
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-emerald-400 rounded-xl bg-emerald-50/20 hover:bg-emerald-50/40 hover:border-emerald-500 transition-all gap-3 shadow-xs">
                     <div class="flex items-center gap-3.5 min-w-0">
-                        <div class="w-10 h-10 rounded-lg {{ $iconBg }} flex items-center justify-center flex-shrink-0">
-                            @if($ext === 'pdf')
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                            @elseif(in_array($ext, ['doc', 'docx']))
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            @elseif(in_array($ext, ['xls', 'xlsx']))
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                            @else
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                            @endif
-                        </div>
+                        <x-file-type-icon :ext="$ext" size="lg" />
                         <div class="min-w-0 truncate">
                             <div class="flex items-center gap-2">
                                 <p class="text-sm font-semibold text-charcoal truncate" title="{{ basename($evidence->file_path) }}">{{ basename($evidence->file_path) }}</p>
@@ -284,7 +268,6 @@
                                     <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                     Terunggah
                                 </span>
-                                <x-file-type-icon :ext="$ext" />
                             </div>
                             <p class="text-xs text-charcoal-muted mt-0.5">{{ $evidence->file_size_formatted }} &bull; Diunggah oleh {{ $evidence->uploader?->name ?? '-' }} pada {{ $evidence->created_at->format('d/m/Y H:i') }}</p>
                             @if($evidence->description)

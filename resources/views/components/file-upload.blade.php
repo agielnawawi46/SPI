@@ -93,13 +93,6 @@
                     @php
                         $fileName = is_object($item) ? ($item->file_name ?? basename($item->file_path ?? '')) : basename($item);
                         $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-                        $iconStyle = match($ext) {
-                            'pdf' => 'text-red-500 bg-red-50 border-red-200',
-                            'doc', 'docx' => 'text-blue-500 bg-blue-50 border-blue-200',
-                            'xls', 'xlsx' => 'text-emerald-600 bg-emerald-50 border-emerald-200',
-                            'jpg', 'jpeg', 'png' => 'text-purple-500 bg-purple-50 border-purple-200',
-                            default => 'text-charcoal bg-surface-100 border-surface-200'
-                        };
                         if (is_object($item) && isset($item->id)) {
                             $fileUrl = route('attachments.view', $item->id);
                             $downloadUrl = route('attachments.download', $item->id);
@@ -110,18 +103,8 @@
                     @endphp
 
                     <div class="p-2.5 bg-emerald-50/20 hover:bg-emerald-50/40 border border-emerald-400 rounded-xl flex items-center justify-between gap-3 transition-colors shadow-2xs">
-                        <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border {{ $iconStyle }}">
-                                @if($ext === 'pdf')
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                                @elseif(in_array($ext, ['xls', 'xlsx']))
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                @elseif(in_array($ext, ['jpg', 'jpeg', 'png']))
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                @else
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                @endif
-                            </div>
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <x-file-type-icon :ext="$ext" size="md" />
                             <div class="min-w-0 flex-1">
                                 <p class="text-xs font-semibold text-charcoal truncate" title="{{ $fileName }}">
                                     {{ $fileName }}
@@ -131,7 +114,6 @@
                                         <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                         Terunggah
                                     </span>
-                                    <x-file-type-icon :ext="$ext" />
                                     @if(is_object($item) && isset($item->file_size_formatted))
                                         <span>&bull; {{ $item->file_size_formatted }}</span>
                                     @endif

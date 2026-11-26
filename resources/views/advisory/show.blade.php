@@ -140,26 +140,15 @@
                     $ext = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
                     $previewUrl = route('attachments.view', $attachment->id);
                     $downloadUrl = route('attachments.download', $attachment->id);
-                    $iconColor = match($ext) {
-                        'pdf' => 'bg-red-50 text-red-600',
-                        'doc', 'docx' => 'bg-blue-50 text-blue-600',
-                        'xls', 'xlsx' => 'bg-emerald-50 text-emerald-600',
-                        default => 'bg-surface-100 text-primary-600'
-                    };
                     $fileSizeFormatted = method_exists($attachment, 'getFileSizeFormattedAttribute') 
                         ? $attachment->file_size_formatted 
                         : number_format($attachment->file_size / 1024, 1) . ' KB';
                 @endphp
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-surface-200 rounded-xl bg-white hover:border-surface-300 transition-all">
                     <div class="flex items-center gap-3.5 overflow-hidden">
-                        <div class="p-3 {{ $iconColor }} rounded-xl flex-shrink-0 shadow-sm">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                        </div>
+                        <x-file-type-icon :ext="$ext" size="lg" />
                         <div class="min-w-0 truncate">
-                            <div class="flex items-center gap-2">
-                                <h4 class="text-sm font-bold text-charcoal truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</h4>
-                                <x-file-type-icon :ext="$ext" />
-                            </div>
+                            <h4 class="text-sm font-bold text-charcoal truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</h4>
                             <p class="text-xs text-charcoal-muted mt-1">
                                 {{ $fileSizeFormatted }} • Diunggah oleh {{ $attachment->uploader->name ?? ($document->creator?->name ?? '-') }} pada {{ $attachment->created_at->format('d F Y, H:i') }}
                             </p>
@@ -350,10 +339,8 @@
                         @endphp
                         <div class="p-4 border border-emerald-400 rounded-xl bg-emerald-50/20 hover:bg-emerald-50/40 hover:border-emerald-500 transition-all shadow-2xs mb-4 last:mb-0">
                             <div class="flex items-center justify-between gap-3 mb-4">
-                                <div class="flex items-center gap-3 min-w-0 overflow-hidden">
-                                    <div class="p-2 bg-emerald-100/80 rounded-lg text-emerald-700 flex-shrink-0 border border-emerald-300">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                                    </div>
+                                <div class="flex items-center gap-3.5 min-w-0 overflow-hidden">
+                                    <x-file-type-icon :ext="$ext" size="lg" />
                                     <div class="min-w-0">
                                         <div class="flex items-center gap-2">
                                             <p class="text-sm font-semibold text-charcoal truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</p>
@@ -361,7 +348,6 @@
                                                 <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                                 Terunggah
                                             </span>
-                                            <x-file-type-icon :ext="$ext" />
                                         </div>
                                         <p class="text-xs text-charcoal-muted mt-0.5">{{ $attachment->file_size_formatted }} • Diunggah oleh {{ $attachment->uploader->name ?? '-' }} pada {{ $attachment->created_at->format('d/m/Y H:i') }}</p>
                                     </div>

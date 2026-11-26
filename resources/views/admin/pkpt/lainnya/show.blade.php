@@ -65,12 +65,6 @@
     @php
         $fileName = basename($lainnya->attachment_path);
         $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-        $iconColor = match($ext) {
-            'pdf' => 'bg-red-50 text-red-600',
-            'doc', 'docx' => 'bg-blue-50 text-blue-600',
-            'xls', 'xlsx' => 'bg-emerald-50 text-emerald-600',
-            default => 'bg-surface-100 text-primary-600'
-        };
     @endphp
     <div class="card shadow-sm">
         <div class="card-header bg-surface-50 border-b border-surface-200 py-3.5 px-5 flex items-center justify-between">
@@ -83,9 +77,7 @@
         <div class="card-body p-5">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-emerald-400 rounded-xl bg-emerald-50/20 hover:bg-emerald-50/40 hover:border-emerald-500 transition-all shadow-2xs">
                 <div class="flex items-center gap-3.5 overflow-hidden">
-                    <div class="p-3 {{ $iconColor }} rounded-xl flex-shrink-0 shadow-sm">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                    </div>
+                    <x-file-type-icon :ext="$ext" size="lg" />
                     <div class="min-w-0 truncate">
                         <div class="flex items-center gap-2">
                             <h4 class="text-sm font-bold text-charcoal truncate" title="{{ $fileName }}">{{ $fileName }}</h4>
@@ -93,7 +85,6 @@
                                 <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 Terunggah
                             </span>
-                            <x-file-type-icon :ext="$ext" />
                         </div>
                         <p class="text-xs text-charcoal-muted mt-1">
                             Dokumen lampiran terkait auditee dan jadwal objek audit ini
