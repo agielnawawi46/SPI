@@ -85,6 +85,9 @@
         <tbody>
             @php
                 $items = json_decode($document->content, true) ?? [];
+                $followUpsByEmail = $document->followUps
+                    ->groupBy('pic_email')
+                    ->map(fn($fus) => $fus->first());
                 $countClosed = 0;
                 $countOnProgress = 0;
                 $countTdd = 0;
@@ -92,9 +95,25 @@
             @forelse($items as $groupIndex => $group)
                 @foreach($group['rows'] as $rowIndex => $item)
                     @php
-                        if(!empty(trim($item['status_closed'] ?? ''))) $countClosed++;
-                        if(!empty(trim($item['status_on_progress'] ?? ''))) $countOnProgress++;
-                        if(!empty(trim($item['status_tdd'] ?? ''))) $countTdd++;
+                        $picEmail = trim($item['pic_email'] ?? '');
+                        $relatedFollowUp = $picEmail ? ($followUpsByEmail[$picEmail] ?? null) : null;
+
+                        $isClosed = $relatedFollowUp && ($relatedFollowUp->approval_status === 'approved' || $relatedFollowUp->status === 'closed');
+                        $isOnProgress = $relatedFollowUp && (
+                            in_array($relatedFollowUp->approval_status, ['pending_asman','pending_manager','pending_auditor','pending_kspi']) ||
+                            (($relatedFollowUp->evidences_count ?? $relatedFollowUp->evidences->count()) > 0 && !$isClosed)
+                        );
+                        $isTdd = $relatedFollowUp && $relatedFollowUp->status === 'tdd';
+
+                        if (!$relatedFollowUp) {
+                            $isClosed     = !empty(trim($item['status_closed'] ?? ''));
+                            $isOnProgress = !empty(trim($item['status_on_progress'] ?? ''));
+                            $isTdd        = !empty(trim($item['status_tdd'] ?? ''));
+                        }
+
+                        if ($isClosed)     $countClosed++;
+                        if ($isOnProgress) $countOnProgress++;
+                        if ($isTdd)        $countTdd++;
                     @endphp
                     <tr>
                         <td>{{ $rowIndex === 0 ? ($groupIndex + 1) : '' }}</td>
@@ -107,9 +126,9 @@
                             <div>{{ $item['pic_email'] ?? '' }}</div>
                         </td>
                         <td style="text-align: left;">{{ $item['evidence_tl'] ?? '' }}</td>
-                        <td>{{ $item['status_closed'] ?? '' }}</td>
-                        <td>{{ $item['status_on_progress'] ?? '' }}</td>
-                        <td>{{ $item['status_tdd'] ?? '' }}</td>
+                        <td>{{ $isClosed ? '✓' : '' }}</td>
+                        <td>{{ $isOnProgress ? '✓' : '' }}</td>
+                        <td>{{ $isTdd ? '✓' : '' }}</td>
                         <td style="text-align: left; white-space: pre-wrap;">{{ $item['evaluasi_tl'] ?? '' }}</td>
                         <td>{{ !empty($item['jatuh_tempo']) ? \Carbon\Carbon::parse($item['jatuh_tempo'])->format('d M Y') : '' }}</td>
                     </tr>

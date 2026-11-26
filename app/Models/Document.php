@@ -73,6 +73,8 @@ class Document extends Model
         'review_permohonan',
         'kesimpulan',
         'alasan',
+        'report_month',
+        'report_year',
     ];
 
     protected function casts(): array
@@ -244,9 +246,9 @@ class Document extends Model
             return true;
         }
 
-        // KSPI and Direktur with delete permission can always delete
+        // KSPI and Direktur with delete permission can delete — but NOT approved documents
         if ($user->hasPermissionTo('assurance.delete')) {
-            return true;
+            return $this->status !== 'approved';
         }
 
         return false;

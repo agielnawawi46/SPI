@@ -130,53 +130,127 @@
         $pendingKspi = $document->approvals->where('approval_level', 1)->where('action', null)->first();
     @endphp
 
-    {{-- Auditor: Submit to KSPI --}}
+    {{-- Auditor: Submit to Auditee --}}
     @if(in_array($document->status, ['draft','revised']) && ($document->created_by === $user->id || $user->hasRole('admin')))
     <div class="card border-l-4 border-l-amber-400">
         <div class="card-body p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-                <h3 class="font-semibold text-charcoal">Approve & Kirim untuk Direview</h3>
-                <p class="text-sm text-charcoal-muted mt-1">Selesaikan dokumen dan setujui (generate barcode Auditor) lalu kirim ke KSPI untuk direview.</p>
+                <h3 class="font-semibold text-charcoal">Approve & Teruskan Penugasan ke Auditee</h3>
+                <p class="text-sm text-charcoal-muted mt-1">Selesaikan dokumen dan setujui (generate barcode Auditor) lalu teruskan penugasan tindak lanjut langsung ke masing-masing PIC/Auditee.</p>
             </div>
             <form action="{{ route('approvals.submit', ['type' => 'document', 'id' => $document->id]) }}" method="POST" class="flex-shrink-0">
                 @csrf
                 <button type="submit" class="btn-primary text-sm flex items-center gap-2 shadow-sm"
-                    onclick="return confirm('Apakah Anda yakin menyetujui dokumen ini dan mengirimkannya ke KSPI?')">
+                    onclick="return confirm('Apakah Anda yakin menyetujui dokumen ini dan meneruskan penugasan ke seluruh PIC/Auditee?')">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    Approve & Kirim ke KSPI
+                    Approve & Teruskan ke Auditee
                 </button>
             </form>
         </div>
     </div>
     @endif
 
-
-
     {{-- KSPI Approval --}}
     @if($document->status === 'pending_kspi' && ($user->hasRole('kspi') || $user->hasRole('admin')) && $pendingKspi)
-    <div class="card border-l-4 border-l-blue-400">
+    @php
+        $totalFollowUps = $document->followUps->count();
+        $uploadedFollowUps = $document->followUps->filter(function($fu) {
+            return ($fu->evidences_count ?? $fu->evidences->count()) > 0;
+        })->count();
+        $allUploaded = $totalFollowUps > 0 && $uploadedFollowUps >= $totalFollowUps;
+    @endphp
+    <div class="card border-l-4 {{ $allUploaded ? 'border-l-blue-400 bg-blue-50/20' : 'border-l-amber-400 bg-amber-50/20' }}">
         <div class="card-body p-5">
-            <h3 class="font-semibold text-charcoal mb-1">Tindakan Review KSPI</h3>
-            <p class="text-sm text-charcoal-muted mb-4">Dokumen ini menunggu persetujuan Anda sebagai KSPI. Jika Anda menemukan kesalahan, Anda dapat langsung mengubahnya (Edit) sebelum menyetujui.</p>
-            <div class="flex flex-col sm:flex-row gap-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                <div>
+                    <h3 class="font-semibold text-charcoal">Tindakan Review & Pengesahan KSPI</h3>
+                    <p class="text-sm text-charcoal-muted mt-0.5">
+                        @if($allUploaded)
+                            Seluruh PIC ({{ $uploadedFollowUps }}/{{ $totalFollowUps }}) telah mengunggah berkas bukti tindak lanjut. Anda dapat meninjau dan mengesahkan dokumen ini.
+                        @else
+                            Menunggu pengiriman berkas bukti dari seluruh PIC. Saat ini baru <strong class="text-amber-700 font-bold">{{ $uploadedFollowUps }} dari {{ $totalFollowUps }} PIC</strong> yang telah mengunggah bukti.
+                        @endif
+                    </p>
+                </div>
+                <span class="badge {{ $allUploaded ? 'badge-approved' : 'badge-pending' }} self-start sm:self-auto">
+                    {{ $allUploaded ? 'Siap Disahkan' : 'Menunggu Bukti PIC' }}
+                </span>
+            </div>
+
+            @if($allUploaded)
+            <div class="mt-3 pt-3 border-t border-surface-200">
                 <form action="{{ route('approvals.action', $pendingKspi) }}" method="POST" class="flex-1">
                     @csrf
-                    <textarea name="comments" class="form-textarea w-full mb-2 text-sm" rows="2" placeholder="Catatan (opsional)"></textarea>
+                    <textarea name="comments" class="form-textarea w-full mb-3 text-sm" rows="2" placeholder="Catatan persetujuan KSPI (opsional)"></textarea>
                     <div class="flex flex-col sm:flex-row gap-2">
                         <button type="submit" name="action" value="approve" class="btn-primary text-sm flex-1 flex items-center justify-center gap-2"
-                            onclick="return confirm('Setujui dokumen ini? Barcode Anda akan digenerate setelah disetujui.')">
+                            onclick="return confirm('Sahkan dokumen ini? Barcode KSPI Anda akan digenerate dan dokumen akan berstatus resmi (Closed).')">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            Approve & Generate Barcode
+                            Approve & Sahkan Dokumen (Generate Barcode KSPI)
                         </button>
                     </div>
                 </form>
             </div>
+            @else
+            <div class="mt-2 p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
+                <svg class="w-4 h-4 flex-shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Persetujuan dan Barcode KSPI akan terbuka otomatis setelah semua PIC ({{ $totalFollowUps }} PIC) mengunggah berkas bukti tindak lanjut.
+            </div>
+            @endif
         </div>
     </div>
     @endif
 
-    {{-- Daftar Tindak Lanjut (Muncul Setelah Disetujui KSPI) --}}
-    @if($document->status === 'approved' && $document->followUps()->count() > 0)
+    {{-- Daftar Tindak Lanjut --}}
+    @if($document->followUps()->count() > 0)
+    @php
+        $totalPic = $document->followUps->count();
+        $uploadedPic = $document->followUps->filter(fn($fu) => ($fu->evidences_count ?? $fu->evidences->count()) > 0)->count();
+        $closedPic = $document->followUps->where('approval_status', 'approved')->count();
+        $allClosed = $totalPic > 0 && $closedPic >= $totalPic;
+        $allUploaded = $totalPic > 0 && $uploadedPic >= $totalPic;
+    @endphp
+
+    {{-- Progress Banner PIC --}}
+    <div class="card border-l-4 {{ $allClosed ? 'border-l-emerald-500 bg-emerald-50/40' : ($allUploaded ? 'border-l-blue-500 bg-blue-50/30' : 'border-l-amber-400 bg-amber-50/30') }} mb-4 shadow-sm">
+        <div class="card-body p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+                <h3 class="font-semibold {{ $allClosed ? 'text-emerald-800' : ($allUploaded ? 'text-blue-800' : 'text-charcoal') }} flex items-center gap-2">
+                    @if($allClosed)
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Semua PIC Telah Selesai (Closed)
+                    @elseif($allUploaded)
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Semua PIC Telah Mengunggah Bukti
+                    @else
+                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Progres Pengumpulan Bukti Tindak Lanjut
+                    @endif
+                </h3>
+                <p class="text-sm {{ $allClosed ? 'text-emerald-700' : 'text-charcoal-muted' }} mt-0.5">
+                    @if($allClosed)
+                        Seluruh {{ $totalPic }} PIC sudah mengirimkan bukti dan tindak lanjut telah disahkan KSPI.
+                    @elseif($allUploaded)
+                        Seluruh {{ $totalPic }} PIC sudah mengunggah berkas bukti. Menunggu peninjauan dan persetujuan KSPI.
+                    @else
+                        Baru <strong class="text-amber-800">{{ $uploadedPic }} dari {{ $totalPic }} PIC</strong> yang mengunggah bukti ({{ $totalPic - $uploadedPic }} PIC belum unggah).
+                        @if($closedPic > 0) · <span class="text-emerald-700 font-medium">{{ $closedPic }} PIC telah Closed</span> @endif
+                    @endif
+                </p>
+            </div>
+            {{-- Progress Bar --}}
+            <div class="w-full sm:w-48 flex-shrink-0">
+                <div class="flex justify-between text-xs font-medium mb-1">
+                    <span class="{{ $allClosed ? 'text-emerald-700' : 'text-charcoal-muted' }}">{{ $uploadedPic }}/{{ $totalPic }} PIC Kirim</span>
+                    <span class="{{ $allClosed ? 'text-emerald-600' : 'text-primary-600' }} font-bold">{{ $totalPic > 0 ? round(($uploadedPic/$totalPic)*100) : 0 }}%</span>
+                </div>
+                <div class="w-full bg-surface-200 rounded-full h-2.5 overflow-hidden">
+                    <div class="h-2.5 rounded-full transition-all duration-500 {{ $allClosed ? 'bg-emerald-500' : ($allUploaded ? 'bg-blue-500' : 'bg-amber-400') }}"
+                         style="width: {{ $totalPic > 0 ? round(($uploadedPic/$totalPic)*100) : 0 }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card mb-6 border-l-4 border-l-primary-500">
         <div class="card-header bg-primary-50">
             <h3 class="card-title text-primary-800">Daftar Penugasan Tindak Lanjut</h3>
@@ -220,10 +294,15 @@
                                     {{ \Carbon\Carbon::parse($followUp->due_date)->format('d M Y') }}
                                 </td>
                                 <td>
-                                    @if($followUp->approval_status === 'pending' && $followUp->evidences_count > 0)
-                                        <span class="badge badge-in-progress">Draf (Belum Dikirim)</span>
-                                    @elseif($followUp->status === 'closed' || $followUp->approval_status === 'approved')
+                                    @php
+                                        $evCount = $followUp->evidences_count ?? $followUp->evidences->count();
+                                    @endphp
+                                    @if($followUp->status === 'closed' || $followUp->approval_status === 'approved')
                                         <span class="badge badge-approved">Closed</span>
+                                    @elseif($followUp->approval_status === 'pending' && $evCount > 0)
+                                        <span class="badge badge-in-progress">Draf (Belum Dikirim)</span>
+                                    @elseif($followUp->approval_status === 'pending' && $evCount === 0)
+                                        <span class="badge badge-draft">Belum Unggah Bukti</span>
                                     @else
                                         <span class="badge {{ $followUp->approval_status === 'rejected' ? 'badge-rejected' : 'badge-pending' }}">
                                             {{ str_replace('_', ' ', $followUp->approval_status) }}
@@ -261,10 +340,15 @@
                                     {{ $followUp->finding }}
                                 </h3>
                                 <span class="flex-shrink-0">
-                                    @if($followUp->approval_status === 'pending' && $followUp->evidences_count > 0)
-                                        <span class="badge badge-in-progress">Draf</span>
-                                    @elseif($followUp->status === 'closed' || $followUp->approval_status === 'approved')
+                                    @php
+                                        $evCountMobile = $followUp->evidences_count ?? $followUp->evidences->count();
+                                    @endphp
+                                    @if($followUp->status === 'closed' || $followUp->approval_status === 'approved')
                                         <span class="badge badge-approved">Closed</span>
+                                    @elseif($followUp->approval_status === 'pending' && $evCountMobile > 0)
+                                        <span class="badge badge-in-progress">Draf</span>
+                                    @elseif($followUp->approval_status === 'pending' && $evCountMobile === 0)
+                                        <span class="badge badge-draft">Belum Unggah</span>
                                     @else
                                         <span class="badge {{ $followUp->approval_status === 'rejected' ? 'badge-rejected' : 'badge-pending' }}">
                                             {{ str_replace('_', ' ', $followUp->approval_status) }}
@@ -334,6 +418,10 @@
 
         @php
             $items = json_decode($document->content, true) ?? [];
+            // Lookup data follow_ups untuk status dinamis per PIC
+            $followUpsByEmail = $document->followUps
+                ->groupBy('pic_email')
+                ->map(fn($fus) => $fus->first());
         @endphp
 
         @if(count($items) > 0)
@@ -367,9 +455,27 @@
                         @foreach($items as $groupIndex => $group)
                             @foreach($group['rows'] as $rowIndex => $item)
                                 @php
-                                    if(!empty(trim($item['status_closed'] ?? ''))) $countClosed++;
-                                    if(!empty(trim($item['status_on_progress'] ?? ''))) $countOnProgress++;
-                                    if(!empty(trim($item['status_tdd'] ?? ''))) $countTdd++;
+                                    // Status dinamis dari follow_ups
+                                    $picEmail = trim($item['pic_email'] ?? '');
+                                    $relatedFollowUp = $picEmail ? ($followUpsByEmail[$picEmail] ?? null) : null;
+
+                                    $isClosed = $relatedFollowUp && ($relatedFollowUp->approval_status === 'approved' || $relatedFollowUp->status === 'closed');
+                                    $isOnProgress = $relatedFollowUp && (
+                                        in_array($relatedFollowUp->approval_status, ['pending_asman','pending_manager','pending_auditor','pending_kspi']) ||
+                                        (($relatedFollowUp->evidences_count ?? $relatedFollowUp->evidences->count()) > 0 && !$isClosed)
+                                    );
+                                    $isTdd = $relatedFollowUp && $relatedFollowUp->status === 'tdd';
+
+                                    // Fallback ke nilai JSON lama jika follow_up belum ada
+                                    if (!$relatedFollowUp) {
+                                        $isClosed     = !empty(trim($item['status_closed'] ?? ''));
+                                        $isOnProgress = !empty(trim($item['status_on_progress'] ?? ''));
+                                        $isTdd        = !empty(trim($item['status_tdd'] ?? ''));
+                                    }
+
+                                    if ($isClosed)     $countClosed++;
+                                    if ($isOnProgress) $countOnProgress++;
+                                    if ($isTdd)        $countTdd++;
                                 @endphp
                                 <tr class="align-top bg-white">
                                     <td class="border border-black p-1 text-center">{{ $rowIndex === 0 ? ($groupIndex + 1) . '.' : '' }}</td>
@@ -383,9 +489,9 @@
                                     </td>
                                     <td class="border border-black p-1 text-center break-words whitespace-pre-wrap">{{ $item['evidence_tl'] ?? '' }}</td>
                                     
-                                    <td class="border border-black p-1 text-center font-bold">{{ $item['status_closed'] ?? '' }}</td>
-                                    <td class="border border-black p-1 text-center font-bold">{{ $item['status_on_progress'] ?? '' }}</td>
-                                    <td class="border border-black p-1 text-center font-bold">{{ $item['status_tdd'] ?? '' }}</td>
+                                    <td class="border border-black p-1 text-center font-bold">{{ $isClosed ? '✓' : '' }}</td>
+                                    <td class="border border-black p-1 text-center font-bold">{{ $isOnProgress ? '✓' : '' }}</td>
+                                    <td class="border border-black p-1 text-center font-bold">{{ $isTdd ? '✓' : '' }}</td>
                                     
                                     <td class="border border-black p-1 text-center break-words whitespace-pre-wrap">{{ $item['evaluasi_tl'] ?? '' }}</td>
                                     <td class="border border-black p-1 text-center break-words">{{ !empty($item['jatuh_tempo']) ? \Carbon\Carbon::parse($item['jatuh_tempo'])->format('d M Y') : '' }}</td>

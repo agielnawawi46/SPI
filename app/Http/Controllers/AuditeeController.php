@@ -13,24 +13,36 @@ class AuditeeController extends Controller
     {
         $user = Auth::user();
 
-        // Auditee sees follow-ups for their own department OR any child/parent department OR explicitly assigned to them
+        // Auto-sync: Pastikan dokumen monitoring-tl yang sudah diajukan memiliki data follow_ups
+        $unsyncedDocs = \App\Models\Document::whereHas('documentType', fn($q) => $q->where('slug', 'monitoring-tl'))
+            ->whereIn('status', ['pending_kspi', 'approved'])
+            ->doesntHave('followUps')
+            ->get();
+
+        foreach ($unsyncedDocs as $doc) {
+            \App\Http\Controllers\ApprovalController::generateMonitoringFollowUps($doc);
+        }
+
+        // Auditee sees follow-ups for their own department OR any child/parent department OR explicitly assigned to them OR matched by email
         $query = FollowUp::with(['document.documentType', 'auditeeDepartment'])->withCount('evidences')
             ->when($user->hasRole(['manager', 'asman', 'staff']), function ($q) use ($user) {
                 $deptId = $user->department_id;
                 abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen. Hubungi administrator.');
                 $dept = $user->department;
                 $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$deptId];
+                $userEmail = strtolower(trim($user->email));
 
-                $q->where(function($q2) use ($allowedIds, $user) {
+                $q->where(function($q2) use ($allowedIds, $user, $userEmail) {
                     $q2->whereIn('auditee_department_id', $allowedIds)
-                       ->orWhere('assigned_to', $user->id);
+                       ->orWhere('assigned_to', $user->id)
+                       ->orWhereRaw('LOWER(TRIM(pic_email)) = ?', [$userEmail]);
                 });
             });
 
         if ($search = $request->get('search')) {
             $query->where(function($q) use ($search) {
-                $q->where('temuan', 'like', "{$search}%")
-                  ->orWhere('rekomendasi', 'like', "{$search}%");
+                $q->where('finding', 'like', "%{$search}%")
+                  ->orWhere('recommendation', 'like', "%{$search}%");
             });
         }
 
@@ -49,13 +61,16 @@ class AuditeeController extends Controller
     {
         $user = Auth::user();
 
-        // Access control: Auditee sees their department's follow-ups (including hierarchy) or explicitly assigned to them
+        // Access control: Auditee sees their department's follow-ups (including hierarchy) or explicitly assigned to them or matched by email
         if ($user->hasRole(['manager', 'asman', 'staff'])) {
             $deptId = $user->department_id;
             abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen. Hubungi administrator.');
             $dept = $user->department;
             $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$deptId];
-            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && $followUp->assigned_to != $user->id, 403);
+            $userEmail = strtolower(trim($user->email));
+            $isAssigned = $followUp->assigned_to == $user->id || strtolower(trim($followUp->pic_email ?? '')) === $userEmail;
+
+            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && !$isAssigned, 403);
         }
 
         $followUp->load(['document.documentType', 'evidences.uploader', 'approvals.approver']);
@@ -88,7 +103,10 @@ class AuditeeController extends Controller
             abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen. Hubungi administrator.');
             $dept = $user->department;
             $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$deptId];
-            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && $followUp->assigned_to != $user->id, 403, 'Anda tidak memiliki akses ke tindak lanjut ini.');
+            $userEmail = strtolower(trim($user->email));
+            $isAssigned = $followUp->assigned_to == $user->id || strtolower(trim($followUp->pic_email ?? '')) === $userEmail;
+
+            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && !$isAssigned, 403, 'Anda tidak memiliki akses ke tindak lanjut ini.');
         }
 
         $request->validate([
@@ -145,7 +163,10 @@ class AuditeeController extends Controller
             abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen.');
             $dept = $user->department;
             $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$deptId];
-            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && $followUp->assigned_to != $user->id, 403);
+            $userEmail = strtolower(trim($user->email));
+            $isAssigned = $followUp->assigned_to == $user->id || strtolower(trim($followUp->pic_email ?? '')) === $userEmail;
+
+            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && !$isAssigned, 403);
         }
 
         if ($followUp->evidences()->count() === 0) {
@@ -190,7 +211,10 @@ class AuditeeController extends Controller
             abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen.');
             $dept = $user->department;
             $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$deptId];
-            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && $followUp->assigned_to != $user->id, 403);
+            $userEmail = strtolower(trim($user->email));
+            $isAssigned = $followUp->assigned_to == $user->id || strtolower(trim($followUp->pic_email ?? '')) === $userEmail;
+
+            abort_if(!in_array($followUp->auditee_department_id, $allowedIds) && !$isAssigned, 403);
         }
         if (!in_array($followUp->approval_status, ['pending', 'rejected'])) {
             return redirect()->back()->withErrors('Anda tidak dapat menghapus bukti karena status saat ini tidak mengizinkan perubahan.');
@@ -380,8 +404,8 @@ class AuditeeController extends Controller
         }
 
         $followUp->update([
-            'approval_status' => 'rejected',
-            'notes' => $request->notes
+            'approval_status' => 'pending',  // Reset ke pending agar Staff dapat upload ulang
+            'notes'           => $request->notes,
         ]);
 
         \App\Models\Approval::create([

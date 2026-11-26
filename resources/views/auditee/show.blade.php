@@ -33,7 +33,7 @@
             <div>
                 <p class="text-xs text-charcoal-muted uppercase tracking-wide font-semibold mb-1">Jatuh Tempo</p>
                 <p class="text-sm {{ $followUp->status === 'overdue' ? 'text-red-600 font-semibold' : '' }}">
-                    {{ \Carbon\Carbon::parse($followUp->due_date)->format('d MMMM Y') }}
+                    {{ \Carbon\Carbon::parse($followUp->due_date)->translatedFormat('d F Y') }}
                 </p>
             </div>
             <div>
@@ -191,10 +191,21 @@
             Bukti tindak lanjut telah diunggah dan sedang dalam tahap review ({{ str_replace('_', ' ', $followUp->approval_status) }}).
         </div>
     @endif
-    @if($followUp->approval_status === 'rejected')
+    @php
+        $lastRejectApproval = $followUp->approvals
+            ->where('action', 'reject')
+            ->sortByDesc('acted_at')
+            ->first();
+    @endphp
+    @if($followUp->approval_status === 'pending' && $lastRejectApproval)
         <div class="alert alert-error">
-            <p class="font-bold">Bukti ditolak!</p>
-            <p class="text-sm mt-1">Catatan: {{ $followUp->notes }}</p>
+            <p class="font-bold">Bukti ditolak! Silakan unggah ulang bukti.</p>
+            @if($lastRejectApproval->notes)
+                <p class="text-sm mt-1">Catatan penolakan: {{ $lastRejectApproval->notes }}</p>
+            @elseif($followUp->notes)
+                <p class="text-sm mt-1">Catatan: {{ $followUp->notes }}</p>
+            @endif
+            <p class="text-xs text-red-500 mt-1">Ditolak pada: {{ \Carbon\Carbon::parse($lastRejectApproval->acted_at)->translatedFormat('d F Y H:i') }}</p>
         </div>
     @endif
 

@@ -67,9 +67,12 @@ class ApprovalController extends Controller
                     'approval_level'  => 0,
                     'approval_role'   => 'auditor',
                     'action'          => 'approve',
-                    'comments'        => 'Dokumen disusun dan disubmit oleh Auditor.',
+                    'comments'        => 'Dokumen disusun dan disetujui oleh Auditor. Tugas tindak lanjut diteruskan ke Auditee.',
                     'acted_at'        => now(),
                 ]);
+
+                // Generate FollowUp records immediately so each PIC can upload evidence without waiting for KSPI
+                self::generateMonitoringFollowUps($document, Auth::id());
             } else {
                 // Change document status
                 $document->update(['status' => 'pending_kspi']);
@@ -96,14 +99,18 @@ class ApprovalController extends Controller
                     'title'            => 'Dokumen Menunggu Review',
                     'message'          => 'Dokumen "' . $document->title . '" telah diajukan oleh ' . Auth::user()->name . ' dan menunggu review KSPI.',
                     'type'             => 'approval',
-                    'link'             => route('assurance.show', $document),
+                    'link'             => $this->resolveDocumentRoute($document),
                     'notifiable_type'  => Document::class,
                     'notifiable_id'    => $document->id,
                 ]);
             }
         });
 
-        return redirect()->back()->with('success', 'Dokumen berhasil di-submit untuk direview oleh KSPI.');
+        $msg = $document->documentType?->slug === 'monitoring-tl'
+            ? 'Dokumen berhasil disetujui Auditor dan tugas tindak lanjut telah diteruskan langsung ke masing-masing PIC/Auditee.'
+            : 'Dokumen berhasil di-submit untuk direview oleh KSPI.';
+
+        return redirect()->back()->with('success', $msg);
     }
 
     /**
@@ -204,6 +211,17 @@ class ApprovalController extends Controller
             return redirect()->back()->withErrors('Persetujuan ini sudah diproses sebelumnya.');
         }
 
+        // Khusus Monitoring Tindak Lanjut: KSPI hanya dapat approve dokumen jika SEMUA PIC sudah mengunggah file bukti (Opsi A)
+        if ($approval->approval_level === 1 && $approval->approvable?->documentType?->slug === 'monitoring-tl' && $request->action === 'approve') {
+            $tlDoc = $approval->approvable;
+            $totalFollowUps = $tlDoc->followUps()->count();
+            $uploadedFollowUps = $tlDoc->followUps()->whereHas('evidences')->count();
+
+            if ($totalFollowUps > 0 && $uploadedFollowUps < $totalFollowUps) {
+                return redirect()->back()->withErrors("Persetujuan KSPI belum dapat dilakukan karena belum semua PIC mengunggah berkas bukti tindak lanjut. Saat ini baru {$uploadedFollowUps} dari {$totalFollowUps} PIC yang telah mengunggah bukti.");
+            }
+        }
+
         DB::transaction(function () use ($request, $approval, $user) {
             // Update the approval record
             $approval->update([
@@ -287,68 +305,11 @@ class ApprovalController extends Controller
                         Storage::disk('public')->put($qrPath, $qrContent);
 
                         $model->update([
-                            'status'       => 'approved',
-                            'approved_at'  => now(),
-                            'qr_code_path' => $qrPath,
+                            'status'         => 'approved',
+                            'approved_at'    => now(),
+                            'qr_code_path'   => $qrPath,
+                            'all_pic_closed' => true,
                         ]);
-
-                        // Generate FollowUp records based on document content
-                        $items = json_decode($model->content, true);
-                        if (is_array($items)) {
-                            foreach ($items as $group) {
-                                if (isset($group['rows']) && is_array($group['rows'])) {
-                                    foreach ($group['rows'] as $row) {
-                                        if (!empty(trim($row['lha'] ?? ''))) {
-                                            $auditeeUser = null;
-                                            if (!empty(trim($row['pic_email'] ?? ''))) {
-                                                $auditeeUser = \App\Models\User::where('email', trim($row['pic_email']))->first();
-                                            }
-
-                                            $dueDate = !empty($row['jatuh_tempo']) ? \Carbon\Carbon::parse($row['jatuh_tempo']) : now()->addDays(7);
-
-                                            $followUp = \App\Models\FollowUp::create([
-                                                'document_id' => $model->id,
-                                                'auditee_department_id' => $auditeeUser ? ($auditeeUser->department_id ?? 1) : ($model->creator->department_id ?? 1),
-                                                'finding' => $row['lha'] ?? '',
-                                                'sebab' => $row['sebab'] ?? null,
-                                                'akibat' => $row['akibat'] ?? null,
-                                                'recommendation' => $row['rekomendasi'] ?? '',
-                                                'evaluasi_tl' => $row['evaluasi_tl'] ?? null,
-                                                'due_date' => $dueDate,
-                                                'status' => 'open',
-                                                'assigned_to' => $auditeeUser ? $auditeeUser->id : null,
-                                                'pic_name' => $row['pic_tl'] ?? null,
-                                                'pic_email' => $row['pic_email'] ?? null,
-                                                'approval_status' => 'pending',
-                                                'created_by' => $user->id,
-                                            ]);
-
-                                            // Determine recipients for in-app and email
-                                            $departmentId = $auditeeUser ? ($auditeeUser->department_id ?? 1) : ($model->creator->department_id ?? 1);
-                                            $managers = \App\Models\User::role(['manager', 'asman'])->where('department_id', $departmentId)->get();
-                                            $recipients = collect();
-                                            
-                                            if ($auditeeUser) {
-                                                $recipients->push($auditeeUser);
-                                            }
-                                            $recipients = $recipients->merge($managers)->unique('id');
-
-                                            foreach ($recipients as $recipient) {
-                                                SpiNotification::create([
-                                                    'user_id'         => $recipient->id,
-                                                    'title'           => 'Tugas Tindak Lanjut Baru',
-                                                    'message'         => 'Ada tugas unggah bukti tindak lanjut baru: ' . \Illuminate\Support\Str::limit($followUp->finding, 50),
-                                                    'type'            => 'warning',
-                                                    'link'            => route('auditee.show', $followUp),
-                                                    'notifiable_type' => \App\Models\FollowUp::class,
-                                                    'notifiable_id'   => $followUp->id,
-                                                ]);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
 
                         // Notify creator and Admin users
                         $adminUsers = User::role('admin')->get();
@@ -517,17 +478,74 @@ class ApprovalController extends Controller
      * Resolve the correct show route for a document based on its document type module.
      * Prevents hardcoded 'assurance.show' links for advisory/TL documents.
      */
-    private function resolveDocumentRoute(Document $document): string
+    /**
+     * Generate FollowUp records from Document Monitoring Tindak Lanjut content.
+     */
+    public static function generateMonitoringFollowUps(Document $document, $creatorId = null): void
     {
-        $module = $document->documentType?->module;
+        if ($document->followUps()->count() > 0) {
+            return;
+        }
 
-        return match ($module) {
-            'advisory'      => route('advisory.show', $document),
-            'tindak-lanjut' => route('other-activities.tl.show', $document),
-            'qa'            => route('other-activities.qa.show', $document),
-            'pkpt'          => route('pkpt.show', $document->pkpt_id ?? $document->id),
-            'report'        => route('performance-reports.show', $document),
-            default         => route('assurance.show', $document), // assurance and everything else
-        };
+        $creatorId = $creatorId ?? $document->created_by ?? Auth::id() ?? 1;
+        $items = json_decode($document->content, true);
+        if (!is_array($items)) {
+            return;
+        }
+
+        foreach ($items as $group) {
+            if (isset($group['rows']) && is_array($group['rows'])) {
+                foreach ($group['rows'] as $row) {
+                    if (!empty(trim($row['lha'] ?? ''))) {
+                        $email = strtolower(trim($row['pic_email'] ?? ''));
+                        $auditeeUser = null;
+                        if (!empty($email)) {
+                            $auditeeUser = \App\Models\User::whereRaw('LOWER(TRIM(email)) = ?', [$email])->first();
+                        }
+
+                        $dueDate = !empty($row['jatuh_tempo']) ? \Carbon\Carbon::parse($row['jatuh_tempo']) : now()->addDays(7);
+                        $defaultDeptId = $auditeeUser ? ($auditeeUser->department_id ?? 1) : ($document->creator->department_id ?? 1);
+
+                        $followUp = \App\Models\FollowUp::create([
+                            'document_id'           => $document->id,
+                            'auditee_department_id' => $defaultDeptId,
+                            'finding'               => $row['lha'] ?? '',
+                            'sebab'                 => $row['sebab'] ?? null,
+                            'akibat'                => $row['akibat'] ?? null,
+                            'recommendation'        => $row['rekomendasi'] ?? '',
+                            'evaluasi_tl'           => $row['evaluasi_tl'] ?? null,
+                            'due_date'              => $dueDate,
+                            'status'                => 'open',
+                            'assigned_to'           => $auditeeUser ? $auditeeUser->id : null,
+                            'pic_name'              => $row['pic_tl'] ?? null,
+                            'pic_email'             => $row['pic_email'] ?? null,
+                            'approval_status'       => 'pending',
+                            'created_by'            => $creatorId,
+                        ]);
+
+                        // Send notification directly to the PIC and department managers
+                        $departmentId = $defaultDeptId;
+                        $managers = \App\Models\User::role(['manager', 'asman'])->where('department_id', $departmentId)->get();
+                        $recipients = collect();
+                        if ($auditeeUser) {
+                            $recipients->push($auditeeUser);
+                        }
+                        $recipients = $recipients->merge($managers)->unique('id');
+
+                        foreach ($recipients as $recipient) {
+                            SpiNotification::create([
+                                'user_id'         => $recipient->id,
+                                'title'           => 'Tugas Tindak Lanjut Baru',
+                                'message'         => 'Ada tugas unggah bukti tindak lanjut baru: ' . \Illuminate\Support\Str::limit($followUp->finding, 50),
+                                'type'            => 'warning',
+                                'link'            => route('auditee.show', $followUp),
+                                'notifiable_type' => \App\Models\FollowUp::class,
+                                'notifiable_id'   => $followUp->id,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

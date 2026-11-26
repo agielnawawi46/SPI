@@ -18,6 +18,17 @@ class OtherActivityController extends Controller
     public function tindakLanjutIndex(Request $request)
     {
         $user = Auth::user();
+
+        // Auto-sync: Pastikan dokumen monitoring-tl yang sudah diajukan memiliki data follow_ups
+        $unsyncedDocs = Document::whereHas('documentType', fn($q) => $q->where('slug', 'monitoring-tl'))
+            ->whereIn('status', ['pending_kspi', 'approved'])
+            ->doesntHave('followUps')
+            ->get();
+
+        foreach ($unsyncedDocs as $doc) {
+            \App\Http\Controllers\ApprovalController::generateMonitoringFollowUps($doc);
+        }
+
         $query = Document::with(['documentType', 'creator', 'attachments'])
             ->whereHas('documentType', function($q) {
                 $q->where('slug', 'monitoring-tl');
@@ -26,9 +37,15 @@ class OtherActivityController extends Controller
         if ($user->hasRole(['manager', 'asman', 'staff'])) {
             $deptId = $user->department_id;
             abort_if(!$deptId, 403, 'Akun Anda belum ditetapkan ke departemen. Hubungi administrator.');
-            $query->where('status', 'approved')
-                  ->whereHas('followUps', function($q) use ($deptId) {
-                      $q->where('auditee_department_id', $deptId);
+            $dept = $user->department;
+            $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$deptId];
+            $userEmail = strtolower(trim($user->email));
+
+            $query->whereIn('status', ['approved', 'pending_kspi'])
+                  ->whereHas('followUps', function($q) use ($allowedIds, $user, $userEmail) {
+                      $q->whereIn('auditee_department_id', $allowedIds)
+                        ->orWhere('assigned_to', $user->id)
+                        ->orWhereRaw('LOWER(TRIM(pic_email)) = ?', [$userEmail]);
                   });
         }
 
@@ -41,13 +58,14 @@ class OtherActivityController extends Controller
         // Fetch follow ups for the lower table
         $followUpQuery = \App\Models\FollowUp::with('document')->withCount('evidences');
         if ($user->hasRole(['manager', 'asman', 'staff'])) {
-            $followUpQuery->where(function ($q) use ($user) {
-                $q->whereHas('document', function ($sq) use ($user) {
-                    $sq->where('created_by', $user->id)
-                       ->orWhere('auditee_id', $user->id);
-                })
-                  ->orWhere('auditee_department_id', $user->department_id)
-                  ->orWhere('assigned_to', $user->id);
+            $dept = $user->department;
+            $allowedIds = $dept ? array_unique(array_merge($dept->getAllChildIds(), $dept->getAllParentIds())) : [$user->department_id];
+            $userEmail = strtolower(trim($user->email));
+
+            $followUpQuery->where(function ($q) use ($allowedIds, $user, $userEmail) {
+                $q->whereIn('auditee_department_id', $allowedIds)
+                  ->orWhere('assigned_to', $user->id)
+                  ->orWhereRaw('LOWER(TRIM(pic_email)) = ?', [$userEmail]);
             });
         }
         
@@ -137,7 +155,7 @@ class OtherActivityController extends Controller
                 ->update(['is_read' => true, 'read_at' => now()]);
         }
 
-        $document->load(['documentType', 'creator', 'approvals.approver']);
+        $document->load(['documentType', 'creator', 'approvals.approver', 'followUps.evidences']);
         return view('other-activities.tindak-lanjut.show', compact('document'));
     }
 
@@ -221,7 +239,7 @@ class OtherActivityController extends Controller
 
     public function tindakLanjutPdf(Document $document)
     {
-        $document->load(['documentType']);
+        $document->load(['documentType', 'followUps.evidences']);
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('other-activities.tindak-lanjut.pdf', compact('document'))
                 ->setPaper('a4', 'landscape');

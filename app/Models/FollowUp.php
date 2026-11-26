@@ -58,7 +58,7 @@ class FollowUp extends Model
 
     public function isOverdue(): bool
     {
-        return !in_array($this->status, ['completed', 'tdd'])
+        return !in_array($this->status, ['completed', 'closed', 'tdd'])
             && $this->due_date->isPast();
     }
 
