@@ -43,9 +43,18 @@ class DashboardController extends Controller
     {
         $query = \App\Models\FollowUp::query();
 
-        // Auditee can only see their department's follow-ups
+        // Auditee can only see their department and sub-department follow-ups
         if ($user->isAuditee() && $user->department_id) {
-            $query->where('auditee_department_id', $user->department_id);
+            $dept = $user->department;
+            if ($dept) {
+                $allowedIds = array_unique(array_merge(
+                    $dept->getAllChildIds(),   // includes self + all children
+                    $dept->getAllParentIds()   // includes self + all parents
+                ));
+                $query->whereIn('auditee_department_id', $allowedIds);
+            } else {
+                $query->where('auditee_department_id', $user->department_id);
+            }
         }
 
         $total      = (clone $query)->count();

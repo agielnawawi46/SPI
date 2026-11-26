@@ -52,8 +52,9 @@ class PerformanceReportController extends Controller
             'title'            => $request->title,
             'document_type_id' => $documentType ? $documentType->id : null,
             'content'          => $request->content ?? '',
-            'report_month'     => date('n'),
-            'report_year'      => date('Y'),
+            'tanggal_formulir' => now()->startOfMonth()->toDateString(),
+            'report_month'     => (int) now()->format('n'),
+            'report_year'      => (int) now()->format('Y'),
             'created_by'       => Auth::id(),
             'status'           => 'approved', // Marking as approved since it's just an upload
         ]);
