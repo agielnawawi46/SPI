@@ -48,10 +48,22 @@
             </div>
 
             {{-- Right Action --}}
-            <div class="flex-shrink-0">
+            <div class="flex-shrink-0 flex items-center gap-2 sm:gap-2.5">
                 @auth
+                    <form action="{{ route('logout') }}" method="POST" class="inline-flex m-0">
+                        @csrf
+                        <input type="hidden" name="switch_account" value="1">
+                        <button type="submit"
+                                id="btn-nav-ganti-akun"
+                                title="Keluar & Ganti Akun"
+                                class="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold text-charcoal bg-surface-100 hover:bg-surface-200 border border-surface-300 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all cursor-pointer">
+                            <svg class="w-4 h-4 text-charcoal-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            <span class="hidden sm:inline">Ganti Akun</span>
+                        </button>
+                    </form>
                     <a href="{{ route('dashboard') }}" 
-                       class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl transition-all shadow-sm hover:shadow hover:-translate-y-0.5">
+                       id="btn-nav-dashboard"
+                       class="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl transition-all shadow-sm hover:shadow hover:-translate-y-0.5">
                         <span>Buka Dashboard</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </a>
@@ -131,10 +143,21 @@
                     <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                         @auth
                             <a href="{{ route('dashboard') }}" 
-                               class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 sm:px-9 py-3.5 sm:py-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl shadow-lg shadow-primary-600/25 hover:shadow-xl hover:shadow-primary-600/35 hover:-translate-y-0.5 active:translate-y-0 transition-all text-sm sm:text-base">
+                               id="btn-hero-dashboard"
+                               class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl shadow-lg shadow-primary-600/25 hover:shadow-xl hover:shadow-primary-600/35 hover:-translate-y-0.5 active:translate-y-0 transition-all text-sm sm:text-base">
                                 <span>Buka Dashboard</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                             </a>
+                            <form action="{{ route('logout') }}" method="POST" class="w-full sm:w-auto m-0">
+                                @csrf
+                                <input type="hidden" name="switch_account" value="1">
+                                <button type="submit"
+                                        id="btn-hero-ganti-akun"
+                                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 bg-white hover:bg-surface-100 text-charcoal font-semibold rounded-xl border border-surface-300 shadow-sm hover:shadow hover:-translate-y-0.5 active:translate-y-0 transition-all text-sm sm:text-base cursor-pointer">
+                                    <svg class="w-4 h-4 text-charcoal-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                                    <span>Keluar / Ganti Akun</span>
+                                </button>
+                            </form>
                         @else
                             <button type="button"
                                     @click="isLogin = true" 
@@ -145,6 +168,13 @@
                             </button>
                         @endauth
                     </div>
+
+                    @auth
+                        <div class="mt-3 inline-flex items-center gap-2 text-xs text-charcoal-muted">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span>Masuk sebagai <strong class="text-charcoal font-semibold">{{ Auth::user()->name }}</strong> ({{ Auth::user()->email }})</span>
+                        </div>
+                    @endauth
 
                     {{-- Trust Indicators --}}
                     <div class="mt-5 sm:mt-6 lg:mt-7 flex flex-wrap items-center justify-center lg:justify-start gap-3.5 sm:gap-4.5 xl:gap-6 text-xs xl:text-sm text-charcoal-muted">

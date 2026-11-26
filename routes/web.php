@@ -6,12 +6,17 @@ use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================
+// PUBLIC ROUTES
+// ============================================
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
+Route::get('/verify/{uuid}', [\App\Http\Controllers\AssuranceController::class, 'verify'])->name('document.verify');
+
+// ============================================
 // AUTH ROUTES (Guest Only)
 // ============================================
 Route::middleware('guest')->group(function () {
-    Route::get('/', function () {
-        return view('welcome');
-    })->name('home');
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login',[LoginController::class, 'login'])->name('login.post');
 
@@ -19,11 +24,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
     Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 });
-
-// ============================================
-// PUBLIC ROUTES
-// ============================================
-Route::get('/verify/{uuid}', [\App\Http\Controllers\AssuranceController::class, 'verify'])->name('document.verify');
 
 // ============================================
 // AUTHENTICATED ROUTES
@@ -197,6 +197,10 @@ Route::middleware(['auth', 'check.active', 'audit.trail', 'profile.complete'])->
 
         // Audit Trail
         Route::get('/audit-trail',              [\App\Http\Controllers\Admin\AuditTrailController::class, 'index'])->name('audit-trail');
+
+        // Backup & Unduh Berkas (ZIP)
+        Route::get('/backup',                   [\App\Http\Controllers\Admin\BackupController::class, 'index'])->name('backup.index');
+        Route::post('/backup/download',         [\App\Http\Controllers\Admin\BackupController::class, 'download'])->name('backup.download');
     });
 
 });

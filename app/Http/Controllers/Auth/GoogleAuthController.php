@@ -119,7 +119,7 @@ class GoogleAuthController extends Controller
             }
         }
 
-        // Login user with Remember Me enabled
+        // Login user with persistent Remember Me enabled by default
         Auth::login($user, true);
         $request->session()->regenerate();
 

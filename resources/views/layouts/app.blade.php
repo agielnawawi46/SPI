@@ -78,6 +78,9 @@
                 $pendingFollowUp = \App\Models\FollowUp::where('approval_status', $roleStatus);
                 if ($user->hasRole('manager')) {
                     $hasPendingAuditee = $pendingFollowUp->where('assigned_to', $user->id)->exists();
+                } elseif ($user->hasRole('auditor')) {
+                    // Auditor mereview TL di tahap pending_auditor
+                    $hasPendingOther = $hasPendingOther || (clone $pendingFollowUp)->exists();
                 } else {
                     $hasPendingOther = $hasPendingOther || (clone $pendingFollowUp)->exists();
                 }
@@ -286,6 +289,7 @@
                 <div x-show="open" x-collapse class="mt-1.5 space-y-1.5">
                     <a href="{{ route('admin.users.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.users*') ? 'active' : '' }}">Manajemen User</a>
                     <a href="{{ route('admin.audit-trail') }}" class="sidebar-sublink {{ request()->routeIs('admin.audit-trail*') ? 'active' : '' }}">Audit Trail</a>
+                    <a href="{{ route('admin.backup.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.backup*') ? 'active' : '' }}">Backup Berkas</a>
                 </div>
             </div>
         </div>

@@ -34,7 +34,7 @@ class LoginController extends Controller
                 ->withErrors(['email' => 'Akun Anda tidak aktif. Hubungi Administrator.']);
         }
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (Auth::attempt($credentials, $request->boolean('remember', true))) {
             $request->session()->regenerate();
 
             // Log login action
@@ -69,6 +69,10 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if ($request->boolean('switch_account')) {
+            return redirect()->route('login');
+        }
 
         return redirect()->route('home');
     }
