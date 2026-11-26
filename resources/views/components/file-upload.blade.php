@@ -100,13 +100,6 @@
                             'jpg', 'jpeg', 'png' => 'text-purple-500 bg-purple-50 border-purple-200',
                             default => 'text-charcoal bg-surface-100 border-surface-200'
                         };
-                        $badgeStyle = match($ext) {
-                            'pdf' => 'bg-red-50 text-red-700 border-red-200',
-                            'doc', 'docx' => 'bg-blue-50 text-blue-700 border-blue-200',
-                            'xls', 'xlsx' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                            'jpg', 'jpeg', 'png' => 'bg-purple-50 text-purple-700 border-purple-200',
-                            default => 'bg-surface-100 text-charcoal border-surface-200'
-                        };
                         if (is_object($item) && isset($item->id)) {
                             $fileUrl = route('attachments.view', $item->id);
                             $downloadUrl = route('attachments.download', $item->id);
@@ -138,7 +131,7 @@
                                         <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                         Terunggah
                                     </span>
-                                    <span class="font-medium uppercase px-1 py-0.2 rounded border {{ $badgeStyle }}">{{ $ext }}</span>
+                                    <x-file-type-icon :ext="$ext" />
                                     @if(is_object($item) && isset($item->file_size_formatted))
                                         <span>&bull; {{ $item->file_size_formatted }}</span>
                                     @endif
@@ -201,7 +194,7 @@
             <template x-for="(f, i) in selectedFiles" :key="i">
                 <div class="p-2 bg-white border border-emerald-400 rounded-lg flex items-center justify-between text-xs shadow-2xs gap-2">
                     <div class="flex items-center gap-2 truncate flex-1 min-w-0">
-                        <span class="font-bold uppercase text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-400" x-text="f.ext"></span>
+                        <x-file-type-icon alpine-ext="f.ext" size="xs" />
                         <span class="font-medium text-charcoal truncate" x-text="f.name"></span>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
@@ -498,7 +491,7 @@ if (typeof window.fileUploadComponent !== 'function') {
                     } else {
                         sizeStr = f.size + ' B';
                     }
-                    const ext = f.name.split('.').pop().toLowerCase();
+                    const ext = f.name.includes('.') ? f.name.split('.').pop().toLowerCase() : '';
                     return {
                         name: f.name,
                         size: sizeStr,

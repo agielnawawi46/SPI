@@ -100,12 +100,6 @@
                                 'xls', 'xlsx' => 'text-emerald-600 bg-emerald-50 border-emerald-200',
                                 default => 'text-charcoal bg-surface-100 border-surface-200'
                             };
-                            $badgeStyle = match($ext) {
-                                'pdf' => 'bg-red-50 text-red-700 border-red-200',
-                                'doc', 'docx' => 'bg-blue-50 text-blue-700 border-blue-200',
-                                'xls', 'xlsx' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                default => 'bg-surface-100 text-charcoal border-surface-200'
-                            };
                         @endphp
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-emerald-400 rounded-xl bg-emerald-50/20 hover:bg-emerald-50/40 hover:border-emerald-500 transition-all shadow-2xs">
                             <div class="flex items-center gap-3.5 overflow-hidden">
@@ -125,7 +119,7 @@
                                             <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                             Terunggah
                                         </span>
-                                        <span class="font-medium uppercase px-1.5 py-0.2 rounded border {{ $badgeStyle }}">{{ $ext }}</span>
+                                        <x-file-type-icon :ext="$ext" />
                                         @if($att->file_size)
                                             <span>&bull; {{ $att->file_size_formatted }}</span>
                                         @endif

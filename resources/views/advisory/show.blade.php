@@ -155,8 +155,11 @@
                         <div class="p-3 {{ $iconColor }} rounded-xl flex-shrink-0 shadow-sm">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                         </div>
-                        <div class="truncate">
-                            <h4 class="text-sm font-bold text-charcoal truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</h4>
+                        <div class="min-w-0 truncate">
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-sm font-bold text-charcoal truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</h4>
+                                <x-file-type-icon :ext="$ext" />
+                            </div>
                             <p class="text-xs text-charcoal-muted mt-1">
                                 {{ $fileSizeFormatted }} • Diunggah oleh {{ $attachment->uploader->name ?? ($document->creator?->name ?? '-') }} pada {{ $attachment->created_at->format('d F Y, H:i') }}
                             </p>
@@ -342,27 +345,28 @@
                     <h4 class="font-semibold text-charcoal mb-3 text-sm">File Dokumen yang Diunggah:</h4>
                     @if($document->attachments->count() > 0)
                         @foreach($document->attachments as $attachment)
+                        @php
+                            $ext = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
+                        @endphp
                         <div class="p-4 border border-emerald-400 rounded-xl bg-emerald-50/20 hover:bg-emerald-50/40 hover:border-emerald-500 transition-all shadow-2xs mb-4 last:mb-0">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center gap-3 overflow-hidden">
+                            <div class="flex items-center justify-between gap-3 mb-4">
+                                <div class="flex items-center gap-3 min-w-0 overflow-hidden">
                                     <div class="p-2 bg-emerald-100/80 rounded-lg text-emerald-700 flex-shrink-0 border border-emerald-300">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                                     </div>
-                                    <div>
+                                    <div class="min-w-0">
                                         <div class="flex items-center gap-2">
                                             <p class="text-sm font-semibold text-charcoal truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</p>
-                                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-400/80">
+                                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-400/80 flex-shrink-0">
                                                 <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                                 Terunggah
                                             </span>
+                                            <x-file-type-icon :ext="$ext" />
                                         </div>
                                         <p class="text-xs text-charcoal-muted mt-0.5">{{ $attachment->file_size_formatted }} • Diunggah oleh {{ $attachment->uploader->name ?? '-' }} pada {{ $attachment->created_at->format('d/m/Y H:i') }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1.5 flex-shrink-0">
-                                    @php
-                                        $ext = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
-                                    @endphp
                                     <a href="{{ route('attachments.view', $attachment->id) }}" target="_blank" class="btn-icon bg-primary-500 text-white hover:bg-primary-400 hover:opacity-90 shadow-sm transition-all" title="Lihat Dokumen">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     </a>

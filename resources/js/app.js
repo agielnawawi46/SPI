@@ -132,7 +132,8 @@ const createKertasKerjaCard = (config) => ({
         const dt = this.getDt();
         this.selectedFiles = Array.from(dt.files).map(f => ({
             name: f.name,
-            size: f.size > 1048576 ? (f.size / 1048576).toFixed(1) + ' MB' : Math.round(f.size / 1024) + ' KB'
+            size: f.size > 1048576 ? (f.size / 1048576).toFixed(1) + ' MB' : Math.round(f.size / 1024) + ' KB',
+            ext: f.name.includes('.') ? f.name.split('.').pop().toLowerCase() : ''
         }));
     },
     submitUpload() {

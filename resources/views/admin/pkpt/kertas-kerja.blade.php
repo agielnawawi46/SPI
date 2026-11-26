@@ -199,9 +199,7 @@
                                                             <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                                             Terunggah
                                                         </span>
-                                                        <span class="font-medium uppercase px-1 py-0.2 rounded border"
-                                                              :class="att.ext === 'pdf' ? 'bg-red-50 text-red-700 border-red-200' : (['xls', 'xlsx'].includes(att.ext) ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (['doc', 'docx'].includes(att.ext) ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-surface-100 text-charcoal border-surface-200'))"
-                                                              x-text="att.ext"></span>
+                                                        <x-file-type-icon alpine-ext="att.ext" />
                                                         <template x-if="att.file_size_formatted">
                                                             <span>&bull; <span x-text="att.file_size_formatted"></span></span>
                                                         </template>
@@ -285,8 +283,11 @@
                                         </div>
                                         <div class="space-y-1 max-h-36 overflow-y-auto pr-1">
                                             <template x-for="(f, i) in selectedFiles" :key="i">
-                                                <div class="flex items-center justify-between p-1.5 bg-white border border-emerald-400 rounded-lg text-xs shadow-2xs">
-                                                    <span class="truncate flex-1 font-medium text-emerald-900" x-text="f.name + ' (' + f.size + ')'"></span>
+                                                <div class="flex items-center justify-between p-1.5 bg-white border border-emerald-400 rounded-lg text-xs shadow-2xs gap-2">
+                                                    <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                                        <x-file-type-icon alpine-ext="f.ext" size="xs" />
+                                                        <span class="truncate font-medium text-emerald-900" x-text="f.name + ' (' + f.size + ')'"></span>
+                                                    </div>
                                                     <button type="button" :disabled="isUploading" @click="removeSelectedFile(i)" class="text-red-500 hover:text-red-700 ml-2 p-0.5 rounded hover:bg-red-50 disabled:opacity-50" title="Hapus">
                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                                     </button>

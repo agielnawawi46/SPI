@@ -86,13 +86,14 @@
                     <div class="p-3 {{ $iconColor }} rounded-xl flex-shrink-0 shadow-sm">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                     </div>
-                    <div class="truncate">
+                    <div class="min-w-0 truncate">
                         <div class="flex items-center gap-2">
                             <h4 class="text-sm font-bold text-charcoal truncate" title="{{ $fileName }}">{{ $fileName }}</h4>
-                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-400/80">
+                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-400/80 flex-shrink-0">
                                 <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 Terunggah
                             </span>
+                            <x-file-type-icon :ext="$ext" />
                         </div>
                         <p class="text-xs text-charcoal-muted mt-1">
                             Dokumen lampiran terkait auditee dan jadwal objek audit ini
